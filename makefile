@@ -4,12 +4,6 @@ HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
 ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE TEST ECHO
 
-COPYINCLUDE:
-	cp -rf $(HOMEDIR)/business/bookmgrservice/*.h $(HOMEDIR)/include/bookmgrservice
-	cp -rf $(HOMEDIR)/business/dao/*.h $(HOMEDIR)/include/dao
-	cp -rf $(HOMEDIR)/business/model/*.h $(HOMEDIR)/include/model
-	cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
-
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
 	make -C $(HOMEDIR)/utils
