@@ -39,9 +39,13 @@ void TestDeleteByBookID(BookManagerService* pBookMgrService)
 void TestQueryBookByBookName(BookManagerService* pBookMgrService)
 {
     //Test QueryBookByBookName
-    string strBookName = "The Greate Gatsby";
+    FieldCond fieldCond;
+
+    fieldCond.fieldName = "name";
+    fieldCond.fieldValue = "The Greate Gatsby";
+
     list<TblBookInfo> listBookInfo;
-    assert(pBookMgrService->QueryBookByName(strBookName, listBookInfo) == OK);
+    assert(pBookMgrService->QueryBookByField(fieldCond, listBookInfo) == OK);
     cout << "TestQueryBookByBookName Execute Success!" << endl;
 }
 
@@ -52,6 +56,28 @@ void TestDeleteAllBook(BookManagerService* pBookMgrService)
     cout << "TestDeleteAllBook Execute Success!" << endl;
 }
 
+
+void TestUpdateBookInfoByField(BookManagerService* pBookMgrService)
+{
+    //Test TestDeleteAllBook
+    vector<FieldCond> vecFieldCond;
+    FieldCond fieldCond;
+    fieldCond.fieldName = "book_id";
+    fieldCond.fieldValue = "2";
+
+    FieldCond tmpFieldCond;
+    tmpFieldCond.fieldName = "publish";
+    tmpFieldCond.fieldValue = "shanghai";
+    vecFieldCond.push_back(tmpFieldCond);
+
+    tmpFieldCond.fieldName = "author";
+    tmpFieldCond.fieldValue = "James";
+    vecFieldCond.push_back(tmpFieldCond);
+
+    assert(pBookMgrService->UpdateBookInfoByField(vecFieldCond, fieldCond) == OK);
+    cout << "TestUpdateBookInfoByField Execute Success!" << endl;
+}
+
 int main()
 {
     pBookMgrService = BookManagerService::Instance();
@@ -60,6 +86,7 @@ int main()
     TestAddBook(pBookMgrService);
     TestDeleteByBookID(pBookMgrService);
     TestQueryBookByBookName(pBookMgrService);
+    TestUpdateBookInfoByField(pBookMgrService);
 
     return 0;
 }

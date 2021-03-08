@@ -6,7 +6,8 @@
         "complex": "cpp",
         "limits": "cpp",
         "memory": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "string": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

@@ -109,20 +109,33 @@ int BookManagerService::DeleteBookByBookID(const string &strBookID)
     return OK;
 }
 
-int BookManagerService::UpdateBook()
+int BookManagerService::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond)
 {
+    try
+    {
+        if (OK != m_pBookInfoImpl->UpdateBookInfoByField(setFieldCond, fieldCond))
+        {   
+            cout << "BookManagerService::UpdateBookInfoByField>>UpdateBookInfo FAIL!" << endl;
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
 
+    return OK;
 }
 
 
 
-int BookManagerService::QueryBookByName(const string &strBookName, list<TblBookInfo> &listBookInfo)
+int BookManagerService::QueryBookByField(const FieldCond &fieldCond, list<TblBookInfo> &listBookInfo)
 {
     try
     {
-        string strFieldName = "name";
         list<vector<string> > listVecBookInfo;
-        if (OK != m_pBookInfoImpl->QueryBook(strFieldName, strBookName, listVecBookInfo))
+        if (OK != m_pBookInfoImpl->QueryBookByField(fieldCond, listVecBookInfo))
         {   
             return FAIL;
         }
@@ -134,7 +147,7 @@ int BookManagerService::QueryBookByName(const string &strBookName, list<TblBookI
             TblBookInfo bookInfo;
             for(int i = 0; i < (*iter).size(); i++)
             {
-                if ((*iter)[i] == strBookName)
+                if ((*iter)[i] == fieldCond.fieldValue)
                 {
                     bBookFlag = true;
                     break;

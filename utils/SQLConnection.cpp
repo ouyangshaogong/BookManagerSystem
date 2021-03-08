@@ -60,6 +60,7 @@ MYSQL* SQLConnection::GetConnection()
 
 bool SQLConnection::ExecuteSQL(const string &strSQL)
 {
+    cout << "SQLConnection::ExecuteSQL>>" << strSQL << endl;
     int nRet = mysql_real_query(m_connection, strSQL.c_str(), strSQL.length());
     if (nRet != 0)
     {

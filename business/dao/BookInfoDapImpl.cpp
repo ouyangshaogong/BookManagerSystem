@@ -82,12 +82,49 @@ int BookInfoDaoImpl::DeleteBookByField(const string &fieldName, const string &fi
     return OK;
 }
 
-int BookInfoDaoImpl::UpdateBook(const string &fieldName, const string &fieldValue, TblBookInfo &bookInfo) throw (SQLException)
+int BookInfoDaoImpl::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond) throw (SQLException)
 {
-    
+    string strSQL;
+
+    try
+    {
+        strSQL = "update tbl_bookinfo set ";
+
+        for (size_t i = 0; i < setFieldCond.size(); i++)
+        {
+            if (setFieldCond[i].fieldName != "price" || setFieldCond[i].fieldName != "number")
+            {
+                strSQL += setFieldCond[i].fieldName + " = '" + setFieldCond[i].fieldValue + "',";   
+            }
+            else
+            {
+                strSQL += setFieldCond[i].fieldName + " = " + setFieldCond[i].fieldValue + " ";   
+            }
+        }
+
+        if (strSQL[strSQL.length() - 1] == ',')
+        {
+            strSQL = strSQL.substr(0, strSQL.length() - 1);
+        }
+
+        strSQL += " where " + fieldCond.fieldName + " = " + fieldCond.fieldValue;
+        
+
+        if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
+        {
+            return FAIL;
+        }
+    }
+    catch(const SQLException& e)
+    {
+        std::cout << e.what() << endl;
+        return FAIL;
+    }
+
+    return OK;
 }
 
-int BookInfoDaoImpl::QueryBook(const string &fieldName, const string &fieldValue, list<vector<string> > &listBookInfo) throw (SQLException)
+int BookInfoDaoImpl::QueryBookByField(const FieldCond& fieldCond, list<vector<string> > &listBookInfo) throw (SQLException)
 {
     string strSQL;
     MYSQL_RES* result;
@@ -99,7 +136,7 @@ int BookInfoDaoImpl::QueryBook(const string &fieldName, const string &fieldValue
     try
     {
         strSQL = "select * from tbl_bookinfo where ";
-        strSQL += fieldName + " = '" + fieldValue + "'";
+        strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
 
         bool flag = SQLConnection::Instance()->ExecuteSQL(strSQL);
         if (flag)

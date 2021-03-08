@@ -14,8 +14,12 @@ public:
     int AddBook(TblBookInfo &bookInfo);
     int DeleteBookByBookID(const string &strBookID);
     int DeleteBookAllBook();
-    int UpdateBook();
-    int QueryBookByName(const string &strBookName, list<TblBookInfo> &listBookInfo);
+
+    //not update book_id and class_id
+    int UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond);
+
+    //query condition just bookname and auther
+    int QueryBookByField(const FieldCond &fieldCond, list<TblBookInfo> &listBookInfo);
 
     virtual ~BookManagerService();
 private:
