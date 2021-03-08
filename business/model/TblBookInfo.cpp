@@ -30,16 +30,6 @@ string TblBookInfo::GetIntroduction()
     return m_strIntroduction;
 }
 
-void TblBookInfo::SetSerNum(int nSerNum)
-{
-    this->m_nSerNum = nSerNum;
-}
-
-int TblBookInfo::GetSerNum()
-{
-    return m_nSerNum;
-}
-
 void TblBookInfo::SetName(string strName)
 {
     this->m_strName = strName;
@@ -112,7 +102,7 @@ string TblBookInfo::GetPubDate()
 
 void TblBookInfo::SetNumber(int nNumber)
 {
-    this->m_nNumber == nNumber;
+    this->m_nNumber = nNumber;
 }
 
 int TblBookInfo::GetNumber()

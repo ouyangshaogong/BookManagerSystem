@@ -55,7 +55,7 @@ int BookManagerService::AddBook(TblBookInfo &bookInfo)
 {
     try
     {
-        if (!m_pBookInfoImpl->AddBook(bookInfo))
+        if (OK != m_pBookInfoImpl->AddBook(bookInfo))
         {   
             return FAIL;
         }
@@ -75,8 +75,9 @@ int BookManagerService::DeleteBookByBookID(const string &strBookID)
     try
     {
         string strFieldName = "book_id";
-        if (!m_pBookInfoImpl->DeleteBook(strFieldName, strBookID))
+        if (OK != m_pBookInfoImpl->DeleteBook(strFieldName, strBookID))
         {   
+            cout << "BookManagerService::DeleteBookByBookID>>DeleteBook FAIL!" << endl;
             return FAIL;
         }
     }
@@ -100,7 +101,7 @@ int BookManagerService::QueryBookByName(const string &strBookName, list<TblBookI
     {
         string strFieldName = "name";
         list<vector<string> > listVecBookInfo;
-        if (!m_pBookInfoImpl->QueryBook(strFieldName, strBookName, listVecBookInfo))
+        if (OK != m_pBookInfoImpl->QueryBook(strFieldName, strBookName, listVecBookInfo))
         {   
             return FAIL;
         }
@@ -122,17 +123,16 @@ int BookManagerService::QueryBookByName(const string &strBookName, list<TblBookI
             if (bBookFlag)
             {
                 bookInfo.SetBookID(atoi((*iter)[0].c_str()));
-                bookInfo.SetSerNum(atoi((*iter)[1].c_str()));
-                bookInfo.SetClassID(atoi((*iter)[2].c_str()));
-                bookInfo.SetName((*iter)[3]);
-                bookInfo.SetAuther((*iter)[4]);
-                bookInfo.SetPublish((*iter)[5]);
-                bookInfo.SetISBN((*iter)[6]);
-                bookInfo.SetIntroduction((*iter)[7]);
-                bookInfo.SetLanguage((*iter)[8]);
-                bookInfo.SetPrice(atoi((*iter)[9].c_str()));
-                bookInfo.SetPubDate((*iter)[10]);
-                bookInfo.SetNumber(atoi((*iter)[11].c_str()));
+                bookInfo.SetClassID(atoi((*iter)[1].c_str()));
+                bookInfo.SetName((*iter)[2]);
+                bookInfo.SetAuther((*iter)[3]);
+                bookInfo.SetPublish((*iter)[4]);
+                bookInfo.SetISBN((*iter)[5]);
+                bookInfo.SetIntroduction((*iter)[6]);
+                bookInfo.SetLanguage((*iter)[7]);
+                bookInfo.SetPrice(atoi((*iter)[8].c_str()));
+                bookInfo.SetPubDate((*iter)[9]);
+                bookInfo.SetNumber(atoi((*iter)[10].c_str()));
 
                 listBookInfo.push_back(bookInfo);
             }

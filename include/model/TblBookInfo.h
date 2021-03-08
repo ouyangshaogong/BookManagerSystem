@@ -12,9 +12,6 @@ public:
 
     void SetClassID(int nClassID);
     int GetClassID();
-    
-    void SetSerNum(int nSerNum);
-    int GetSerNum();
 
     void SetName(string strName);
     string GetName();
@@ -46,7 +43,6 @@ public:
 
 private:
     int m_nBookId;
-    int m_nSerNum;
     int m_nClassID;
     string m_strName;
     string m_strAuther;

@@ -63,6 +63,7 @@ bool SQLConnection::ExecuteSQL(const string &strSQL)
     int nRet = mysql_real_query(m_connection, strSQL.c_str(), strSQL.length());
     if (nRet != 0)
     {
+        cout << mysql_error(m_connection) << endl;
         return false;
     }
    
@@ -79,7 +80,7 @@ void SQLConnection::InitMySQL()
 
 int SQLConnection::ConnectMySQL()
 {
-    if(!mysql_real_connect(m_connection,"192.168.2.107","root","qazwsx","everyone_talk",3306,NULL,0))
+    if(!mysql_real_connect(m_connection,"192.168.2.107","root","qazwsx","book_manager",3306,NULL,0))
     {
         printf("connect_mysql error:%s", mysql_error(m_connection));
         return FAIL;

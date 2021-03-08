@@ -11,22 +11,23 @@ int BookInfoDaoImpl::AddBook(TblBookInfo &bookInfo) throw (SQLException)
 
     try
     {
-        strSQL = "INSERT INTO tbl_bookinfo(book_id,ser_num,class_id,name,author,publish,ISBN,introduction,language,price,pub_date,number) VALUES (";
-        strSQL += "'" + to_string(bookInfo.GetBookID()) + "',";
-        strSQL += "'" + to_string(bookInfo.GetSerNum()) + "',";
-        strSQL += "'" + to_string(bookInfo.GetClassID()) + "',";
+        strSQL = "INSERT INTO tbl_bookinfo VALUES (";
+        strSQL += to_string(bookInfo.GetBookID()) + ",";
+        strSQL += to_string(bookInfo.GetClassID()) + ",";
         strSQL += "'" + bookInfo.GetName() + "',";
         strSQL += "'" + bookInfo.GetAuther() + "',";
         strSQL += "'" + bookInfo.GetPublish() + "',";
         strSQL += "'" + bookInfo.GetISBN() + "',";
         strSQL += "'" + bookInfo.GetIntroduction() + "',";
         strSQL += "'" + bookInfo.GetLanguage() + "',";
-        strSQL += "'" + to_string(bookInfo.GetPrice()) + "',";
+        strSQL += to_string(bookInfo.GetPrice()) + ",";
         strSQL += "'" + bookInfo.GetPubDate() + "',";
-        strSQL += "'" + to_string(bookInfo.GetNumber()) + "'";
+        strSQL += to_string(bookInfo.GetNumber()) + ")";
 
+        cout << "BookInfoDaoImpl::AddBook>>"  << strSQL <<endl;
         if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
         {
+
             return FAIL;
         }
     }
@@ -45,7 +46,7 @@ int BookInfoDaoImpl::DeleteBook(const string &fieldName, const string &fieldValu
 
     try
     {
-        strSQL = "delete from tbl_bookinfo where";
+        strSQL = "delete from tbl_bookinfo where ";
         strSQL += fieldName + " = '" + fieldValue + "'";
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);

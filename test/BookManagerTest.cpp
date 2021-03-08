@@ -22,7 +22,6 @@ void TestAddBook(BookManagerService* pBookMgrService)
         bookInfo.SetPrice(50);
         bookInfo.SetPubDate("19901020");
         bookInfo.SetPublish("New York");
-        bookInfo.SetSerNum(5000);
 
         assert(pBookMgrService->AddBook(bookInfo) == OK);
     }
