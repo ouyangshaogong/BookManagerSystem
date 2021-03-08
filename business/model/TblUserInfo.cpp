@@ -47,7 +47,7 @@ void TblUserInfo::SetAddress(string strAddress)
 
 string TblUserInfo::GetAddress()
 {
-    return m_strPhone;
+    return m_strAddress;
 }
 
 void TblUserInfo::SetSex(string strSex)

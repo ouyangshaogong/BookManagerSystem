@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE TEST ECHO
+ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE TEST ECHO
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -17,15 +17,21 @@ MODEL:
 DAO: UTILS
 	@cp -rf $(HOMEDIR)/business/dao/*.h $(HOMEDIR)/include/dao
 	make -C $(HOMEDIR)/business/dao
-	@cp $(HOMEDIR)/business/dao/libbookdao.so $(HOMEDIR)/lib
+	@cp $(HOMEDIR)/business/dao/libbookmgrdao.so $(HOMEDIR)/lib
 
 BOOKMGRSERVICE: UTILS MODEL DAO
 	@cp -rf $(HOMEDIR)/business/bookmgrservice/*.h $(HOMEDIR)/include/bookmgrservice
 	make -C $(HOMEDIR)/business/bookmgrservice
 	@cp $(HOMEDIR)/business/bookmgrservice/libbookmgrservice.so $(HOMEDIR)/lib
 
+USERMGRSERVICE: UTILS MODEL DAO
+	@cp -rf $(HOMEDIR)/business/usermgrservice/*.h $(HOMEDIR)/include/usermgrservice
+	make -C $(HOMEDIR)/business/usermgrservice
+	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
+
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
-	make -C $(HOMEDIR)/test
+	make -C $(HOMEDIR)/test/bookmanagertest
+	make -C $(HOMEDIR)/test/usermanagertest
 
 ECHO:
 	echo $(DynamicLib)
@@ -36,5 +42,6 @@ clean:
 	@make clean -C $(HOMEDIR)/business/model
 	@make clean -C $(HOMEDIR)/business/dao
 	@make clean -C $(HOMEDIR)/business/bookmgrservice
-	@make clean -C $(HOMEDIR)/test
+	@make clean -C $(HOMEDIR)/test/bookmanagertest
+	@make clean -C $(HOMEDIR)/test/usermanagertest
 	@rm -rf $(HOMEDIR)/lib/*.so

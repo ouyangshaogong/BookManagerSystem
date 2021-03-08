@@ -17,8 +17,8 @@ int UserInfoDaoImpl::AddUser(TblUserInfo &userInfo) throw (SQLException)
         strSQL += "'" + userInfo.GetPhone() + "',";
         strSQL += "'" + userInfo.GetUserName() + "',";
         strSQL += "'" + userInfo.GetSex() + "',";
-        strSQL += "'" + userInfo.GetAddress() + "',";
         strSQL += "'" + userInfo.GetBirth() + "',";
+        strSQL += "'" + userInfo.GetAddress() + "',";
         strSQL += to_string(userInfo.GetUserType()) + ")";
 
         //cout << "UserInfoDaoImpl::AddUser>>"  << strSQL <<endl;

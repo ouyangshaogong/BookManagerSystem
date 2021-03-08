@@ -9,7 +9,7 @@ Deps := $(patsubst %.cpp,%.d, $(Sources))
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
-DynamicLib := libbookdao.so
+DynamicLib := libbookmgrdao.so
 
 AllLibs : $(DynamicLib)
 
