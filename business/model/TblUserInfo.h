@@ -1,9 +1,9 @@
-#ifndef __TABLE_READER_INFO__
-#define __TABLE_READER_INFO__
+#ifndef __TABLE_USER_INFO__
+#define __TABLE_USER_INFO__
 
 #include "common.h"
 
-class TblReaderInfo
+class TblUserInfo
 {
 
 public:
@@ -16,8 +16,8 @@ public:
     void SetPhone(string strPhone);
     string GetPhone();
 
-    void SetReaderName(string strName);
-    string GetReaderName();
+    void SetUserName(string strName);
+    string GetUserName();
 
     void SetSex(string strName);
     string GetSex();

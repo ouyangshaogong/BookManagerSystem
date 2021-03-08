@@ -5,13 +5,6 @@
 #include "SQLException.h"
 
 
-struct FieldCond
-{
-    string fieldName;
-    string fieldValue;
-};
-
-
 class BookInfoDao
 {
 

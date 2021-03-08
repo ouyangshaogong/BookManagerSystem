@@ -56,4 +56,10 @@ using namespace std;
 #define OK    0
 #define FAIL -1
 
+struct FieldCond
+{
+    string fieldName;
+    string fieldValue;
+};
+
 #endif
