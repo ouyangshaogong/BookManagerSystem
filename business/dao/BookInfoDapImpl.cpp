@@ -24,7 +24,7 @@ int BookInfoDaoImpl::AddBook(TblBookInfo &bookInfo) throw (SQLException)
         strSQL += "'" + bookInfo.GetPubDate() + "',";
         strSQL += to_string(bookInfo.GetNumber()) + ")";
 
-        cout << "BookInfoDaoImpl::AddBook>>"  << strSQL <<endl;
+        //cout << "BookInfoDaoImpl::AddBook>>"  << strSQL <<endl;
         if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
         {
 
@@ -40,7 +40,29 @@ int BookInfoDaoImpl::AddBook(TblBookInfo &bookInfo) throw (SQLException)
     return OK;
 }
 
-int BookInfoDaoImpl::DeleteBook(const string &fieldName, const string &fieldValue) throw (SQLException)
+int BookInfoDaoImpl::DeleteBookAllBook() throw (SQLException)
+{
+    string strSQL;
+
+    try
+    {
+        strSQL = "delete from tbl_bookinfo";
+
+        if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
+        {
+            return FAIL;
+        }
+    }
+    catch(const SQLException& e)
+    {
+        std::cout << e.what() << endl;
+        return FAIL;
+    }
+
+    return OK;
+}
+
+int BookInfoDaoImpl::DeleteBookByField(const string &fieldName, const string &fieldValue) throw (SQLException)
 {
     string strSQL;
 
@@ -91,9 +113,9 @@ int BookInfoDaoImpl::QueryBook(const string &fieldName, const string &fieldValue
             for(int i=0; i<mysql_num_fields(result); i++)
             {         
                 field = mysql_fetch_field_direct(result,i);
-                cout << field->name << "\t\t";
+                //cout << field->name << "\t\t";
             }
-            cout << endl;          
+            //cout << endl;          
                    
             row = mysql_fetch_row(result);  
 
@@ -103,9 +125,9 @@ int BookInfoDaoImpl::QueryBook(const string &fieldName, const string &fieldValue
                 for(int i=0; i<mysql_num_fields(result); i++)
                 {              
                     setRecord.push_back(row[i]);
-                    cout << row[i] << "\t\t";                                         
+                    //cout << row[i] << "\t\t";                                         
                 }              
-                cout << endl;
+                //cout << endl;
 
                 listBookInfo.push_back(setRecord);
                 row = mysql_fetch_row(result);

@@ -70,12 +70,31 @@ int BookManagerService::AddBook(TblBookInfo &bookInfo)
     
 }
 
+int BookManagerService::DeleteBookAllBook()
+{
+    try
+    {
+        if (OK != m_pBookInfoImpl->DeleteBookAllBook())
+        {   
+            cout << "BookManagerService::DeleteBookAllBook>>DeleteBook FAIL!" << endl;
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+}
+
 int BookManagerService::DeleteBookByBookID(const string &strBookID)
 {
     try
     {
         string strFieldName = "book_id";
-        if (OK != m_pBookInfoImpl->DeleteBook(strFieldName, strBookID))
+        if (OK != m_pBookInfoImpl->DeleteBookByField(strFieldName, strBookID))
         {   
             cout << "BookManagerService::DeleteBookByBookID>>DeleteBook FAIL!" << endl;
             return FAIL;
@@ -94,6 +113,8 @@ int BookManagerService::UpdateBook()
 {
 
 }
+
+
 
 int BookManagerService::QueryBookByName(const string &strBookName, list<TblBookInfo> &listBookInfo)
 {

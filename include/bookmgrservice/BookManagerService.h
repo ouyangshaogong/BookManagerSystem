@@ -13,6 +13,7 @@ public:
 
     int AddBook(TblBookInfo &bookInfo);
     int DeleteBookByBookID(const string &strBookID);
+    int DeleteBookAllBook();
     int UpdateBook();
     int QueryBookByName(const string &strBookName, list<TblBookInfo> &listBookInfo);
 

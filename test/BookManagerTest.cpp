@@ -25,6 +25,7 @@ void TestAddBook(BookManagerService* pBookMgrService)
 
         assert(pBookMgrService->AddBook(bookInfo) == OK);
     }
+    cout << "TestAddBook Execute Success!" << endl;
 }
 
 void TestDeleteByBookID(BookManagerService* pBookMgrService)
@@ -32,6 +33,7 @@ void TestDeleteByBookID(BookManagerService* pBookMgrService)
     //Test DeleteBookByBookID
     string strBookID = "1";
     assert(pBookMgrService->DeleteBookByBookID(strBookID) == OK);
+    cout << "TestDeleteByBookID Execute Success!" << endl;
 }
 
 void TestQueryBookByBookName(BookManagerService* pBookMgrService)
@@ -40,13 +42,21 @@ void TestQueryBookByBookName(BookManagerService* pBookMgrService)
     string strBookName = "The Greate Gatsby";
     list<TblBookInfo> listBookInfo;
     assert(pBookMgrService->QueryBookByName(strBookName, listBookInfo) == OK);
+    cout << "TestQueryBookByBookName Execute Success!" << endl;
 }
 
+void TestDeleteAllBook(BookManagerService* pBookMgrService)
+{
+    //Test TestDeleteAllBook
+    assert(pBookMgrService->DeleteBookAllBook() == OK);
+    cout << "TestDeleteAllBook Execute Success!" << endl;
+}
 
 int main()
 {
     pBookMgrService = BookManagerService::Instance();
  
+    TestDeleteAllBook(pBookMgrService);
     TestAddBook(pBookMgrService);
     TestDeleteByBookID(pBookMgrService);
     TestQueryBookByBookName(pBookMgrService);
