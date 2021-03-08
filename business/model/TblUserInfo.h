@@ -25,6 +25,9 @@ public:
     void SetAddress(string strName);
     string GetAddress();
 
+    void SetBirth(string strName);
+    string GetBirth();
+
     void SetUserType(int nUserType);
     int GetUserType();
 
@@ -34,6 +37,7 @@ private:
     string m_strPhone;
     string m_strName;
     string m_strSex;
+    string m_strBirth;
     string m_strAddress;
     int m_nUserType;
 };

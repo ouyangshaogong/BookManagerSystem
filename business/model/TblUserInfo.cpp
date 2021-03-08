@@ -71,3 +71,13 @@ int TblUserInfo::GetUserType()
 }
 
 
+void TblUserInfo::SetBirth(string strBirth)
+{
+    m_strBirth = strBirth;
+}
+
+string TblUserInfo::GetBirth()
+{
+    return m_strBirth;
+}
+
