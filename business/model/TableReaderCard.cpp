@@ -17,7 +17,7 @@ void TableReaderCard::SetUserName(string strUserName)
 
 string TableReaderCard::GetUserName()
 {
-
+    return m_strUserName;
 }
 
 void TableReaderCard::SetPasswd(string strPasswd)

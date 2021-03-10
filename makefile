@@ -42,6 +42,7 @@ clean:
 	@make clean -C $(HOMEDIR)/business/model
 	@make clean -C $(HOMEDIR)/business/dao
 	@make clean -C $(HOMEDIR)/business/bookmgrservice
+	@make clean -C $(HOMEDIR)/business/usermgrservice
 	@make clean -C $(HOMEDIR)/test/bookmanagertest
 	@make clean -C $(HOMEDIR)/test/usermanagertest
 	@rm -rf $(HOMEDIR)/lib/*.so
