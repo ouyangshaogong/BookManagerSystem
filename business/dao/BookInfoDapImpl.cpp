@@ -82,6 +82,65 @@ int BookInfoDaoImpl::DeleteBookByField(const string &fieldName, const string &fi
     return OK;
 }
 
+int BookInfoDaoImpl::UpdateBookInfoByBookID(const int nBookID, TblBookInfo &bookInfo) throw (SQLException)
+{
+    try
+    {
+        vector<FieldCond> setFieldCond;
+        FieldCond tmpFieldCond;
+        tmpFieldCond.fieldName = "name";
+        tmpFieldCond.fieldValue = bookInfo.GetName();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "auther";
+        tmpFieldCond.fieldValue = bookInfo.GetAuther();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "publish";
+        tmpFieldCond.fieldValue = bookInfo.GetPublish();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "ISBN";
+        tmpFieldCond.fieldValue = bookInfo.GetISBN();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "introduction";
+        tmpFieldCond.fieldValue = bookInfo.GetIntroduction();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "language";
+        tmpFieldCond.fieldValue = bookInfo.GetLanguage();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "price";
+        tmpFieldCond.fieldValue = to_string(bookInfo.GetPrice());
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "pub_date";
+        tmpFieldCond.fieldValue = bookInfo.GetPubDate();
+        setFieldCond.push_back(tmpFieldCond);
+
+        tmpFieldCond.fieldName = "number";
+        tmpFieldCond.fieldValue = bookInfo.GetNumber();
+        setFieldCond.push_back(tmpFieldCond);
+
+        FieldCond fieldCond;
+        fieldCond.fieldName = "book_id";
+        fieldCond.fieldValue = to_string(nBookID);
+        if (OK != UpdateBookInfoByField(setFieldCond, fieldCond))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+    
+    return OK;
+}
+
 int BookInfoDaoImpl::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond) throw (SQLException)
 {
     string strSQL;
@@ -122,6 +181,46 @@ int BookInfoDaoImpl::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond
     }
 
     return OK;
+}
+
+int BookInfoDaoImpl::QueryBookByBookID(const int nBookID, TblBookInfo &bookInfo) throw (SQLException)
+{
+    try
+    {
+        FieldCond fieldCond;
+        fieldCond.fieldName = "book_id";
+        fieldCond.fieldValue = to_string(nBookID);
+
+        list<vector<string> > listBookInfo;
+        if (OK != QueryBookByField(fieldCond, listBookInfo))
+        {
+            return FAIL;
+        }
+
+        if (!listBookInfo.empty())
+        {
+            bookInfo.SetBookID(atoi((*listBookInfo.begin())[0].c_str()));
+            bookInfo.SetClassID(atoi((*listBookInfo.begin())[1].c_str()));
+            bookInfo.SetName((*listBookInfo.begin())[2].c_str());
+            bookInfo.SetAuther((*listBookInfo.begin())[3].c_str());
+            bookInfo.SetPublish((*listBookInfo.begin())[4].c_str());
+            bookInfo.SetISBN((*listBookInfo.begin())[5].c_str());
+            bookInfo.SetIntroduction((*listBookInfo.begin())[6].c_str());
+            bookInfo.SetLanguage((*listBookInfo.begin())[7].c_str());
+            bookInfo.SetPrice(atoi((*listBookInfo.begin())[8].c_str()));
+            bookInfo.SetPubDate((*listBookInfo.begin())[9].c_str());
+            bookInfo.SetNumber(atoi((*listBookInfo.begin())[10].c_str()));
+        }
+        
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
 }
 
 int BookInfoDaoImpl::QueryBookByField(const FieldCond& fieldCond, list<vector<string> > &listBookInfo) throw (SQLException)

@@ -109,13 +109,19 @@ int BookManagerService::DeleteBookByBookID(const string &strBookID)
     return OK;
 }
 
-int BookManagerService::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond)
+int BookManagerService::UpdateBookInfoByBookID(const int nBookID, TblBookInfo &bookInfo)
 {
     try
-    {
-        if (OK != m_pBookInfoImpl->UpdateBookInfoByField(setFieldCond, fieldCond))
-        {   
-            cout << "BookManagerService::UpdateBookInfoByField>>UpdateBookInfo FAIL!" << endl;
+    {      
+        TblBookInfo tmpBook;
+        if (OK != m_pBookInfoImpl->QueryBookByBookID(nBookID, tmpBook))
+        {
+            return FAIL;
+        }
+
+        
+        if (OK != m_pBookInfoImpl->UpdateBookInfoByBookID(nBookID, bookInfo))
+        {
             return FAIL;
         }
     }
@@ -124,52 +130,17 @@ int BookManagerService::UpdateBookInfoByField(const vector<FieldCond> &setFieldC
         std::cerr << e.what() << '\n';
         return FAIL;
     }
-
+    
     return OK;
 }
 
-
-
-int BookManagerService::QueryBookByField(const FieldCond &fieldCond, list<TblBookInfo> &listBookInfo)
+int BookManagerService::QueryBookByBookID(const int nBookID, TblBookInfo &bookInfo)
 {
     try
-    {
-        list<vector<string> > listVecBookInfo;
-        if (OK != m_pBookInfoImpl->QueryBookByField(fieldCond, listVecBookInfo))
-        {   
-            return FAIL;
-        }
-
-        list<vector<string> >::iterator iter = listVecBookInfo.begin();
-        for (; iter != listVecBookInfo.end(); iter++)
+    {      
+        if (OK != m_pBookInfoImpl->QueryBookByBookID(nBookID, bookInfo))
         {
-            bool bBookFlag = false;
-            TblBookInfo bookInfo;
-            for(int i = 0; i < (*iter).size(); i++)
-            {
-                if ((*iter)[i] == fieldCond.fieldValue)
-                {
-                    bBookFlag = true;
-                    break;
-                }
-            }
-
-            if (bBookFlag)
-            {
-                bookInfo.SetBookID(atoi((*iter)[0].c_str()));
-                bookInfo.SetClassID(atoi((*iter)[1].c_str()));
-                bookInfo.SetName((*iter)[2]);
-                bookInfo.SetAuther((*iter)[3]);
-                bookInfo.SetPublish((*iter)[4]);
-                bookInfo.SetISBN((*iter)[5]);
-                bookInfo.SetIntroduction((*iter)[6]);
-                bookInfo.SetLanguage((*iter)[7]);
-                bookInfo.SetPrice(atoi((*iter)[8].c_str()));
-                bookInfo.SetPubDate((*iter)[9]);
-                bookInfo.SetNumber(atoi((*iter)[10].c_str()));
-
-                listBookInfo.push_back(bookInfo);
-            }
+            return FAIL;
         }
     }
     catch(const std::exception& e)
@@ -177,6 +148,6 @@ int BookManagerService::QueryBookByField(const FieldCond &fieldCond, list<TblBoo
         std::cerr << e.what() << '\n';
         return FAIL;
     }
-
+    
     return OK;
 }
