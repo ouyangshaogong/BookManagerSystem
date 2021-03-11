@@ -75,15 +75,18 @@ void TestUpdateUserPasswd(UserManagerService* pUserMgrService)
 {
     string strUserName = "SX000004";
     string strPasswd = "654321";
-    assert(pUserMgrService->UpdateUserPasswd(strUserName, strPasswd) == OK);
+
+    int nRet = pUserMgrService->UpdateUserPasswd(strUserName, strPasswd);
+    assert(nRet == OK);
     cout << "TestUpdateUserPasswd Execute Success!" << endl;
 }
 
 void TestLogin(UserManagerService* pUserMgrService)
 {
-    string strUserName = "James";
-    string strPasswd = "123456";
-    assert(pUserMgrService->Login(strUserName, strPasswd) == OK);
+    string strUserName = "SX000004";
+    string strPasswd = "654321";
+    int nRet = pUserMgrService->Login(strUserName, strPasswd);
+    assert(nRet == OK);
     cout << "TestLogin Execute Success!" << endl;
 }
 
