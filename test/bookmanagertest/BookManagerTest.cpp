@@ -36,16 +36,13 @@ void TestDeleteByBookID(BookManagerService* pBookMgrService)
     cout << "TestDeleteByBookID Execute Success!" << endl;
 }
 
-void TestQueryBookByBookName(BookManagerService* pBookMgrService)
+void TestQueryBookByBookID(BookManagerService* pBookMgrService)
 {
     //Test QueryBookByBookName
-    FieldCond fieldCond;
-
-    fieldCond.fieldName = "name";
-    fieldCond.fieldValue = "The Greate Gatsby";
-
-    list<TblBookInfo> listBookInfo;
-    assert(pBookMgrService->QueryBookByField(fieldCond, listBookInfo) == OK);
+    int nBookID = 6;
+    TblBookInfo bookInfo;
+    bookInfo.SetAuther("Gasby");
+    assert(pBookMgrService->QueryBookByBookID(nBookID, bookInfo) == OK);
     cout << "TestQueryBookByBookName Execute Success!" << endl;
 }
 
@@ -57,24 +54,13 @@ void TestDeleteAllBook(BookManagerService* pBookMgrService)
 }
 
 
-void TestUpdateBookInfoByField(BookManagerService* pBookMgrService)
+void TestUpdateBookInfoByBookID(BookManagerService* pBookMgrService)
 {
     //Test TestDeleteAllBook
-    vector<FieldCond> vecFieldCond;
-    FieldCond fieldCond;
-    fieldCond.fieldName = "book_id";
-    fieldCond.fieldValue = "2";
 
-    FieldCond tmpFieldCond;
-    tmpFieldCond.fieldName = "publish";
-    tmpFieldCond.fieldValue = "shanghai";
-    vecFieldCond.push_back(tmpFieldCond);
-
-    tmpFieldCond.fieldName = "author";
-    tmpFieldCond.fieldValue = "James";
-    vecFieldCond.push_back(tmpFieldCond);
-
-    assert(pBookMgrService->UpdateBookInfoByField(vecFieldCond, fieldCond) == OK);
+    int nBookID = 5;
+    TblBookInfo bookInfo;
+    assert(pBookMgrService->UpdateBookInfoByBookID(nBookID, bookInfo) == OK);
     cout << "TestUpdateBookInfoByField Execute Success!" << endl;
 }
 
@@ -85,8 +71,8 @@ int main()
     TestDeleteAllBook(pBookMgrService);
     TestAddBook(pBookMgrService);
     TestDeleteByBookID(pBookMgrService);
-    TestQueryBookByBookName(pBookMgrService);
-    TestUpdateBookInfoByField(pBookMgrService);
+    TestQueryBookByBookID(pBookMgrService);
+    TestUpdateBookInfoByBookID(pBookMgrService);
 
     return 0;
 }
