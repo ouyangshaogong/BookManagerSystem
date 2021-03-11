@@ -5,12 +5,13 @@
 #include "TableReaderCard.h"
 #include <pthread.h>
 
-class ReaderCardMgrService
+class ReaderCardManager
 {
 
 public:
-    static ReaderCardMgrService* Instance();
-    void DestoryInstance();
+        
+    ReaderCardManager();
+    ~ReaderCardManager();
 
     int AddReaderCard(TableReaderCard &readerCardInfo);
     int DeleteReaderCardByReaderID(const string &strReaderID);
@@ -18,17 +19,13 @@ public:
 
     //not update user_id and reader_id
     int UpdateReaderCardByField(const FieldCond &setFieldCond, const FieldCond &fieldCond);
-
+    int UpdateReaderCardPasswd(const string &strReaderID, const string &strPasswd);
     //query condition just name and sex
     int QueryReaderCardByField(const FieldCond &fieldCond, list<TableReaderCard> &listBookInfo);
+    int QueryReaderCardByReaderID(const string &strReaderID, TableReaderCard &readerCard);
 
-    virtual ~ReaderCardMgrService();
-private:
-    ReaderCardMgrService();
 
 private:
-    static ReaderCardMgrService* m_instance;
-    static pthread_mutex_t m_Mutex;
     ReaderCardDaoImpl* m_pReaderCardImpl;
 };
 

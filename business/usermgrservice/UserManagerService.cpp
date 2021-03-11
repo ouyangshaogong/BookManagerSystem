@@ -1,19 +1,29 @@
 #include "UserManagerService.h"
 
+#define DEFAULT_PASSWD "123456"
+
 pthread_mutex_t UserManagerService::m_Mutex = PTHREAD_MUTEX_INITIALIZER;
 UserManagerService* UserManagerService::m_instance = NULL;
 
 UserManagerService::UserManagerService()
+:m_nUserMaker(0), m_nReaderCardMaker(0)
 {
-    m_pUserInfoImpl = new UserInfoDaoImpl();
+    m_pUserMgr = new UserManager();
+    m_pReaderCard = new ReaderCardManager();
 }
 
 UserManagerService::~UserManagerService()
 {
-    if (m_pUserInfoImpl == NULL)
+    if (m_pUserMgr != NULL)
     {
-        delete m_pUserInfoImpl;
-        m_pUserInfoImpl = NULL;
+        delete m_pUserMgr;
+        m_pUserMgr = NULL;
+    }
+
+    if (m_pReaderCard != NULL)
+    {
+        delete m_pReaderCard;
+        m_pReaderCard = NULL;
     }
 }
 
@@ -55,7 +65,20 @@ int UserManagerService::AddUser(TblUserInfo &userInfo)
 {
     try
     {
-        if (OK != m_pUserInfoImpl->AddUser(userInfo))
+        int nUserID = m_nUserMaker.GenerateID();
+        int nReaderCard = m_nReaderCardMaker.GenerateID();
+        userInfo.SetUserID(nUserID);
+        userInfo.SetReaderID(nReaderCard);
+        if (OK != m_pUserMgr->AddUser(userInfo))
+        {   
+            return FAIL;
+        }
+
+        TableReaderCard readerCard;
+        readerCard.SetReaderID(nReaderCard);
+        readerCard.SetUserName(userInfo.GetUserName());
+        readerCard.SetPasswd(DEFAULT_PASSWD);
+        if (OK != m_pReaderCard->AddReaderCard(readerCard))
         {   
             return FAIL;
         }
@@ -74,11 +97,17 @@ int UserManagerService::DeleteAllUser()
 {
     try
     {
-        if (OK != m_pUserInfoImpl->DeleteAllUser())
+        if (OK != m_pReaderCard->DeleteAllReaderCard())
+        {   
+            cout << "UserManagerService::DeleteAllReaderCard>>FAIL!" << endl;
+            return FAIL;
+        }
+
+        if (OK != m_pUserMgr->DeleteAllUser())
         {   
             cout << "UserManagerService::DeleteAllUser>>FAIL!" << endl;
             return FAIL;
-        }
+        }   
     }
     catch(const std::exception& e)
     {
@@ -89,14 +118,27 @@ int UserManagerService::DeleteAllUser()
     return OK;
 }
 
-int UserManagerService::DeleteUserByUserID(const string &strUserID)
+int UserManagerService::DeleteUserByUserID(const int nUserID)
 {
     try
     {
-        string strFieldName = "book_id";
-        if (OK != m_pUserInfoImpl->DeleteUserByUserID(strFieldName, strUserID))
+        TblUserInfo userInfo;
+        string strUserID = to_string(nUserID);
+        if (OK != m_pUserMgr->QueryUserByUserID(strUserID, userInfo))
         {   
-            cout << "BookManagerService::DeleteBookByBookID>>DeleteBook FAIL!" << endl;
+            return FAIL;
+        }
+
+        string strReaderID = to_string(userInfo.GetReaderID());
+        if (OK != m_pReaderCard->DeleteReaderCardByReaderID(strReaderID))
+        {   
+            cout << "UserManagerService::DeleteReaderCardByReaderID>>DeleteBook FAIL!" << endl;
+            return FAIL;
+        }
+
+        if (OK != m_pUserMgr->DeleteUserByUserID(strUserID))
+        {   
+            cout << "UserManagerService::DeleteBookByBookID>>DeleteBook FAIL!" << endl;
             return FAIL;
         }
     }
@@ -109,64 +151,83 @@ int UserManagerService::DeleteUserByUserID(const string &strUserID)
     return OK;
 }
 
-int UserManagerService::UpdateUserInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond)
+int UserManagerService::UpdateUserInfoByUserID(const int nUserID, TblUserInfo &userInfo)
 {
     try
-    {
-        if (OK != m_pUserInfoImpl->UpdateUserInfoByField(setFieldCond, fieldCond))
-        {   
-            cout << "BookManagerService::UpdateBookInfoByField>>UpdateBookInfo FAIL!" << endl;
-            return FAIL;
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        return FAIL;
-    }
-
-    return OK;
-}
-
-
-
-int UserManagerService::QueryUserByField(const FieldCond &fieldCond, list<TblUserInfo> &listUserInfo)
-{
-    try
-    {
-        list<vector<string> > listVecBookInfo;
-        if (OK != m_pUserInfoImpl->QueryUserByField(fieldCond, listVecBookInfo))
-        {   
-            return FAIL;
-        }
-
-        list<vector<string> >::iterator iter = listVecBookInfo.begin();
-        for (; iter != listVecBookInfo.end(); iter++)
+    {  
+        TblUserInfo tmpUserInfo;
+        if (OK != QueryUserByUserID(nUserID, tmpUserInfo))
         {
-            bool bBookFlag = false;
-            TblUserInfo userInfo;
-            for(int i = 0; i < (*iter).size(); i++)
-            {
-                if ((*iter)[i] == fieldCond.fieldValue)
-                {
-                    bBookFlag = true;
-                    break;
-                }
-            }
+            return FAIL;
+        }
 
-            if (bBookFlag)
-            {
-                userInfo.SetUserID(atoi((*iter)[0].c_str()));
-                userInfo.SetReaderID(atoi((*iter)[1].c_str()));
-                userInfo.SetPhone((*iter)[2]);
-                userInfo.SetUserName((*iter)[3]);
-                userInfo.SetSex((*iter)[4]);
-                userInfo.SetBirth((*iter)[5]);
-                userInfo.SetAddress((*iter)[6]);
-                userInfo.SetUserType(atoi((*iter)[8].c_str()));
+        tmpUserInfo.SetPhone(userInfo.GetPhone());
+        tmpUserInfo.SetUserName(userInfo.GetUserName());
+        tmpUserInfo.SetSex(userInfo.GetSex());
+        tmpUserInfo.SetBirth(userInfo.GetBirth());
+        tmpUserInfo.SetAddress(userInfo.GetAddress());
+        tmpUserInfo.SetUserType(userInfo.GetUserType());
+        if (OK != m_pUserMgr->UpdateUserInfoByUserID(nUserID, tmpUserInfo))
+        {   
+            cout << "UserManagerService::UpdateUserInfoByField>>UpdateBookInfo FAIL!" << endl;
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
 
-                listUserInfo.push_back(userInfo);
-            }
+    return OK;
+}
+
+
+
+int UserManagerService::QueryUserByUserID(const int &nUserID, TblUserInfo &bookInfo)
+{
+    try
+    {
+        string strUserID = to_string(nUserID);
+        if (OK != m_pUserMgr->QueryUserByUserID(strUserID, bookInfo))
+        {   
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+}
+
+int UserManagerService::QueryReaderCardByReaderID(const string &strReaderID, TableReaderCard readerCard)
+{
+    try
+    {
+        if (OK != m_pReaderCard->QueryReaderCardByReaderID(strReaderID, readerCard))
+        {   
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+}
+
+int UserManagerService::UpdateUserPasswd(const string &strReaderID, const string &strPasswd)
+{
+    try
+    {
+        if (OK != m_pReaderCard->UpdateReaderCardPasswd(strReaderID, strPasswd))
+        {   
+            return FAIL;
         }
     }
     catch(const std::exception& e)

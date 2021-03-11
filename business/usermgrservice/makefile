@@ -12,7 +12,7 @@ DynamicLib := libusermgrservice.so
 
 AllLibs : $(DynamicLib)
 CC = g++
-CXXFLAGS = -g -O2 -fPIC -Wall
+CXXFLAGS = -g -O -fPIC -Wall
 CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/utils -I$(INCDIR)/model -I$(INCDIR)/dao
 LDFLAGS = -lstdc++ -lbookmgrdao -lmysqlclient
 

@@ -38,7 +38,7 @@ int ReaderCardDaoImpl::DeleteReaderCardByReaderID(const string &strReaderID) thr
     try
     {
         strSQL = "delete from tbl_readercard where reader_id";
-        strSQL += " = " + strReaderID + ")";
+        strSQL += " = " + strReaderID;
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);
     }

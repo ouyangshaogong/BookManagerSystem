@@ -1,8 +1,10 @@
 #ifndef __USER_MANAGER_SERVICE__
 #define __USER_MANAGER_SERVICE__
 
-#include "UserInfoDaoImpl.h"
+#include "UserManager.h"
+#include "ReaderCardManager.h"
 #include <pthread.h>
+#include "IDMaker.h"
 
 class UserManagerService
 {
@@ -12,14 +14,19 @@ public:
     void DestoryInstance();
 
     int AddUser(TblUserInfo &bookInfo);
-    int DeleteUserByUserID(const string &strUserID);
+    int DeleteUserByUserID(const int nUserID);
     int DeleteAllUser();
 
     //not update user_id and reader_id
-    int UpdateUserInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond);
+    int UpdateUserInfoByUserID(const int nUserID, TblUserInfo &userInfo);
 
     //query condition just name and sex
-    int QueryUserByField(const FieldCond &fieldCond, list<TblUserInfo> &listBookInfo);
+    int QueryUserByUserID(const int &nUserID, TblUserInfo &bookInfo);
+
+    //query condition just name and sex
+    int QueryReaderCardByReaderID(const string &strReaderID, TableReaderCard readerCard);
+
+    int UpdateUserPasswd(const string &strReaderID, const string &strPasswd);
 
     virtual ~UserManagerService();
 private:
@@ -28,7 +35,11 @@ private:
 private:
     static UserManagerService* m_instance;
     static pthread_mutex_t m_Mutex;
-    UserInfoDaoImpl* m_pUserInfoImpl;
+    UserManager* m_pUserMgr;
+    ReaderCardManager *m_pReaderCard;
+
+    IDMaker m_nUserMaker;
+    IDMaker m_nReaderCardMaker;
 };
 
 #endif //__USER_MANAGER_SERVICE__

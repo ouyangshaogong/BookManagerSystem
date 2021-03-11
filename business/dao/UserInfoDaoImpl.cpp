@@ -36,16 +36,45 @@ int UserInfoDaoImpl::AddUser(TblUserInfo &userInfo) throw (SQLException)
     return OK;
 }
 
-int UserInfoDaoImpl::DeleteUserByUserID(const string &fieldName, const string &fieldValue) throw (SQLException)
+int UserInfoDaoImpl::DeleteUserByField(const FieldCond &fieldCond) throw (SQLException)
 {
     string strSQL;
 
     try
     {
         strSQL = "delete from tbl_userinfo where ";
-        strSQL += fieldName + " = '" + fieldValue + "'";
+        if (fieldCond.fieldName == "user_id" 
+        || fieldCond.fieldName == "reader_id" 
+        || fieldCond.fieldName == "user_type")
+        {
+            strSQL += fieldCond.fieldName + " = " + fieldCond.fieldValue + "";
+        }
+        else
+        {
+            strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        }
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);
+    }
+    catch(const SQLException& e)
+    {
+        std::cout << e.what() << endl;
+        return FAIL;
+    }
+
+    return OK;
+}
+
+int UserInfoDaoImpl::DeleteUserByUserID(const string &strUserID) throw (SQLException)
+{
+    string strSQL;
+
+    try
+    {
+        FieldCond fieldCond;
+        fieldCond.fieldName = "user_id";
+        fieldCond.fieldValue = strUserID;
+        DeleteUserByField(fieldCond);
     }
     catch(const SQLException& e)
     {
@@ -124,7 +153,17 @@ int UserInfoDaoImpl::QueryUserByField(const FieldCond& fieldCond, list<vector<st
     try
     {
         strSQL = "select * from tbl_userinfo where ";
-        strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        if (fieldCond.fieldName == "user_id" 
+        || fieldCond.fieldName == "reader_id" 
+        || fieldCond.fieldName == "user_type")
+        {
+            strSQL += fieldCond.fieldName + " = " + fieldCond.fieldValue + "";
+        }
+        else
+        {
+            strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        }
+        
 
         bool flag = SQLConnection::Instance()->ExecuteSQL(strSQL);
         if (flag)
