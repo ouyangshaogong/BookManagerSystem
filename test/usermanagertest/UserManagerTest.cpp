@@ -1,8 +1,10 @@
 #include "common.h"
 #include "UserManagerService.h"
 #include <assert.h>
+#include "CardUserNameMaker.h"
 
 UserManagerService* pUserMgrService = NULL;
+CardUserNameMaker g_CardUserNameMaker;
 
 void TestAddUser(UserManagerService* pUserMgrService)
 {
@@ -11,14 +13,12 @@ void TestAddUser(UserManagerService* pUserMgrService)
     for (size_t i = 1; i <= count; i++)
     {
         TblUserInfo userInfo;
-        userInfo.SetUserID(i);
-        userInfo.SetReaderID(i);
         userInfo.SetPhone("18229658596");
-        userInfo.SetUserName("James");
+        userInfo.SetUserName(g_CardUserNameMaker.GenerateUserName());
         userInfo.SetSex("man");
         userInfo.SetBirth("19901020");
         userInfo.SetAddress("New York");
-        userInfo.SetUserType(1);
+        userInfo.SetUserType(USERADMIN);
 
         assert(pUserMgrService->AddUser(userInfo) == OK);
     }
@@ -33,14 +33,13 @@ void TestDeleteByUserID(UserManagerService* pUserMgrService)
     cout << "TestDeleteByBookID Execute Success!" << endl;
 }
 
-void TestQueryUserByUserName(UserManagerService* pUserMgrService)
+void TestQueryUserByUserID(UserManagerService* pUserMgrService)
 {
-    //Test QueryBookByBookName
+    //Test TestQueryUserByUserID
     int nUserID = 2;
     TblUserInfo userInfo;
-    userInfo.SetUserName("Bob");
     assert(pUserMgrService->QueryUserByUserID(nUserID, userInfo) == OK);
-    cout << "TestQueryBookByBookName Execute Success!" << endl;
+    cout << "TestQueryUserByUserID Execute Success!" << endl;
 }
 
 void TestDeleteAllUser(UserManagerService* pUserMgrService)
@@ -51,7 +50,7 @@ void TestDeleteAllUser(UserManagerService* pUserMgrService)
 }
 
 
-void TestUpdateUserInfoByField(UserManagerService* pUserMgrService)
+void TestUpdateUserInfoByUserID(UserManagerService* pUserMgrService)
 {
     //Test TestDeleteAllBook
     int nUserID = 3;
@@ -61,9 +60,32 @@ void TestUpdateUserInfoByField(UserManagerService* pUserMgrService)
     userInfo.SetSex("man");
     userInfo.SetBirth("19901020");
     assert(pUserMgrService->UpdateUserInfoByUserID(nUserID, userInfo) == OK);
-    cout << "TestUpdateBookInfoByField Execute Success!" << endl;
+    cout << "TestUpdateUserInfoByUserID Execute Success!" << endl;
 }
 
+void TestQueryReaderCardByReaderID(UserManagerService* pUserMgrService)
+{
+    int nReaderID = 3;
+    TableReaderCard readerCard;
+    assert(pUserMgrService->QueryReaderCardByReaderID(nReaderID, readerCard) == OK);
+    cout << "TestQueryReaderCardByReaderID Execute Success!" << endl;
+}
+
+void TestUpdateUserPasswd(UserManagerService* pUserMgrService)
+{
+    string strUserName = "SX000004";
+    string strPasswd = "654321";
+    assert(pUserMgrService->UpdateUserPasswd(strUserName, strPasswd) == OK);
+    cout << "TestUpdateUserPasswd Execute Success!" << endl;
+}
+
+void TestLogin(UserManagerService* pUserMgrService)
+{
+    string strUserName = "James";
+    string strPasswd = "123456";
+    assert(pUserMgrService->Login(strUserName, strPasswd) == OK);
+    cout << "TestLogin Execute Success!" << endl;
+}
 
 int main()
 {
@@ -73,8 +95,11 @@ int main()
     TestDeleteAllUser(pUserMgrService);
     TestAddUser(pUserMgrService);
     TestDeleteByUserID(pUserMgrService);
-    TestQueryUserByUserName(pUserMgrService);
-    TestUpdateUserInfoByField(pUserMgrService);
+    TestUpdateUserInfoByUserID(pUserMgrService);
+    TestUpdateUserInfoByUserID(pUserMgrService);
+    TestQueryReaderCardByReaderID(pUserMgrService);
+    TestUpdateUserPasswd(pUserMgrService);
+    TestLogin(pUserMgrService);
     cout << "------UserManagerService Test End------" << endl << endl;
 
     return 0;

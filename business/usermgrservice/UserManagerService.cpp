@@ -10,14 +10,15 @@ UserManagerService::UserManagerService()
 {
     m_pUserMgr = new UserManager();
     m_pReaderCard = new ReaderCardManager();
+    m_pLoginMgr = new LoginManager();
 }
 
 UserManagerService::~UserManagerService()
 {
-    if (m_pUserMgr != NULL)
+    if (m_pLoginMgr != NULL)
     {
-        delete m_pUserMgr;
-        m_pUserMgr = NULL;
+        delete m_pLoginMgr;
+        m_pLoginMgr = NULL;
     }
 
     if (m_pReaderCard != NULL)
@@ -25,6 +26,16 @@ UserManagerService::~UserManagerService()
         delete m_pReaderCard;
         m_pReaderCard = NULL;
     }
+
+    if (m_pUserMgr != NULL)
+    {
+        delete m_pUserMgr;
+        m_pUserMgr = NULL;
+    }
+
+    
+
+    
 }
 
 UserManagerService* UserManagerService::Instance()
@@ -76,7 +87,7 @@ int UserManagerService::AddUser(TblUserInfo &userInfo)
 
         TableReaderCard readerCard;
         readerCard.SetReaderID(nReaderCard);
-        readerCard.SetUserName(userInfo.GetUserName());
+        readerCard.SetUserName(m_strUserNameMaker.GenerateUserName());
         readerCard.SetPasswd(DEFAULT_PASSWD);
         if (OK != m_pReaderCard->AddReaderCard(readerCard))
         {   
@@ -203,10 +214,11 @@ int UserManagerService::QueryUserByUserID(const int &nUserID, TblUserInfo &bookI
     return OK;
 }
 
-int UserManagerService::QueryReaderCardByReaderID(const string &strReaderID, TableReaderCard readerCard)
+int UserManagerService::QueryReaderCardByReaderID(const int nReaderID, TableReaderCard &readerCard)
 {
     try
     {
+        string strReaderID = to_string(nReaderID);
         if (OK != m_pReaderCard->QueryReaderCardByReaderID(strReaderID, readerCard))
         {   
             return FAIL;
@@ -221,11 +233,11 @@ int UserManagerService::QueryReaderCardByReaderID(const string &strReaderID, Tab
     return OK;
 }
 
-int UserManagerService::UpdateUserPasswd(const string &strReaderID, const string &strPasswd)
+int UserManagerService::UpdateUserPasswd(const string &strUserName, const string &strPasswd)
 {
     try
     {
-        if (OK != m_pReaderCard->UpdateReaderCardPasswd(strReaderID, strPasswd))
+        if (OK != m_pReaderCard->UpdateReaderCardPasswd(strUserName, strPasswd))
         {   
             return FAIL;
         }
@@ -237,4 +249,24 @@ int UserManagerService::UpdateUserPasswd(const string &strReaderID, const string
     }
 
     return OK;
+}
+
+int UserManagerService::Login(const string &strUserName, const string &strPasswd)
+{
+    try
+    {
+        if (OK != m_pLoginMgr->Login(strUserName, strPasswd))
+        {
+            cout << "UserManagerService::Login>>Login FAIL!" << endl;
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
 }

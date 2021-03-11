@@ -71,17 +71,17 @@ int ReaderCardManager::DeleteReaderCardByReaderID(const string &strReaderID)
     return OK;
 }
 
-int ReaderCardManager::UpdateReaderCardPasswd(const string &strReaderID, const string &strPasswd)
+int ReaderCardManager::UpdateReaderCardPasswd(const string &strUserName, const string &strPasswd)
 {
     try
     {
-        FieldCond setFieldCond;
-        setFieldCond.fieldName = "reader_id";
-        setFieldCond.fieldValue = strReaderID;
-
         FieldCond fieldCond;
-        fieldCond.fieldName = "password";
-        fieldCond.fieldValue = strPasswd;
+        fieldCond.fieldName = "username";
+        fieldCond.fieldValue = strUserName;
+
+        FieldCond setFieldCond;
+        setFieldCond.fieldName = "password";
+        setFieldCond.fieldValue = strPasswd;
         if (OK != UpdateReaderCardByField(setFieldCond, fieldCond))
         {   
             cout << "ReaderCardManager::UpdateReaderCardPasswd>>UpdateBookInfo FAIL!" << endl;

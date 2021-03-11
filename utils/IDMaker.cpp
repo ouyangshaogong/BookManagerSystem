@@ -1,6 +1,6 @@
 #include "IDMaker.h"
 
-#define MAX_INT 4294967290
+#define MAX_ID 4294967290
 
 IDMaker::IDMaker(int nID)
 {
@@ -13,7 +13,7 @@ int IDMaker::GenerateID()
     pthread_mutex_lock(&m_Mutex);    // 加锁
     
     ++m_nID;
-    if (m_nID == MAX_INT)
+    if (m_nID == MAX_ID)
     {
         m_nID = 1;
     }

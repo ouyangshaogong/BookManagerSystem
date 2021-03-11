@@ -3,8 +3,14 @@
 
 #include "UserManager.h"
 #include "ReaderCardManager.h"
+#include "LoginManager.h"
 #include <pthread.h>
 #include "IDMaker.h"
+#include "CardUserNameMaker.h"
+
+
+#define USERADMIN 0
+#define USERREADER 1
 
 class UserManagerService
 {
@@ -24,9 +30,11 @@ public:
     int QueryUserByUserID(const int &nUserID, TblUserInfo &bookInfo);
 
     //query condition just name and sex
-    int QueryReaderCardByReaderID(const string &strReaderID, TableReaderCard readerCard);
+    int QueryReaderCardByReaderID(const int nReaderID, TableReaderCard &readerCard);
 
-    int UpdateUserPasswd(const string &strReaderID, const string &strPasswd);
+    int UpdateUserPasswd(const string &strUserName, const string &strPasswd);
+
+    int Login(const string &strUserName, const string &strPasswd);
 
     virtual ~UserManagerService();
 private:
@@ -37,9 +45,11 @@ private:
     static pthread_mutex_t m_Mutex;
     UserManager* m_pUserMgr;
     ReaderCardManager *m_pReaderCard;
+    LoginManager *m_pLoginMgr;
 
     IDMaker m_nUserMaker;
     IDMaker m_nReaderCardMaker;
+    CardUserNameMaker m_strUserNameMaker;
 };
 
 #endif //__USER_MANAGER_SERVICE__

@@ -17,6 +17,7 @@ public:
     virtual int DeleteAllReaderCard() throw (SQLException);
     virtual int UpdateReaderCard(const FieldCond &setFieldCond, const FieldCond &fieldCond) throw (SQLException);
     virtual int QueryReaderCardByField(const FieldCond& fieldCond, list<vector<string> > &listBookInfo) throw (SQLException);
+    int QueryReaderCardByUserName(const string &strUserName, TableReaderCard &readerCard) throw (SQLException);
 
 private:
     MYSQL *m_pMySQLConn;

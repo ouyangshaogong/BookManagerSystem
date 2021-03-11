@@ -81,7 +81,16 @@ int ReaderCardDaoImpl::UpdateReaderCard(const FieldCond &setFieldCond, const Fie
     {
         strSQL = "update tbl_readercard set ";
         strSQL += setFieldCond.fieldName + " = '" + setFieldCond.fieldValue + "'";
-        strSQL += " where " + fieldCond.fieldName + " = " + fieldCond.fieldValue;
+        strSQL += " where ";
+        if (fieldCond.fieldName == "reader_id")
+        {
+            strSQL += fieldCond.fieldName + " = " + fieldCond.fieldValue;
+        }
+        else
+        {
+            strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        }
+        
         
         if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
         {
@@ -97,6 +106,40 @@ int ReaderCardDaoImpl::UpdateReaderCard(const FieldCond &setFieldCond, const Fie
     return OK;
 }
 
+int ReaderCardDaoImpl::QueryReaderCardByUserName(const string &strUserName, TableReaderCard &readerCard) throw (SQLException)
+{
+    try
+    {
+        FieldCond fieldCond;
+        fieldCond.fieldName = "username";
+        fieldCond.fieldValue = strUserName;
+        list<vector<string> > listBookInfo;
+        if (OK != QueryReaderCardByField(fieldCond, listBookInfo))
+        {
+            return FAIL;
+        }
+
+        if (!listBookInfo.empty())
+        {
+            readerCard.SetReaderID(atoi((*listBookInfo.begin())[1].c_str()));
+            readerCard.SetUserName((*listBookInfo.begin())[1]);
+            readerCard.SetPasswd((*listBookInfo.begin())[2]);
+        }
+        else
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
 int ReaderCardDaoImpl::QueryReaderCardByField(const FieldCond& fieldCond, list<vector<string> > &listBookInfo) throw (SQLException)
 {
     string strSQL;
@@ -107,7 +150,15 @@ int ReaderCardDaoImpl::QueryReaderCardByField(const FieldCond& fieldCond, list<v
     try
     {
         strSQL = "select * from tbl_readercard where ";
-        strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        if (fieldCond.fieldName == "reader_id")
+        {
+            strSQL += fieldCond.fieldName + " = " + fieldCond.fieldValue;
+        }
+        else
+        {        
+            strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        }
+        
 
         bool flag = SQLConnection::Instance()->ExecuteSQL(strSQL);
         if (flag)
