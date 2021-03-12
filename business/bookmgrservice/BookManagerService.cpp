@@ -173,7 +173,7 @@ int BookManagerService::LendBook(const int nUserID, const int nBookID, const str
         lendList.SetUserID(nUserID);
         lendList.SetBookID(nBookID);
         lendList.SetLendDate(lendDate);
-        lendList.SetBackDate("19901111");
+        lendList.SetBackDate("19901110");
         lendList.SetLendState(LENDBOOK);
         if (OK != m_pLendListImpl->AddLendData(lendList))
         {

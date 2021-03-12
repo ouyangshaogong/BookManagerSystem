@@ -78,7 +78,7 @@ void TestUpdateBookInfoByBookID(BookManagerService* pBookMgrService)
 void TestLendBook(BookManagerService* pBookMgrService)
 {
     pBookMgrService->DeleteAllLend();
-    int count = 10;
+    int count = 8;
     for (size_t i = 0; i < count; i++)
     {
         int nUserID = i + 2;
@@ -87,15 +87,14 @@ void TestLendBook(BookManagerService* pBookMgrService)
         assert(pBookMgrService->LendBook(nUserID, nBookID, strLendDate) == OK);
         cout << "strLendDate:" << strLendDate << endl;
     }
-    
-    
+     
     cout << "TestLendBook Execute Success!" << endl;
 }
 
 void TestBackBook(BookManagerService* pBookMgrService)
 {
-    int nUserID = 2;
-    int nBookID = 3;
+    int nUserID = 5;
+    int nBookID = 6;
     string strBackDate = "20000514";
     assert(pBookMgrService->BackBook(nUserID, nBookID, strBackDate) == OK);
     cout << "strBackDate:" << strBackDate << endl;
