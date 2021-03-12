@@ -25,6 +25,7 @@ public:
 
     int LendBook(const int nUserID, const int nBookID, const string &lendDate);
     int BackBook(const int nUserID, const int nBookID, const string &backDate);
+    int DeleteLendByUserIDAndBookID(const int nUserID, const int nBookID);
 
     virtual ~BookManagerService();
 private:

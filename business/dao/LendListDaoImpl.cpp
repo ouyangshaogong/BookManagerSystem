@@ -37,14 +37,54 @@ int LendListDaoImpl::AddLendData(TableLendList &lendList) throw (SQLException)
     return OK;
 }
 
-int LendListDaoImpl::DeleteLendDataByField(const FieldCond &fieldCond) throw (SQLException)
+int LendListDaoImpl::DeleteLendByUserIDAndBookID(const int nUserID, const int nBookID) throw (SQLException)
+{
+    try
+    {
+        vector<FieldCond> vecfieldCond;
+        FieldCond fieldCond;
+        fieldCond.fieldName = "user_id";
+        fieldCond.fieldValue = nUserID;
+        vecfieldCond.push_back(fieldCond);
+
+        fieldCond.fieldName = "book_id";
+        fieldCond.fieldValue = nBookID;
+        vecfieldCond.push_back(fieldCond);
+
+        if (OK != DeleteLendDataByField(vecfieldCond))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
+int LendListDaoImpl::DeleteLendDataByField(const vector<FieldCond> &vecfieldCond) throw (SQLException)
 {
     string strSQL;
 
     try
     {
-        strSQL = "delete from tbl_lendlist where " + fieldCond.fieldName;
-        strSQL += " = " + fieldCond.fieldValue + ")";
+        strSQL = "delete from tbl_lendlist where ";
+        for (size_t i = 0; i < vecfieldCond.size(); i++)
+        {
+            if(vecfieldCond[i].fieldName == "lend_back" 
+            || vecfieldCond[i].fieldName == "back_back")
+            {
+                strSQL += vecfieldCond[i].fieldName + " = '" + vecfieldCond[i].fieldValue + "'";
+            }
+            else
+            {
+                strSQL += vecfieldCond[i].fieldName + " = " + vecfieldCond[i].fieldValue + "";
+            }
+        }
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);
     }

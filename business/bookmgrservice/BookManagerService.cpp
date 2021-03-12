@@ -197,3 +197,22 @@ int BookManagerService::BackBook(const int nUserID, const int nBookID, const str
 
     return OK;
 }
+
+int BookManagerService::DeleteLendByUserIDAndBookID(const int nUserID, const int nBookID)
+{
+    try
+    {
+        if (OK != m_pLendListImpl->DeleteLendByUserIDAndBookID(nUserID, nBookID))
+        {
+            return FAIL;
+        }
+
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+}
