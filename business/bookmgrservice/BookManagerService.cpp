@@ -147,6 +147,24 @@ int BookManagerService::QueryBookByBookID(const int nBookID, TblBookInfo &bookIn
     return OK;
 }
 
+int BookManagerService::DeleteAllLend()
+{
+    try
+    {      
+        if (OK != m_pLendListImpl->DeleteAllLendData())
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+    
+    return OK;
+}
+
 int BookManagerService::LendBook(const int nUserID, const int nBookID, const string &lendDate)
 {
     try
@@ -155,7 +173,7 @@ int BookManagerService::LendBook(const int nUserID, const int nBookID, const str
         lendList.SetUserID(nUserID);
         lendList.SetBookID(nBookID);
         lendList.SetLendDate(lendDate);
-        lendList.SetBackDate("");
+        lendList.SetBackDate("19901111");
         lendList.SetLendState(LENDBOOK);
         if (OK != m_pLendListImpl->AddLendData(lendList))
         {

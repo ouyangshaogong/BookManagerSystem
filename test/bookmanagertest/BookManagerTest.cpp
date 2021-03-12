@@ -75,6 +75,41 @@ void TestUpdateBookInfoByBookID(BookManagerService* pBookMgrService)
     cout << "TestUpdateBookInfoByField Execute Success!" << endl;
 }
 
+void TestLendBook(BookManagerService* pBookMgrService)
+{
+    pBookMgrService->DeleteAllLend();
+    int count = 10;
+    for (size_t i = 0; i < count; i++)
+    {
+        int nUserID = i + 2;
+        int nBookID = i + 2;
+        string strLendDate = "20000424";
+        assert(pBookMgrService->LendBook(nUserID, nBookID, strLendDate) == OK);
+        cout << "strLendDate:" << strLendDate << endl;
+    }
+    
+    
+    cout << "TestLendBook Execute Success!" << endl;
+}
+
+void TestBackBook(BookManagerService* pBookMgrService)
+{
+    int nUserID = 2;
+    int nBookID = 3;
+    string strBackDate = "20000514";
+    assert(pBookMgrService->BackBook(nUserID, nBookID, strBackDate) == OK);
+    cout << "strBackDate:" << strBackDate << endl;
+    cout << "TestBackBook Execute Success!" << endl;
+}
+
+void TestDeleteLendByUserIDAndBookID(BookManagerService* pBookMgrService)
+{
+    int nUserID = 2;
+    int nBookID = 5;
+    assert(pBookMgrService->DeleteLendByUserIDAndBookID(nUserID, nBookID) == OK);
+    cout << "TestDeleteLendByUserIDAndBookID Execute Success!" << endl;
+}
+
 int main()
 {
     pBookMgrService = BookManagerService::Instance();
@@ -84,6 +119,10 @@ int main()
     TestDeleteByBookID(pBookMgrService);
     TestQueryBookByBookID(pBookMgrService);
     TestUpdateBookInfoByBookID(pBookMgrService);
+
+    TestLendBook(pBookMgrService);
+    TestBackBook(pBookMgrService);
+    TestDeleteLendByUserIDAndBookID(pBookMgrService);
 
     return 0;
 }
