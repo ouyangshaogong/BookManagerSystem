@@ -1,6 +1,7 @@
 #include "LendListDaoImpl.h"
 
 LendListDaoImpl::LendListDaoImpl()
+:m_nIDMaker(0)
 {
     m_pMySQLConn = SQLConnection::Instance()->GetConnection();
 }
@@ -11,8 +12,10 @@ int LendListDaoImpl::AddLendData(TableLendList &lendList) throw (SQLException)
 
     try
     {
+        int nSerNum = m_nIDMaker.GenerateID();
+        
         strSQL = "INSERT INTO tbl_lendlist VALUES (";
-        strSQL += to_string(lendList.GetSerNum()) + ",";
+        strSQL += to_string(nSerNum) + ",";
         strSQL += to_string(lendList.GetUserID()) + ",";
         strSQL += to_string(lendList.GetBookID()) + ",";
         strSQL += "'" + lendList.GetLendDate() + "',";
@@ -110,7 +113,46 @@ int LendListDaoImpl::UpdateLendDataByField(const vector<FieldCond> &setFieldCond
     return OK;
 }
 
-int LendListDaoImpl::QueryLendDataByField(const FieldCond& fieldCond, list<vector<string> > &listBookInfo) throw (SQLException)
+int LendListDaoImpl::QueryLendDataByUserIDAndBookID(const int nUserID, const int nBookID, TableLendList &lendList) throw (SQLException)
+{
+    try
+    {
+        vector<FieldCond> vecfieldCond;
+        FieldCond fieldCond;
+        fieldCond.fieldName = "user_id";
+        fieldCond.fieldValue = nUserID;
+        vecfieldCond.push_back(fieldCond);
+
+        fieldCond.fieldName = "book_id";
+        fieldCond.fieldValue = nBookID;
+        vecfieldCond.push_back(fieldCond);
+
+        list<vector<string> > listLendList;
+
+        if (OK != QueryLendDataByField(vecfieldCond, listLendList))
+        {
+            return FAIL;
+        }
+
+        list<vector<string> >::iterator iter = listLendList.begin();
+        lendList.SetSerNum(atoi((*iter)[0].c_str()));
+        lendList.SetUserID(atoi((*iter)[1].c_str()));
+        lendList.SetBookID(atoi((*iter)[2].c_str()));
+        lendList.SetLendDate((*iter)[3].c_str());
+        lendList.SetBackDate((*iter)[4].c_str());
+        lendList.SetLendState(atoi((*iter)[5].c_str()));
+    }
+    catch(const SQLException& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
+int LendListDaoImpl::QueryLendDataByField(const vector<FieldCond> &vecfieldCond, list<vector<string> > &listBookInfo) throw (SQLException)
 {
     string strSQL;
     MYSQL_RES* result;
@@ -120,8 +162,19 @@ int LendListDaoImpl::QueryLendDataByField(const FieldCond& fieldCond, list<vecto
     try
     {
         strSQL = "select * from tbl_lendlist where ";
-        strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
-
+        for (size_t i = 0; i < vecfieldCond.size(); i++)
+        {
+            if(vecfieldCond[i].fieldName == "lend_back" 
+            || vecfieldCond[i].fieldName == "back_back")
+            {
+                strSQL += vecfieldCond[i].fieldName + " = '" + vecfieldCond[i].fieldValue + "'";
+            }
+            else
+            {
+                strSQL += vecfieldCond[i].fieldName + " = " + vecfieldCond[i].fieldValue + "";
+            }
+        }
+        
         bool flag = SQLConnection::Instance()->ExecuteSQL(strSQL);
         if (flag)
         {

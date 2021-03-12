@@ -62,6 +62,26 @@ int BookInfoDaoImpl::DeleteBookAllBook() throw (SQLException)
     return OK;
 }
 
+int BookInfoDaoImpl::DeleteBookByBookID(const string &strBookID) throw (SQLException)
+{
+    try
+    {
+        string fieldName = "book_id";
+        if (OK != DeleteBookByField(fieldName, strBookID))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
 int BookInfoDaoImpl::DeleteBookByField(const string &fieldName, const string &fieldValue) throw (SQLException)
 {
     string strSQL;
@@ -69,7 +89,15 @@ int BookInfoDaoImpl::DeleteBookByField(const string &fieldName, const string &fi
     try
     {
         strSQL = "delete from tbl_bookinfo where ";
-        strSQL += fieldName + " = '" + fieldValue + "'";
+        if (fieldName == "price" || fieldName == "number"
+          || fieldName == "book_id" || fieldName == "class_id")
+        {
+            strSQL += fieldName + " = " + fieldValue + "";   
+        }
+        else
+        {
+            strSQL += fieldName + " = '" + fieldValue + "' ";   
+        }
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);
     }
@@ -92,7 +120,7 @@ int BookInfoDaoImpl::UpdateBookInfoByBookID(const int nBookID, TblBookInfo &book
         tmpFieldCond.fieldValue = bookInfo.GetName();
         setFieldCond.push_back(tmpFieldCond);
 
-        tmpFieldCond.fieldName = "auther";
+        tmpFieldCond.fieldName = "author";
         tmpFieldCond.fieldValue = bookInfo.GetAuther();
         setFieldCond.push_back(tmpFieldCond);
 
@@ -121,7 +149,7 @@ int BookInfoDaoImpl::UpdateBookInfoByBookID(const int nBookID, TblBookInfo &book
         setFieldCond.push_back(tmpFieldCond);
 
         tmpFieldCond.fieldName = "number";
-        tmpFieldCond.fieldValue = bookInfo.GetNumber();
+        tmpFieldCond.fieldValue = to_string(bookInfo.GetNumber());
         setFieldCond.push_back(tmpFieldCond);
 
         FieldCond fieldCond;
@@ -151,13 +179,14 @@ int BookInfoDaoImpl::UpdateBookInfoByField(const vector<FieldCond> &setFieldCond
 
         for (size_t i = 0; i < setFieldCond.size(); i++)
         {
-            if (setFieldCond[i].fieldName != "price" || setFieldCond[i].fieldName != "number")
+            if (setFieldCond[i].fieldName == "price" || setFieldCond[i].fieldName == "number"
+            || setFieldCond[i].fieldName == "book_id" || setFieldCond[i].fieldName == "class_id")
             {
-                strSQL += setFieldCond[i].fieldName + " = '" + setFieldCond[i].fieldValue + "',";   
+                strSQL += setFieldCond[i].fieldName + " = " + setFieldCond[i].fieldValue + ",";   
             }
             else
             {
-                strSQL += setFieldCond[i].fieldName + " = " + setFieldCond[i].fieldValue + " ";   
+                strSQL += setFieldCond[i].fieldName + " = '" + setFieldCond[i].fieldValue + "',";   
             }
         }
 
@@ -235,7 +264,15 @@ int BookInfoDaoImpl::QueryBookByField(const FieldCond& fieldCond, list<vector<st
     try
     {
         strSQL = "select * from tbl_bookinfo where ";
-        strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "'";
+        if (fieldCond.fieldName == "price" || fieldCond.fieldName == "number"
+          || fieldCond.fieldName == "book_id" || fieldCond.fieldName == "class_id")
+        {
+            strSQL += fieldCond.fieldName + " = " + fieldCond.fieldValue + "";   
+        }
+        else
+        {
+            strSQL += fieldCond.fieldName + " = '" + fieldCond.fieldValue + "' ";   
+        }
 
         bool flag = SQLConnection::Instance()->ExecuteSQL(strSQL);
         if (flag)

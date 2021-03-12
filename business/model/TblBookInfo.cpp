@@ -1,5 +1,20 @@
 #include "TblBookInfo.h"
 
+TblBookInfo::TblBookInfo()
+{
+    m_nBookId = 0;
+    m_nClassID = 0;
+    m_strName = "";
+    m_strAuther = "";
+    m_strPublish = "";
+    m_strISBN = "";
+    m_strIntroduction = "";
+    m_strLanguage = "";
+    m_nPrice = 0;
+    m_strPubDate = "";
+    m_nNumber = 0;
+}
+
 void TblBookInfo::SetBookID(int nBookID)
 {
     this->m_nBookId = nBookID;

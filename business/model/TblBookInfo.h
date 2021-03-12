@@ -7,6 +7,8 @@ class TblBookInfo
 {
 
 public:
+    TblBookInfo();
+    
     void SetBookID(int nBookID);
     int GetBookID();
 

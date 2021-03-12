@@ -31,8 +31,8 @@ void TestAddBook(BookManagerService* pBookMgrService)
 void TestDeleteByBookID(BookManagerService* pBookMgrService)
 {
     //Test DeleteBookByBookID
-    string strBookID = "1";
-    assert(pBookMgrService->DeleteBookByBookID(strBookID) == OK);
+    int nBookID = 1;
+    assert(pBookMgrService->DeleteBookByBookID(nBookID) == OK);
     cout << "TestDeleteByBookID Execute Success!" << endl;
 }
 
@@ -60,6 +60,17 @@ void TestUpdateBookInfoByBookID(BookManagerService* pBookMgrService)
 
     int nBookID = 5;
     TblBookInfo bookInfo;
+    
+    bookInfo.SetAuther("luxun");
+    bookInfo.SetIntroduction("Introduction");
+    bookInfo.SetISBN("ISBN");
+    bookInfo.SetLanguage("CN");
+    bookInfo.SetName("yao");
+    bookInfo.SetNumber(10);
+    bookInfo.SetPrice(50);
+    bookInfo.SetPubDate("19901020");
+    bookInfo.SetPublish("New York");
+    
     assert(pBookMgrService->UpdateBookInfoByBookID(nBookID, bookInfo) == OK);
     cout << "TestUpdateBookInfoByField Execute Success!" << endl;
 }

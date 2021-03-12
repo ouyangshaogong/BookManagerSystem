@@ -11,6 +11,7 @@ class BookInfoDao
 public:
     virtual int AddBook(TblBookInfo &bookInfo) throw (SQLException) = 0;
     virtual int DeleteBookByField(const string &fieldName, const string &fieldValue) throw (SQLException) = 0;
+    virtual int DeleteBookByBookID(const string &strBookID) throw (SQLException) = 0;
     virtual int DeleteBookAllBook() throw (SQLException) = 0;
     virtual int UpdateBookInfoByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond) throw (SQLException) = 0;
     virtual int UpdateBookInfoByBookID(const int nBookID, TblBookInfo &bookInfo) throw (SQLException) = 0;

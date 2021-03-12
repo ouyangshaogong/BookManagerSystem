@@ -6,6 +6,7 @@ BookManagerService* BookManagerService::m_instance = NULL;
 BookManagerService::BookManagerService()
 {
     m_pBookInfoImpl = new BookInfoDaoImpl();
+    m_pLendListImpl = new LendListDaoImpl();
 }
 
 BookManagerService::~BookManagerService()
@@ -89,12 +90,13 @@ int BookManagerService::DeleteBookAllBook()
     return OK;
 }
 
-int BookManagerService::DeleteBookByBookID(const string &strBookID)
+int BookManagerService::DeleteBookByBookID(const int nBookID)
 {
     try
     {
         string strFieldName = "book_id";
-        if (OK != m_pBookInfoImpl->DeleteBookByField(strFieldName, strBookID))
+        string strBookID = to_string(nBookID);
+        if (OK != m_pBookInfoImpl->DeleteBookByBookID(strBookID))
         {   
             cout << "BookManagerService::DeleteBookByBookID>>DeleteBook FAIL!" << endl;
             return FAIL;
@@ -113,13 +115,6 @@ int BookManagerService::UpdateBookInfoByBookID(const int nBookID, TblBookInfo &b
 {
     try
     {      
-        TblBookInfo tmpBook;
-        if (OK != m_pBookInfoImpl->QueryBookByBookID(nBookID, tmpBook))
-        {
-            return FAIL;
-        }
-
-        
         if (OK != m_pBookInfoImpl->UpdateBookInfoByBookID(nBookID, bookInfo))
         {
             return FAIL;
@@ -149,5 +144,56 @@ int BookManagerService::QueryBookByBookID(const int nBookID, TblBookInfo &bookIn
         return FAIL;
     }
     
+    return OK;
+}
+
+int BookManagerService::LendBook(const int nUserID, const int nBookID, const string &lendDate)
+{
+    try
+    {
+        TableLendList lendList;
+        lendList.SetUserID(nUserID);
+        lendList.SetBookID(nBookID);
+        lendList.SetLendDate(lendDate);
+        lendList.SetBackDate("");
+        lendList.SetLendState(LENDBOOK);
+        if (OK != m_pLendListImpl->AddLendData(lendList))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
+int BookManagerService::BackBook(const int nUserID, const int nBookID, const string &backDate)
+{
+    try
+    {
+        TableLendList lendList;
+        if (OK != m_pLendListImpl->QueryLendDataByUserIDAndBookID(nUserID, nBookID, lendList))
+        {
+            return FAIL;
+        }
+
+        lendList.SetBackDate(backDate);
+        lendList.SetLendState(BACKBOOK);
+        if (OK != m_pLendListImpl->AddLendData(lendList))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
     return OK;
 }
