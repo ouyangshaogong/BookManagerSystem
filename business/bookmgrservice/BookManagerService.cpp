@@ -194,15 +194,9 @@ int BookManagerService::BackBook(const int nUserID, const int nBookID, const str
 {
     try
     {
-        TableLendList lendList;
-        if (OK != m_pLendListImpl->QueryLendDataByUserIDAndBookID(nUserID, nBookID, lendList))
-        {
-            return FAIL;
-        }
-
-        lendList.SetBackDate(backDate);
-        lendList.SetLendState(BACKBOOK);
-        if (OK != m_pLendListImpl->AddLendData(lendList))
+        string strUserID =  to_string(nUserID);
+        string strBookID = to_string(nBookID);
+        if (OK != m_pLendListImpl->UpdateBackDateByUserIDAndBookID(strUserID, strBookID, backDate))
         {
             return FAIL;
         }
@@ -220,7 +214,9 @@ int BookManagerService::DeleteLendByUserIDAndBookID(const int nUserID, const int
 {
     try
     {
-        if (OK != m_pLendListImpl->DeleteLendByUserIDAndBookID(nUserID, nBookID))
+        string strUserID = to_string(nUserID);
+        string strBookID = to_string(nBookID);
+        if (OK != m_pLendListImpl->DeleteLendByUserIDAndBookID(strUserID, strBookID))
         {
             return FAIL;
         }

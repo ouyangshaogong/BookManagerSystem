@@ -37,18 +37,18 @@ int LendListDaoImpl::AddLendData(TableLendList &lendList) throw (SQLException)
     return OK;
 }
 
-int LendListDaoImpl::DeleteLendByUserIDAndBookID(const int nUserID, const int nBookID) throw (SQLException)
+int LendListDaoImpl::DeleteLendByUserIDAndBookID(const string &strUserID, const string &strBookID) throw (SQLException)
 {
     try
     {
         vector<FieldCond> vecfieldCond;
         FieldCond fieldCond;
         fieldCond.fieldName = "user_id";
-        fieldCond.fieldValue = nUserID;
+        fieldCond.fieldValue = strUserID;
         vecfieldCond.push_back(fieldCond);
 
         fieldCond.fieldName = "book_id";
-        fieldCond.fieldValue = nBookID;
+        fieldCond.fieldValue = strBookID;
         vecfieldCond.push_back(fieldCond);
 
         if (OK != DeleteLendDataByField(vecfieldCond))
@@ -78,13 +78,15 @@ int LendListDaoImpl::DeleteLendDataByField(const vector<FieldCond> &vecfieldCond
             if(vecfieldCond[i].fieldName == "lend_back" 
             || vecfieldCond[i].fieldName == "back_back")
             {
-                strSQL += vecfieldCond[i].fieldName + " = '" + vecfieldCond[i].fieldValue + "'";
+                strSQL += vecfieldCond[i].fieldName + " = '" + vecfieldCond[i].fieldValue + "' and ";
             }
             else
             {
-                strSQL += vecfieldCond[i].fieldName + " = " + vecfieldCond[i].fieldValue + "";
+                strSQL += vecfieldCond[i].fieldName + " = " + vecfieldCond[i].fieldValue + " and ";
             }
         }
+
+        strSQL = strSQL.substr(0, strSQL.length() - 4);
 
         SQLConnection::Instance()->ExecuteSQL(strSQL);
     }
@@ -119,7 +121,40 @@ int LendListDaoImpl::DeleteAllLendData() throw (SQLException)
     return OK;
 }
 
-int LendListDaoImpl::UpdateLendDataByField(const vector<FieldCond> &setFieldCond, const FieldCond &fieldCond) throw (SQLException)
+int LendListDaoImpl::UpdateBackDateByUserIDAndBookID(const string &strUserID, const string &strBookID, const string &backDate) throw (SQLException)
+{
+    try
+    {
+        vector<FieldCond> setFieldCond;
+        FieldCond fieldCond;
+        fieldCond.fieldName = "back_date";
+        fieldCond.fieldValue = backDate;
+        setFieldCond.push_back(fieldCond);
+
+        vector<FieldCond> vecFieldCond;
+        fieldCond.fieldName = "user_id";
+        fieldCond.fieldValue = strUserID;
+        vecFieldCond.push_back(fieldCond);
+
+        fieldCond.fieldName = "book_id";
+        fieldCond.fieldValue = strBookID;
+        vecFieldCond.push_back(fieldCond);
+        if (OK != UpdateLendDataByField(setFieldCond, vecFieldCond))
+        {
+            return FAIL;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return FAIL;
+    }
+
+    return OK;
+    
+}
+
+int LendListDaoImpl::UpdateLendDataByField(const vector<FieldCond> &setFieldCond, const vector<FieldCond> &vecFieldCond) throw (SQLException)
 {
     string strSQL;
 
@@ -129,16 +164,36 @@ int LendListDaoImpl::UpdateLendDataByField(const vector<FieldCond> &setFieldCond
 
         for (size_t i = 0; i < setFieldCond.size(); i++)
         {
-            strSQL += setFieldCond[i].fieldName + " = '" + setFieldCond[i].fieldValue + "',";   
+            if(setFieldCond[i].fieldName == "lend_back" 
+            || setFieldCond[i].fieldName == "back_back")
+            {
+                strSQL += setFieldCond[i].fieldName + " = '" + setFieldCond[i].fieldValue + "',";
+            }
+            else
+            {
+                strSQL += setFieldCond[i].fieldName + " = " + setFieldCond[i].fieldValue + ",";
+            }  
         }
 
-        if (strSQL[strSQL.length() - 1] == ',')
+        strSQL = strSQL.substr(0, strSQL.length() - 1);
+
+        strSQL += " where ";
+        for (size_t i = 0; i < vecFieldCond.size(); i++)
         {
-            strSQL = strSQL.substr(0, strSQL.length() - 1);
+            if(vecFieldCond[i].fieldName == "lend_back" 
+            || vecFieldCond[i].fieldName == "back_back")
+            {
+                strSQL += vecFieldCond[i].fieldName + " = '" + vecFieldCond[i].fieldValue + "' and ";
+            }
+            else
+            {
+                strSQL += vecFieldCond[i].fieldName + " = " + vecFieldCond[i].fieldValue + " and ";
+            }  
         }
-
-        strSQL += " where " + fieldCond.fieldName + " = " + fieldCond.fieldValue;
         
+        strSQL = strSQL.substr(0, strSQL.length() - 4);
+
+        cout << "strSQL:" << strSQL << endl;
         if (!SQLConnection::Instance()->ExecuteSQL(strSQL))
         {
             return FAIL;
@@ -153,18 +208,18 @@ int LendListDaoImpl::UpdateLendDataByField(const vector<FieldCond> &setFieldCond
     return OK;
 }
 
-int LendListDaoImpl::QueryLendDataByUserIDAndBookID(const int nUserID, const int nBookID, TableLendList &lendList) throw (SQLException)
+int LendListDaoImpl::QueryLendDataByUserIDAndBookID(const string &strUserID, const string &strBookID, TableLendList &lendList) throw (SQLException)
 {
     try
     {
         vector<FieldCond> vecfieldCond;
         FieldCond fieldCond;
         fieldCond.fieldName = "user_id";
-        fieldCond.fieldValue = nUserID;
+        fieldCond.fieldValue = strUserID;
         vecfieldCond.push_back(fieldCond);
 
         fieldCond.fieldName = "book_id";
-        fieldCond.fieldValue = nBookID;
+        fieldCond.fieldValue = strBookID;
         vecfieldCond.push_back(fieldCond);
 
         list<vector<string> > listLendList;
