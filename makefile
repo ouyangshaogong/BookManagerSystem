@@ -29,6 +29,11 @@ USERMGRSERVICE: UTILS MODEL DAO
 	make -C $(HOMEDIR)/business/usermgrservice
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
 
+MVCFRAME:
+	@cp -rf $(HOMEDIR)/client/*.h $(HOMEDIR)/include/client
+	make -C $(HOMEDIR)/client
+	@cp $(HOMEDIR)/client/libmvcframe.so $(HOMEDIR)/lib
+
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
 	make -C $(HOMEDIR)/test/bookmanagertest
 	make -C $(HOMEDIR)/test/usermanagertest
