@@ -6,7 +6,9 @@
 
 struct NotifyController
 {
+    int nMsg;
     string strClassName;
+    void *pCommonData;
 };
 
 

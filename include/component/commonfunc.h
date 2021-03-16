@@ -12,7 +12,7 @@ public:
     void DestoryInstance();
 
     virtual void RegisterCommand(int nCmdMsg, void *control);
-    virtual void SendNotifyCationToController(int nCmdMsg);
+    virtual void SendNotifyCationToController(int nCmdMsg, int nMsg);
 
 
     virtual void RegisterProxy(void *proxy);
@@ -20,6 +20,8 @@ public:
 
     virtual void RegisterView(View *view);
     virtual void SendNotifyCationToView(int nMsg, void *pCommonData);
+
+protected:
     NotifyView GetNotifyView();
 
 private:

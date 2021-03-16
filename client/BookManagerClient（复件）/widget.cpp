@@ -2,7 +2,7 @@
 #include "ui_widget.h"
 #include "commonfunc.h"
 #include <QString>
-
+#include <QDebug>
 
 #define CMD_MSG_DATA_COMMAND 100
 
@@ -12,10 +12,10 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->pushButton, &QPushButton::clicked, this, [=](){
-        CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND);
-    });
+
 }
+
+
 
 Widget::~Widget()
 {
@@ -37,10 +37,15 @@ void Widget::HandleNotifyCation(NotifyView notify)
     {
         case MSG_ADDLEVEL:
             p = (int*)notify.pCommonData;
-            ui->label->setText(QString::number(*p));
+            qDebug() << "LEVEL:" << QString().number(*p);
             break;
         default:
             break;
     }
 }
 
+void Widget::AddMenuBar()
+{
+    m_menuBar = menuBar();
+    setMenuBar(m_menuBar);
+}

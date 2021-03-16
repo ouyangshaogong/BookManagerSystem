@@ -44,13 +44,14 @@ void CommonFunc::RegisterCommand(int nCmdMsg, void *control)
     m_nMsgMapController.insert(map<int, void*>::value_type(nCmdMsg, control));
 }
 
-void CommonFunc::SendNotifyCationToController(int nCmdMsg)
+void CommonFunc::SendNotifyCationToController(int nCmdMsg, int nMsg)
 {
     map<int, void*>::iterator iter = m_nMsgMapController.find(nCmdMsg);
     if (iter != m_nMsgMapController.end())
     {
         Controller *control = (Controller*)iter->second;
         m_notifyControl.strClassName = m_nProxy->GetProxyName();
+        m_notifyControl.nMsg = nMsg;
         control->handleEvent(m_notifyControl);
     }
     

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "view.h"
+#include <QMenuBar>
 
 #define MSG_ADDLEVEL 1000
 #define CMD_MSG_DATA_COMMAND 100
@@ -21,6 +22,12 @@ public:
 
     virtual list<int> ReceiveMsg();
     virtual void HandleNotifyCation(NotifyView notifydata);
+
+public:
+    void AddMenuBar();
+
+private:
+    QMenuBar *m_menuBar;
 
 private:
     Ui::Widget *ui;
