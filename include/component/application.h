@@ -6,7 +6,7 @@
 class Application
 {
 public:
-    virtual void StartApp() = 0;
+    virtual void StartApp(void *pApp) = 0;
 };
 
 #endif //__APPLICATION__

@@ -12,7 +12,7 @@ void UserInputEvent()
         if (str == "TEST" || str == "CMD"
         || str == "MSG" || str == "USER")
         {
-            SendNotifyCationToController(CMD_MSG_DATA_COMMAND);
+            CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND);
         }
         else
         {
@@ -22,10 +22,15 @@ void UserInputEvent()
     
 }
 
+
+
+
 int main()
 {
     MyApplication myApp;
-    myApp.StartApp();
+
+    void *p = NULL;
+    myApp.StartApp(p);
 
     UserInputEvent();
 

@@ -4,11 +4,12 @@
 #include "application.h"
 #include "DataController.h"
 #include "DataProxy.h"
-#include "DataView.h"
+#include "widget.h"
 
 class MyApplication: public Application
 {
 public:
+    MyApplication(){}
     virtual void StartApp(void *pApp);
 };
 

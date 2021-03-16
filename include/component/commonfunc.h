@@ -5,16 +5,38 @@
 #include "view.h"
 #include "proxy.h"
 
-void RegisterCommand(int nCmdMsg, void *control);
-void SendNotifyCationToController(int nCmdMsg);
+class CommonFunc
+{
+public:
+    static CommonFunc* Instance();
+    void DestoryInstance();
+
+    virtual void RegisterCommand(int nCmdMsg, void *control);
+    virtual void SendNotifyCationToController(int nCmdMsg);
 
 
-void RegisterProxy(void *proxy);
-void* RetrieveProxy(string strName);
+    virtual void RegisterProxy(void *proxy);
+    virtual void* RetrieveProxy(string strName);
 
-void RegisterView(View *view);
-void SendNotifyCationToView(int nMsg, void *pCommonData);
+    virtual void RegisterView(View *view);
+    virtual void SendNotifyCationToView(int nMsg, void *pCommonData);
+    NotifyView GetNotifyView();
 
+private:
+    CommonFunc(){}
 
+private:
+    map<int, void*> m_nMsgMapController;
+    NotifyController m_notifyControl;
+
+    View *m_nView;
+    NotifyView m_nNotifyView;
+
+    Proxy *m_nProxy;
+    map<string, void*> m_StringMapProxy;
+
+    static CommonFunc* m_instance;
+    static pthread_mutex_t m_Mutex;
+};
 
 #endif 

@@ -62,4 +62,4 @@ struct FieldCond
     string fieldValue;
 };
 
-#endif
+#endif //__COMMON_CPP__

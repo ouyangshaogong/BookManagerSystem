@@ -14,8 +14,8 @@ Bin := client
 AllLibs : $(Bin)
 CC = g++
 CXXFLAGS = -g -O2 -fPIC -Wall
-CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/client
-LDFLAGS = -lstdc++ -lmvcframe
+CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component
+LDFLAGS = -lstdc++ -lcomponent
 
 $(Bin) : $(Objs)
 	g++ $(Objs) -o $@ $(LDFLAGS) 

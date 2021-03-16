@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TEST ECHO
+ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE CONPONENT TESTCLIENT TEST ECHO
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -29,10 +29,13 @@ USERMGRSERVICE: UTILS MODEL DAO
 	make -C $(HOMEDIR)/business/usermgrservice
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
 
-MVCFRAME:
+CONPONENT:
 	@cp -rf $(HOMEDIR)/component/*.h $(HOMEDIR)/include/component
 	make -C $(HOMEDIR)/component
-	@cp $(HOMEDIR)/component/libmvcframe.so $(HOMEDIR)/lib
+	@cp $(HOMEDIR)/component/libcomponent.so $(HOMEDIR)/lib
+
+TESTCLIENT: CONPONENT
+	make -C $(HOMEDIR)/test/client
 
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
 	make -C $(HOMEDIR)/test/bookmanagertest

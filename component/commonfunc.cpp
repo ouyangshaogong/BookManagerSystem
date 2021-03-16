@@ -1,42 +1,72 @@
 #include "commonfunc.h"
 
-map<int, void*> g_nMsgMapController;
-NotifyController g_notifyControl;
+pthread_mutex_t CommonFunc::m_Mutex = PTHREAD_MUTEX_INITIALIZER;
+CommonFunc* CommonFunc::m_instance = NULL;
 
-View *g_nView;
-NotifyView g_nNotifyView;
-
-Proxy *g_nProxy;
-map<string, void*> g_StringMapProxy;
-
-void RegisterCommand(int nCmdMsg, void *control)
+CommonFunc* CommonFunc::Instance()
 {
-    g_nMsgMapController.insert(map<int, void*>::value_type(nCmdMsg, control));
+    if (m_instance == NULL)
+    {
+        pthread_mutex_lock(&m_Mutex);    // 加锁
+
+        if (m_instance == NULL)
+        {
+            m_instance = new CommonFunc();           
+        }
+
+        pthread_mutex_unlock(&m_Mutex);  // 解锁
+    }
+
+    return m_instance;
 }
 
-void SendNotifyCationToController(int nCmdMsg)
+void CommonFunc::DestoryInstance()
 {
-    map<int, void*>::iterator iter = g_nMsgMapController.find(nCmdMsg);
-    if (iter != g_nMsgMapController.end())
+    if (m_instance != NULL)
     {
-        Controller *control = (Controller*)iter->second;
-        g_notifyControl.strClassName = g_nProxy->GetProxyName();
-        control->handleEvent(g_notifyControl);
+        pthread_mutex_lock(&m_Mutex);    // 加锁
+
+        if (m_instance != NULL)
+        {
+            delete m_instance;
+		    m_instance = NULL;
+        }
+
+        pthread_mutex_unlock(&m_Mutex);  // 解锁
     }
     
 }
 
 
-void RegisterProxy(void *proxy)
+
+void CommonFunc::RegisterCommand(int nCmdMsg, void *control)
 {
-    g_nProxy = (Proxy*)proxy;
-    g_StringMapProxy.insert(map<string, void*>::value_type(g_nProxy->GetProxyName(), proxy));
+    m_nMsgMapController.insert(map<int, void*>::value_type(nCmdMsg, control));
 }
 
-void* RetrieveProxy(string strName)
+void CommonFunc::SendNotifyCationToController(int nCmdMsg)
 {
-    map<string, void*>::iterator iter = g_StringMapProxy.find(strName);
-    if (iter != g_StringMapProxy.end())
+    map<int, void*>::iterator iter = m_nMsgMapController.find(nCmdMsg);
+    if (iter != m_nMsgMapController.end())
+    {
+        Controller *control = (Controller*)iter->second;
+        m_notifyControl.strClassName = m_nProxy->GetProxyName();
+        control->handleEvent(m_notifyControl);
+    }
+    
+}
+
+
+void CommonFunc::RegisterProxy(void *proxy)
+{
+    m_nProxy = (Proxy*)proxy;
+    m_StringMapProxy.insert(map<string, void*>::value_type(m_nProxy->GetProxyName(), proxy));
+}
+
+void* CommonFunc::RetrieveProxy(string strName)
+{
+    map<string, void*>::iterator iter = m_StringMapProxy.find(strName);
+    if (iter != m_StringMapProxy.end())
     {
         return iter->second;
     }
@@ -45,25 +75,30 @@ void* RetrieveProxy(string strName)
 }
 
 
-void RegisterView(View *view)
+void CommonFunc::RegisterView(View *view)
 {
-    g_nView = view;
+    m_nView = view;
 }
 //send data to view
-void SendNotifyCationToView(int nMsg, void *pCommonData)
+void CommonFunc::SendNotifyCationToView(int nMsg, void *pCommonData)
 {
-    list<int> listMsg = g_nView->ReceiveMsg();
+    list<int> listMsg = m_nView->ReceiveMsg();
 
     list<int>::iterator iter = listMsg.begin();
     for (; iter != listMsg.end(); ++iter)
     {
         if ((*iter) == nMsg)
         {
-            g_nNotifyView.nMsg = nMsg;
-            g_nNotifyView.pCommonData = pCommonData;
-            g_nView->HandleNotifyCation(g_nNotifyView);
+            m_nNotifyView.nMsg = nMsg;
+            m_nNotifyView.pCommonData = pCommonData;
+            m_nView->HandleNotifyCation(m_nNotifyView);
             break;
         }
     }
     
+}
+
+NotifyView CommonFunc::GetNotifyView()
+{
+    return m_nNotifyView;
 }

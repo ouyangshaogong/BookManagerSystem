@@ -1,11 +1,13 @@
 #include "MyApplication.h"
 #include "commonfunc.h"
 
-void MyApplication::StartApp()
+extern CommonFunc g_commonFunc;
+
+void MyApplication::StartApp(void *pApp)
 {
-    RegisterCommand(CMD_MSG_DATA_COMMAND, (void*)(new DataController()));
+    CommonFunc::Instance()->RegisterCommand(CMD_MSG_DATA_COMMAND, (void*)(new DataController()));
 
-    RegisterView(new DataView());
+    CommonFunc::Instance()->RegisterView(new DataView());
 
-    RegisterProxy(new DataProxy());
+    CommonFunc::Instance()->RegisterProxy(new DataProxy());
 }

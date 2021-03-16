@@ -8,12 +8,12 @@ Deps := $(patsubst %.cpp,%.d, $(Sources))
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
-DynamicLib := libmvcframe.so
+DynamicLib := libcomponent.so
 
 AllLibs : $(DynamicLib)
 CC = g++
-CXXFLAGS = -g -O2 -fPIC -Wall
-CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/utils -I$(INCDIR)/model -I$(INCDIR)/dao
+CXXFLAGS = -g -O -fPIC -Wall
+CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common
 LDFLAGS = -lstdc++
 
 $(DynamicLib) : $(Objs)
