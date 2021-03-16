@@ -11,5 +11,8 @@ void DataProxy::AddLevel(int nLevel)
     dataModel.SetLevel(level + nLevel);
 
     level = dataModel.GetLevel();
-    CommonFunc::Instance()->SendNotifyCationToView(MSG_ADDLEVEL, &level);
+    NotifyMsg notify;
+    notify.nMsg = MSG_ADDLEVEL;
+    notify.pCommonData = &level;
+    CommonFunc::Instance()->SendNotifyCationToView(&notify);
 }

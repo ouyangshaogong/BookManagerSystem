@@ -2,8 +2,8 @@
 #define __MY_APPLICATION__
 
 #include "application.h"
-#include "DataController.h"
-#include "DataProxy.h"
+#include "datacontroller.h"
+#include "dataproxy.h"
 #include "mainwindow.h"
 
 class MyApplication: public Application

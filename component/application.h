@@ -1,7 +1,7 @@
 #ifndef __APPLICATION__
 #define __APPLICATION__
 
-#include "common.h"
+#include "component.h"
 
 class Application
 {

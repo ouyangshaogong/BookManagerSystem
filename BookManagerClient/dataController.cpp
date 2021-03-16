@@ -1,12 +1,12 @@
-#include "DataController.h"
-#include "DataProxy.h"
+#include "datacontroller.h"
+#include "dataproxy.h"
 #include "datacommonfunc.h"
+#include "usermodel.h"
 
-void DataController::handleEvent(NotifyController notify)
+
+void DataController::handleEvent(NotifyMsg notify)
 {
     DataProxy *dataProxy = (DataProxy*)DataCommonFunc::Instance()->RetrieveProxy(notify.strClassName);
-
-
 
     switch(notify.nMsg)
     {
@@ -14,8 +14,11 @@ void DataController::handleEvent(NotifyController notify)
             dataProxy->AddLevel(50);
             break;
         case MSG_ADDUSER:
-            dataProxy->AddUser();
+        {
+            UserModel *userModel = (UserModel*)notify.pCommonData;
+            dataProxy->AddUser(*userModel);
             break;
+        }
         case MSG_DELETEUSER:
             dataProxy->DeleteUser();
             break;

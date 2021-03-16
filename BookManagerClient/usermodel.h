@@ -6,6 +6,7 @@
 class UserModel
 {
 public:
+    UserModel(){}
     UserModel(int nUserID,
     int nReaderID,
     string strPhone,

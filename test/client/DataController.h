@@ -7,7 +7,7 @@ class DataController: public Controller
 {
 
 public:
-    virtual void handleEvent(NotifyController notify);
+    virtual void handleEvent(NotifyMsg notify);
 };
 
 #endif

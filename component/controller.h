@@ -1,23 +1,13 @@
 #ifndef __CONTROLLER__
 #define __CONTROLLER__
 
-#include "common.h"
-#include "proxy.h"
-
-struct NotifyController
-{
-    int nMsg;
-    string strClassName;
-    void *pCommonData;
-};
-
-
+#include "component.h"
 
 class Controller
 {
 
 public:
-    virtual void handleEvent(NotifyController notify) = 0;
+    virtual void handleEvent(NotifyMsg notify) = 0;
 
 };
 

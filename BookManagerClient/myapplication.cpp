@@ -1,4 +1,4 @@
-#include "MyApplication.h"
+#include "myapplication.h"
 #include "datacommonfunc.h"
 
 void MyApplication::StartApp(void *pApp)

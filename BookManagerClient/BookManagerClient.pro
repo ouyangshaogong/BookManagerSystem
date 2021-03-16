@@ -9,21 +9,21 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    DataController.cpp \
-    DataProxy.cpp \
-    MyApplication.cpp \
+    dataController.cpp \
     datacommonfunc.cpp \
+    dataproxy.cpp \
     main.cpp \
     mainwindow.cpp \
+    myapplication.cpp \
     usermodel.cpp
 
 HEADERS += \
-    DataController.h \
-    DataProxy.h \
-    MyApplication.h \
     commonmsg.h \
     datacommonfunc.h \
+    datacontroller.h \
+    dataproxy.h \
     mainwindow.h \
+    myapplication.h \
     usermodel.h
 
 # Default rules for deployment.

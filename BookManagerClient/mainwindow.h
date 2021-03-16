@@ -26,7 +26,7 @@ public:
     ~MainWindow();
 
     virtual list<int> ReceiveMsg();
-    virtual void HandleNotifyCation(NotifyView notifydata);
+    virtual void HandleNotifyCation(NotifyMsg notifydata);
 
 public:
     void AddMenuBar();

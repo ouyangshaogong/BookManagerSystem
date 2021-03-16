@@ -12,7 +12,7 @@ list<int> DataView::ReceiveMsg()
     return listMsg;
 }
 
-void DataView::HandleNotifyCation(NotifyView notify)
+void DataView::HandleNotifyCation(NotifyMsg notify)
 {
     int *p = NULL;
     switch(notify.nMsg)

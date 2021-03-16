@@ -17,7 +17,7 @@ void DataCommonFunc::SendNotifyCationToView(int nMsg, void *pCommonData)
         if ((*iter) == nMsg)
         {
             qDebug() << "DataCommonFunc::SendNotifyCationToView>>" << nMsg;
-            NotifyView notify = GetNotifyView();
+            NotifyMsg notify = GetNotifyView();
             notify.nMsg = nMsg;
             notify.pCommonData = pCommonData;
             m_mainWinView->HandleNotifyCation(notify);

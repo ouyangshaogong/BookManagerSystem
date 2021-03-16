@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QDesktopWidget>
 #include "datacommonfunc.h"
+#include "usermodel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -77,9 +78,9 @@ list<int> MainWindow::ReceiveMsg()
     return listMsg;
 }
 
-void MainWindow::HandleNotifyCation(NotifyView notify)
+void MainWindow::HandleNotifyCation(NotifyMsg notify)
 {
-    int *p = NULL;
+
     //QString str;
     string *pstr = (string*)notify.pCommonData;
     QString str(pstr->c_str());
@@ -87,9 +88,12 @@ void MainWindow::HandleNotifyCation(NotifyView notify)
     switch(notify.nMsg)
     {
         case MSG_ADDLEVEL:
+        {
+            int *p = NULL;
             p = (int*)notify.pCommonData;
             qDebug() << "LEVEL:" << QString().number(*p);
             break;
+        }
         case MSG_ADDUSER:
             DisplayAddUser(str);
             break;
@@ -241,28 +245,38 @@ void MainWindow::SetCenterWidget()
 void MainWindow::AddUserAction()
 {
     connect(m_addUserAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_ADDUSER);
+        NotifyMsg notify;
+        notify.nMsg = MSG_ADDUSER;
+        UserModel userModel;
+        notify.pCommonData = (void*)&userModel;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::DeleteUserAction()
 {
     connect(m_deleteUserAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_DELETEUSER);
+        NotifyMsg notify;
+        notify.nMsg = MSG_DELETEUSER;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::ModifyUserAction()
 {
     connect(m_modifyUserAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_MODIFYUSER);
+        NotifyMsg notify;
+        notify.nMsg = MSG_MODIFYUSER;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::QueryUserAction()
 {
     connect(m_queryUserAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_QUERYUSER);
+        NotifyMsg notify;
+        notify.nMsg = MSG_QUERYUSER;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
@@ -270,28 +284,36 @@ void MainWindow::QueryUserAction()
 void MainWindow::AddBookAction()
 {
     connect(m_addBookAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_ADDBOOK);
+        NotifyMsg notify;
+        notify.nMsg = MSG_ADDBOOK;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::DeleteBookAction()
 {
     connect(m_deleteBookAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_DELETEBOOK);
+        NotifyMsg notify;
+        notify.nMsg = MSG_DELETEBOOK;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::ModifyBookAction()
 {
     connect(m_modifyBookAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_MODIFYBOOK);
+        NotifyMsg notify;
+        notify.nMsg = MSG_MODIFYBOOK;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 
 void MainWindow::QueryBookAction()
 {
     connect(m_queryBookAction, &QAction::triggered,[=](){
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_QUERYBOOK);
+        NotifyMsg notify;
+        notify.nMsg = MSG_QUERYBOOK;
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
     });
 }
 

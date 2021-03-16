@@ -1,7 +1,7 @@
 #ifndef __PROXY__
 #define __PROXY__
 
-#include "common.h"
+#include "component.h"
 
 
 class Proxy

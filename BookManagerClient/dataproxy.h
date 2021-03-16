@@ -10,7 +10,7 @@ public:
     DataProxy():Proxy("DataProxy"){};
 
     void AddLevel(int nLevel);
-    void AddUser();
+    void AddUser(UserModel userModel);
     void DeleteUser();
     void ModifyUser();
     void QueryUser();
@@ -21,7 +21,7 @@ public:
     void QueryBook();
 
 private:
-
+    UserModel m_userModel;
 };
 
 #endif

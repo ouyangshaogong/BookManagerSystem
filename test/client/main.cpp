@@ -12,7 +12,8 @@ void UserInputEvent()
         if (str == "TEST" || str == "CMD"
         || str == "MSG" || str == "USER")
         {
-            CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, MSG_ADDLEVEL);
+            NotifyMsg notify;
+            CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
         }
         else
         {

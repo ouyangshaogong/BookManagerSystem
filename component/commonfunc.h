@@ -12,27 +12,27 @@ public:
     void DestoryInstance();
 
     virtual void RegisterCommand(int nCmdMsg, void *control);
-    virtual void SendNotifyCationToController(int nCmdMsg, int nMsg);
+    virtual void SendNotifyCationToController(int nCmdMsg, NotifyMsg *notify);
 
 
     virtual void RegisterProxy(void *proxy);
     virtual void* RetrieveProxy(string strName);
 
     virtual void RegisterView(View *view);
-    virtual void SendNotifyCationToView(int nMsg, void *pCommonData);
+    virtual void SendNotifyCationToView(NotifyMsg *notify);
 
 protected:
-    NotifyView GetNotifyView();
+    NotifyMsg GetNotifyView();
 
 private:
     CommonFunc(){}
 
 private:
     map<int, void*> m_nMsgMapController;
-    NotifyController m_notifyControl;
+    NotifyMsg m_notifyControl;
 
     View *m_nView;
-    NotifyView m_nNotifyView;
+    NotifyMsg m_nNotifyView;
 
     Proxy *m_nProxy;
     map<string, void*> m_StringMapProxy;
