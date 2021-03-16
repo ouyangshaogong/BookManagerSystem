@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE TEST ECHO
+ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TEST ECHO
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -50,4 +50,6 @@ clean:
 	@make clean -C $(HOMEDIR)/business/usermgrservice
 	@make clean -C $(HOMEDIR)/test/bookmanagertest
 	@make clean -C $(HOMEDIR)/test/usermanagertest
+	@make clean -C $(HOMEDIR)/test/client
+	@make clean -C $(HOMEDIR)/client
 	@rm -rf $(HOMEDIR)/lib/*.so

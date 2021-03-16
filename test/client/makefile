@@ -14,8 +14,8 @@ Bin := client
 AllLibs : $(Bin)
 CC = g++
 CXXFLAGS = -g -O2 -fPIC -Wall
-CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/usermgrservice -I$(INCDIR)/dao -I$(INCDIR)/model -I$(INCDIR)/utils
-LDFLAGS = -lstdc++ -lmysqlclient -lbookutils -lbookmodel -lbookmgrdao -lusermgrservice
+CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/client
+LDFLAGS = -lstdc++ -lmvcframe
 
 $(Bin) : $(Objs)
 	g++ $(Objs) -o $@ $(LDFLAGS) 

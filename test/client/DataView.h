@@ -6,10 +6,12 @@
 #define MSG_ADDLEVEL 1000
 #define CMD_MSG_DATA_COMMAND 100
 
-class DataView: View
+class DataView: public View
 {
 public:
-    void UserInputEvent();
+
+    DataView(){}
+    ~DataView(){}
 
     virtual list<int> ReceiveMsg();
     virtual void HandleNotifyCation(NotifyView notifydata);

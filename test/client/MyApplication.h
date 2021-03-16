@@ -6,7 +6,7 @@
 #include "DataProxy.h"
 #include "DataView.h"
 
-class MyApplication: Application
+class MyApplication: public Application
 {
 public:
     virtual void StartApp();

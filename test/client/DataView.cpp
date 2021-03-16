@@ -2,11 +2,7 @@
 
 #define CMD_MSG_DATA_COMMAND 100
 
-void DataView::UserInputEvent()
-{
-    //send controller
-    SendNotifyCation(CMD_MSG_DATA_COMMAND);
-}
+extern void SendNotifyCationToController(int nCmdMsg);
 
 list<int> DataView::ReceiveMsg()
 {
@@ -18,10 +14,12 @@ list<int> DataView::ReceiveMsg()
 
 void DataView::HandleNotifyCation(NotifyView notify)
 {
-    switch(notify.nCmd)
+    int *p = NULL;
+    switch(notify.nMsg)
     {
         case MSG_ADDLEVEL:
-            
+            p = (int*)notify.pCommonData;
+            cout << "AddLevel:" << *p << endl;
             break;
         default:
             break;

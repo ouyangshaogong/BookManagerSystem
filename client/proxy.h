@@ -3,19 +3,13 @@
 
 #include "common.h"
 
-class Proxy;
-
-Proxy *g_Proxy;
-void RegisterProxy(Proxy *proxy)
-{
-    g_Proxy = proxy;
-}
-
 
 class Proxy
 {
 public:
+    Proxy();
     Proxy(string strName):m_strName(strName){};
+    string GetProxyName();
 private:
     string m_strName;
 };

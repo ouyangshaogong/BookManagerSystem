@@ -4,7 +4,7 @@
 #include "proxy.h"
 #include "DataModel.h"
 
-class DataProxy: Proxy
+class DataProxy: public Proxy
 {
 public:
     DataProxy():Proxy("DataProxy"){};

@@ -1,31 +1,26 @@
+#ifndef __VIEW__
+#define __VIEW__
 
-#include <list>
-#include <string>
+
+#include "common.h"
 
 using namespace std;
 
 struct NotifyView
 {
-    int nCmd;
+    int nMsg;
+    void *pCommonData;
 };
-
-class View;
-
-void RegisterView(View *view);
-//send data to view
-void SendNotifyCation(int nMsg, void *pCommonData);
 
 class View
 {
 public:
 
-    virtual list<int> ReceiveMsg();
-    virtual void HandleNotifyCation(NotifyView notifydata);
+    virtual list<int> ReceiveMsg() = 0;
+    virtual void HandleNotifyCation(NotifyView notifydata) = 0;
 
     //deal all other class send this class allowed receive msg
-private:
-    
-    
-
 
 };
+
+#endif

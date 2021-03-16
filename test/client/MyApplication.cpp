@@ -1,10 +1,9 @@
 #include "MyApplication.h"
-
+#include "commonfunc.h"
 
 void MyApplication::StartApp()
 {
-    Controller controller = new DataController();
-    RegisterCommand(CMD_MSG_DATA_COMMAND, controller);
+    RegisterCommand(CMD_MSG_DATA_COMMAND, (void*)(new DataController()));
 
     RegisterView(new DataView());
 

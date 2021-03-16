@@ -2,22 +2,20 @@
 #define __CONTROLLER__
 
 #include "common.h"
+#include "proxy.h"
 
 struct NotifyController
 {
-
+    string strClassName;
 };
 
-class Controller;
 
-void RegisterCommand(int nCmdMsg, Controller *control);
-void SendNotifyCation(int nCmdMsg);
 
 class Controller
 {
 
 public:
-    virtual void handleEvent(NotifyController notify);
+    virtual void handleEvent(NotifyController notify) = 0;
 
 };
 

@@ -3,7 +3,7 @@
 
 #include "controller.h"
 
-class DataController: Controller
+class DataController: public Controller
 {
 
 public:
