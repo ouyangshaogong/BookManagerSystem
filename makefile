@@ -30,9 +30,9 @@ USERMGRSERVICE: UTILS MODEL DAO
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
 
 MVCFRAME:
-	@cp -rf $(HOMEDIR)/client/*.h $(HOMEDIR)/include/client
-	make -C $(HOMEDIR)/client
-	@cp $(HOMEDIR)/client/libmvcframe.so $(HOMEDIR)/lib
+	@cp -rf $(HOMEDIR)/component/*.h $(HOMEDIR)/include/component
+	make -C $(HOMEDIR)/component
+	@cp $(HOMEDIR)/component/libmvcframe.so $(HOMEDIR)/lib
 
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
 	make -C $(HOMEDIR)/test/bookmanagertest
@@ -51,5 +51,5 @@ clean:
 	@make clean -C $(HOMEDIR)/test/bookmanagertest
 	@make clean -C $(HOMEDIR)/test/usermanagertest
 	@make clean -C $(HOMEDIR)/test/client
-	@make clean -C $(HOMEDIR)/client
+	@make clean -C $(HOMEDIR)/component
 	@rm -rf $(HOMEDIR)/lib/*.so
