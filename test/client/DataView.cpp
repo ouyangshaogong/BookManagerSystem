@@ -18,8 +18,8 @@ void DataView::HandleNotifyCation(NotifyMsg notify)
     switch(notify.nMsg)
     {
         case MSG_ADDLEVEL:
-            p = (int*)notify.pCommonData;
-            cout << "AddLevel:" << *p << endl;
+            //p = (int*)notify.pCommonData;
+            //cout << "AddLevel:" << *p << endl;
             break;
         default:
             break;

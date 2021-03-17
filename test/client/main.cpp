@@ -13,7 +13,7 @@ void UserInputEvent()
         || str == "MSG" || str == "USER")
         {
             NotifyMsg notify;
-            CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+            CommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
         }
         else
         {

@@ -2,6 +2,45 @@
 #include <QDesktopWidget>
 #include "datacommonfunc.h"
 #include "usermodel.h"
+#include <QString>
+
+//封装参数递归终止函数
+void PackageParamMainWin(map<string, void*> &mapParam)
+{
+}
+
+//封装参数展开函数
+template <class T, class ...Args>
+void PackageParamMainWin(map<string, void*> &mapParam, T head, Args... rest)
+{
+    T *t = new T;
+    *t = head;
+    mapParam.insert(map<string, void*>::value_type(typeid(head).name(), (void*)t));
+    PackageParamMainWin(mapParam, rest...);
+}
+
+//解析参数递归终止函数
+void ParseParamMainWin(map<string, void*> &mapParam)
+{
+    mapParam.clear();
+    qDebug() << "g_strMapVoid.size:" << mapParam.size();
+}
+
+//解析参数展开函数
+template <class T, class ...Args>
+void ParseParamMainWin(map<string, void*> &mapParam, T &head, Args&... rest)
+{
+    map<string, void*>::iterator iter = mapParam.find(typeid(T).name());
+    if (iter != mapParam.end())
+    {
+        head = *((T*)iter->second);
+    }
+
+    T *t = (T*)iter->second;
+    delete t;
+
+    ParseParamMainWin(mapParam, rest...);
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -81,42 +120,63 @@ list<int> MainWindow::ReceiveMsg()
 void MainWindow::HandleNotifyCation(NotifyMsg notify)
 {
 
-    //QString str;
-    string *pstr = (string*)notify.pCommonData;
-    QString str(pstr->c_str());
+    qDebug() << "MainWindow::HandleNotifyCation>>" << QString::number(notify.GetMapParam().size());
 
     switch(notify.nMsg)
     {
         case MSG_ADDLEVEL:
         {
-            int *p = NULL;
-            p = (int*)notify.pCommonData;
+            int *p;// = (int*)notify.pCommonData;
             qDebug() << "LEVEL:" << QString().number(*p);
             break;
         }
         case MSG_ADDUSER:
+        {
+            int nRet = 0;
+            QString str;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            str = QString::number(nRet);
             DisplayAddUser(str);
             break;
+        }
         case MSG_DELETEUSER:
+        {
+            int nRet = 0;
+            QString str;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            str = QString::number(nRet);
             DisplayDeleteUser(str);
             break;
+        }
         case MSG_MODIFYUSER:
+        {
+            int nRet = 0;
+            QString str;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            str = QString::number(nRet);
             DisplayModifyUser(str);
             break;
+        }
         case MSG_QUERYUSER:
+        {
+            int nRet = 0;
+            QString str;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            str = QString::number(nRet);
             DisplayQueryUser(str);
             break;
+        }
         case MSG_ADDBOOK:
-            DisplayAddBook(str);
+            //DisplayAddBook(str);
             break;
         case MSG_DELETEBOOK:
-            DisplayDeleteBook(str);
+            //DisplayDeleteBook(str);
             break;
         case MSG_MODIFYBOOK:
-            DisplayModifyBook(str);
+            //DisplayModifyBook(str);
             break;
         case MSG_QUERYBOOK:
-            DisplayQueryBook(str);
+            //DisplayQueryBook(str);
             break;
         default:
             break;
@@ -244,39 +304,60 @@ void MainWindow::SetCenterWidget()
 
 void MainWindow::AddUserAction()
 {
-    connect(m_addUserAction, &QAction::triggered,[=](){
-        NotifyMsg notify;
-        notify.nMsg = MSG_ADDUSER;
-        UserModel userModel;
-        notify.pCommonData = (void*)&userModel;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+    qDebug() << "MainWindow::AddUserAction" << endl;
+    connect(m_addUserAction, &QAction::triggered, this, [=](){
+        //先弹框，然后等待用户输入
+        AddUserDialog addUserDlg(this);
+        void(AddUserDialog:: *sendsig)(UserModel) = &AddUserDialog::SendAddUser;
+        void(MainWindow:: *receiveSlot)(UserModel)  = &MainWindow::ReceiveAddUser;
+        connect(&addUserDlg, sendsig, this, receiveSlot);
+        if (addUserDlg.exec() == QDialog::Accepted)
+        {
+            qDebug() << "Accepted" << endl;
+        }
+        else
+        {
+            qDebug() << "Rejected" << endl;
+        }
     });
 }
 
 void MainWindow::DeleteUserAction()
 {
     connect(m_deleteUserAction, &QAction::triggered,[=](){
+        //通过userid删除用户
+        int userid = 10;
         NotifyMsg notify;
         notify.nMsg = MSG_DELETEUSER;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        PackageParamMainWin(notify.GetMapParam(), userid);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
 void MainWindow::ModifyUserAction()
 {
+
     connect(m_modifyUserAction, &QAction::triggered,[=](){
+
+        int userid = 2;
+        string address = "纽约";
         NotifyMsg notify;
         notify.nMsg = MSG_MODIFYUSER;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        PackageParamMainWin(notify.GetMapParam(), userid, address);
+        //通过userid修改用户地址address
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
 void MainWindow::QueryUserAction()
 {
     connect(m_queryUserAction, &QAction::triggered,[=](){
+
+        string strAuthor("村上春树");
         NotifyMsg notify;
         notify.nMsg = MSG_QUERYUSER;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        PackageParamMainWin(notify.GetMapParam(), strAuthor);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
@@ -286,7 +367,7 @@ void MainWindow::AddBookAction()
     connect(m_addBookAction, &QAction::triggered,[=](){
         NotifyMsg notify;
         notify.nMsg = MSG_ADDBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
@@ -295,7 +376,7 @@ void MainWindow::DeleteBookAction()
     connect(m_deleteBookAction, &QAction::triggered,[=](){
         NotifyMsg notify;
         notify.nMsg = MSG_DELETEBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
@@ -304,7 +385,7 @@ void MainWindow::ModifyBookAction()
     connect(m_modifyBookAction, &QAction::triggered,[=](){
         NotifyMsg notify;
         notify.nMsg = MSG_MODIFYBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
@@ -313,13 +394,13 @@ void MainWindow::QueryBookAction()
     connect(m_queryBookAction, &QAction::triggered,[=](){
         NotifyMsg notify;
         notify.nMsg = MSG_QUERYBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, &notify);
+        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
 }
 
 void MainWindow::DisplayAddUser(QString &str)
 {
-    qDebug() << "DisplayAddUser:" << str.toUtf8().data();
+    qDebug() << "DisplayAddUser:" << str;
 }
 
 void MainWindow::DisplayDeleteUser(QString &str)
@@ -358,5 +439,14 @@ void MainWindow::DisplayQueryBook(QString &str)
     qDebug() << "DisplayQueryBook:" << str.toUtf8().data();
 }
 
+void MainWindow::ReceiveAddUser(UserModel userModel)
+{
+    qDebug() << "MainWindow::ReceiveAddUser" << endl;
+    NotifyMsg notify;
+    notify.nMsg = MSG_ADDUSER;
+    PackageParamMainWin(notify.GetMapParam(), userModel);
+    qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMapParam().size());
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
 
 

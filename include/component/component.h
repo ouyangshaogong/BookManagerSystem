@@ -5,9 +5,14 @@
 
 struct NotifyMsg
 {
+public:
     int nMsg;
     string strClassName;
-    void *pCommonData;
+    map<string, void*> &GetMapParam();
+private:
+    map<string, void*> m_strMapVoid;
 };
+
+
 
 #endif

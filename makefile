@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE CONPONENT TESTCLIENT TEST ECHO
+ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE COMPONENT TESTCLIENT TEST ECHO
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -29,12 +29,12 @@ USERMGRSERVICE: UTILS MODEL DAO
 	make -C $(HOMEDIR)/business/usermgrservice
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
 
-CONPONENT:
+COMPONENT:
 	@cp -rf $(HOMEDIR)/component/*.h $(HOMEDIR)/include/component
 	make -C $(HOMEDIR)/component
 	@cp $(HOMEDIR)/component/libcomponent.so $(HOMEDIR)/lib
 
-TESTCLIENT: CONPONENT
+TESTCLIENT: COMPONENT
 	make -C $(HOMEDIR)/test/client
 
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
@@ -56,3 +56,4 @@ clean:
 	@make clean -C $(HOMEDIR)/test/client
 	@make clean -C $(HOMEDIR)/component
 	@rm -rf $(HOMEDIR)/lib/*.so
+	@rm -rf $(HOMEDIR)/build-BookManagerClient-Desktop_Qt_5_12_10_GCC_64bit-Debug

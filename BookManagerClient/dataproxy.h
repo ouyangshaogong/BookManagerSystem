@@ -10,10 +10,10 @@ public:
     DataProxy():Proxy("DataProxy"){};
 
     void AddLevel(int nLevel);
-    void AddUser(UserModel userModel);
-    void DeleteUser();
-    void ModifyUser();
-    void QueryUser();
+    int AddUser(UserModel userModel);
+    int DeleteUser(int userid);
+    int ModifyUser(int userid, string address);
+    int QueryUser(string strAuther);
 
     void AddBook();
     void DeleteBook();

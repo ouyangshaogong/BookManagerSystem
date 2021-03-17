@@ -1,70 +1,77 @@
 #include "dataproxy.h"
 #include "datacommonfunc.h"
 
-
 void DataProxy::AddLevel(int nLevel)
 {
     int level = 0;
     level += nLevel;
     NotifyMsg notifyRet;
     notifyRet.nMsg = MSG_ADDLEVEL;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notifyRet);
+    DataCommonFunc::Instance()->SendNotifyCationToView(notifyRet);
 }
 
-void DataProxy::AddUser(UserModel userModel)
+int DataProxy::AddUser(UserModel userModel)
 {
-    string str = userModel.GetUserName();
-    NotifyMsg notifyRet;
-    notifyRet.nMsg = MSG_ADDUSER;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notifyRet);
+    int nRet = 0;
+
+    qDebug() << userModel.GetUserName().c_str();
+    qDebug() << userModel.GetSex().c_str();
+    qDebug() << userModel.GetBirth().c_str();
+    qDebug() << userModel.GetAddress().c_str();
+    qDebug() << userModel.GetPhone().c_str();
+    qDebug() << QString::number(userModel.GetUserType());
+
+    return nRet;
 }
 
-void DataProxy::DeleteUser()
+int DataProxy::DeleteUser(int userid)
 {
-    string str("DeleteUser");
-    NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    int nRet = 0;
+    qDebug() << "DataProxy::DeleteUser" << QString::number(userid);
+    return nRet;
 }
 
-void DataProxy::ModifyUser()
+int DataProxy::ModifyUser(int userid, string address)
 {
-    string str("ModifyUser");
-    NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    int nRet = 0;
+    qDebug() << "DataProxy::ModifyUser" << QString::number(userid);
+    qDebug() << "DataProxy::ModifyUser" << address.c_str();
+
+    return nRet;
 }
 
-void DataProxy::QueryUser()
+int DataProxy::QueryUser(string strAuther)
 {
-    string str("QueryUser");
-    NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    int nRet = 0;
+    qDebug() << "DataProxy::QueryUser" << strAuther.c_str();
+    return nRet;
 }
 
 void DataProxy::AddBook()
 {
     string str("AddBook");
     NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    DataCommonFunc::Instance()->SendNotifyCationToView(notify);
 }
 
 void DataProxy::DeleteBook()
 {
     string str("DeleteBook");
     NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    DataCommonFunc::Instance()->SendNotifyCationToView(notify);
 }
 
 void DataProxy::ModifyBook()
 {
     string str("ModifyBook");
     NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    DataCommonFunc::Instance()->SendNotifyCationToView(notify);
 }
 
 void DataProxy::QueryBook()
 {
     string str("QueryBook");
     NotifyMsg notify;
-    DataCommonFunc::Instance()->SendNotifyCationToView(&notify);
+    DataCommonFunc::Instance()->SendNotifyCationToView(notify);
 }
 

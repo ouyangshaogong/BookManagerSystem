@@ -6,20 +6,16 @@ void DataCommonFunc::RegisterView(MainWindow *mainWin)
     m_mainWinView = mainWin;
 }
 
-void DataCommonFunc::SendNotifyCationToView(int nMsg, void *pCommonData)
+void DataCommonFunc::SendNotifyCationToView(NotifyMsg notify)
 {
-
     list<int> listMsg = m_mainWinView->ReceiveMsg();
 
     list<int>::iterator iter = listMsg.begin();
     for (; iter != listMsg.end(); ++iter)
     {
-        if ((*iter) == nMsg)
+        if ((*iter) == notify.nMsg)
         {
-            qDebug() << "DataCommonFunc::SendNotifyCationToView>>" << nMsg;
-            NotifyMsg notify = GetNotifyView();
-            notify.nMsg = nMsg;
-            notify.pCommonData = pCommonData;
+            qDebug() << "DataCommonFunc::SendNotifyCationToView>>" << notify.nMsg;
             m_mainWinView->HandleNotifyCation(notify);
             break;
         }

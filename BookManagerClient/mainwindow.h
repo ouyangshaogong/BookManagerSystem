@@ -15,6 +15,7 @@
 #include <QListWidget>
 #include <QTableWidget>
 #include <QString>
+#include "adduserdialog.h"
 
 
 class MainWindow : public QMainWindow, public View
@@ -92,6 +93,9 @@ private:
     QString m_strLabelClass;
     QString m_strLabelNumber;
     QString m_strLabelIntro;
+
+public slots:
+    void ReceiveAddUser(UserModel userModel);
 
 };
 #endif // MAINWINDOW_H

@@ -44,15 +44,14 @@ void CommonFunc::RegisterCommand(int nCmdMsg, void *control)
     m_nMsgMapController.insert(map<int, void*>::value_type(nCmdMsg, control));
 }
 
-void CommonFunc::SendNotifyCationToController(int nCmdMsg, NotifyMsg *notify)
+void CommonFunc::SendNotifyCationToController(int nCmdMsg, NotifyMsg notify)
 {
     map<int, void*>::iterator iter = m_nMsgMapController.find(nCmdMsg);
     if (iter != m_nMsgMapController.end())
     {
         Controller *control = (Controller*)iter->second;
-        m_notifyControl.strClassName = m_nProxy->GetProxyName();
-        m_notifyControl.nMsg = notify->nMsg;
-        control->handleEvent(m_notifyControl);
+        notify.strClassName = m_nProxy->GetProxyName();
+        control->handleEvent(notify);
     }
     
 }
@@ -81,25 +80,18 @@ void CommonFunc::RegisterView(View *view)
     m_nView = view;
 }
 //send data to view
-void CommonFunc::SendNotifyCationToView(NotifyMsg *notify)
+void CommonFunc::SendNotifyCationToView(NotifyMsg notify)
 {
     list<int> listMsg = m_nView->ReceiveMsg();
 
     list<int>::iterator iter = listMsg.begin();
     for (; iter != listMsg.end(); ++iter)
     {
-        if ((*iter) == notify->nMsg)
+        if ((*iter) == notify.nMsg)
         {
-            m_nNotifyView.nMsg = notify->nMsg;
-            m_nNotifyView.pCommonData = notify->pCommonData;
-            m_nView->HandleNotifyCation(m_nNotifyView);
+            m_nView->HandleNotifyCation(notify);
             break;
         }
     }
     
-}
-
-NotifyMsg CommonFunc::GetNotifyView()
-{
-    return m_nNotifyView;
 }
