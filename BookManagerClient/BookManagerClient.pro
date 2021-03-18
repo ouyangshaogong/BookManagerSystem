@@ -10,22 +10,26 @@ CONFIG += c++11
 
 SOURCES += \
     adduserdialog.cpp \
+    bookmodel.cpp \
     dataController.cpp \
     datacommonfunc.cpp \
     dataproxy.cpp \
     main.cpp \
     mainwindow.cpp \
     myapplication.cpp \
+    queryuserform.cpp \
     usermodel.cpp
 
 HEADERS += \
     adduserdialog.h \
+    bookmodel.h \
     commonmsg.h \
     datacommonfunc.h \
     datacontroller.h \
     dataproxy.h \
     mainwindow.h \
     myapplication.h \
+    queryuserform.h \
     usermodel.h
 
 # Default rules for deployment.
@@ -38,4 +42,5 @@ INCLUDEPATH += /home/zhangfengli/vscode-projects/BookManagerSystem/include/commo
 LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
 
 FORMS += \
-    adduserdialog.ui
+    adduserdialog.ui \
+    queryuserform.ui

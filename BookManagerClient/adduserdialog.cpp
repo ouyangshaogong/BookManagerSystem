@@ -40,5 +40,6 @@ AddUserDialog::AddUserDialog(QWidget *parent) :
 
 AddUserDialog::~AddUserDialog()
 {
+    qDebug() << "AddUserDialog析构了";
     delete ui;
 }

@@ -1,23 +1,5 @@
 #include "usermodel.h"
 
-UserModel::UserModel(int nUserID,
-                     int nReaderID,
-                     string strPhone,
-                     string strName,
-                     string strSex,
-                     string strBirth,
-                     string strAddress,
-                     int nUserType)
-{
-    m_nUserID = nUserID;
-    m_nReaderID = nReaderID;
-    m_strPhone = strPhone;
-    m_strName = strName;
-    m_strSex = strSex;
-    m_strBirth = strBirth;
-    m_strAddress = strAddress;
-    m_nUserType = nUserType;
-}
 void UserModel::SetUserID(int nUserID)
 {
     m_nUserID = nUserID;

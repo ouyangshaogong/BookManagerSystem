@@ -7,14 +7,6 @@ class UserModel
 {
 public:
     UserModel(){}
-    UserModel(int nUserID,
-    int nReaderID,
-    string strPhone,
-    string strName,
-    string strSex,
-    string strBirth,
-    string strAddress,
-    int nUserType);
 
     void SetUserID(int nUserID);
     int GetUserID();
@@ -39,6 +31,11 @@ public:
 
     void SetUserType(int nUserType);
     int GetUserType();
+
+    bool operator < (const UserModel& userData) const
+    {
+        return this->m_nUserID < userData.m_nUserID;
+    }
 
 private:
     int m_nUserID;

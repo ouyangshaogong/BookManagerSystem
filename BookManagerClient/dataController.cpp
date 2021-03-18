@@ -5,41 +5,8 @@
 #include <QtDebug>
 #include <QString>
 
-//封装参数递归终止函数
-void PackageParamController(map<string, void*> &mapParam)
-{
-}
-//封装参数展开函数
-template <class T, class ...Args>
-void PackageParamController(map<string, void*> &mapParam, T head, Args... rest)
-{
-    T *t = new T;
-    *t = head;
-    mapParam.insert(map<string, void*>::value_type(typeid(head).name(), (void*)t));
-    PackageParamController(mapParam, rest...);
-}
-
-//解析参数递归终止函数
-void ParseParamController(map<string, void*> &mapParam)
-{
-    mapParam.clear();
-    qDebug() << "g_strMapVoid.size:" << mapParam.size();
-}
-
-//解析参数展开函数
-template <class T, class ...Args>
-void ParseParamController(map<string, void*> &mapParam, T &head, Args&... rest)
-{
-    map<string, void*>::iterator iter = mapParam.find(typeid(T).name());
-    if (iter != mapParam.end())
-    {
-        head = *((T*)iter->second);
-    }
-
-    T *t = (T*)iter->second;
-    delete t;
-    ParseParamController(mapParam, rest...);
-}
+PACKAGEPARAMETER(Controller)
+PARSEPARAMETER(Controller)
 
 void DataController::handleEvent(NotifyMsg notifyIn)
 {
@@ -82,13 +49,12 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut.GetMapParam(), nRet);
             break;
         }
-        case MSG_QUERYUSER:
+        case MSG_QUERYALLUSER:
         {
-            string strAuther;
-            ParseParamController(notifyIn.GetMapParam(), strAuther);
-            int nRet = dataProxy->QueryUser(strAuther);
-            notifyOut.nMsg = MSG_QUERYUSER;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            set<UserModel> setUserData;
+            int nRet = dataProxy->QueryAllUser(setUserData);
+            notifyOut.nMsg = MSG_QUERYALLUSER;
+            PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -103,6 +69,14 @@ void DataController::handleEvent(NotifyMsg notifyIn)
         case MSG_QUERYBOOK:
             dataProxy->QueryBook();
             break;
+        case MSG_QUERYALLBOOK:
+        {
+            set<BookModel> setBookData;
+            int nRet = dataProxy->QueryAllBook(setBookData);
+            notifyOut.nMsg = MSG_QUERYALLBOOK;
+            PackageParamController(notifyOut.GetMapParam(), setBookData, nRet);
+            break;
+        }
         default:
             break;
     }

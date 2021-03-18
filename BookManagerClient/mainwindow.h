@@ -15,8 +15,19 @@
 #include <QListWidget>
 #include <QTableWidget>
 #include <QString>
+#include <QSplitter>
+#include <QListWidget>
+#include <QTableWidget>
 #include "adduserdialog.h"
+#include <QHBoxLayout>
+#include <QPushButton>
+#include "queryuserform.h"
+#include "usermodel.h"
+#include "bookmodel.h"
 
+
+#define BOOK_CENTER_WIDGET "BookCenterWidget"
+#define USER_CENTER_WIDGET "UserCenterWidget"
 
 class MainWindow : public QMainWindow, public View
 {
@@ -41,28 +52,35 @@ public:
     void AddStatusBar();
     void AddStatusInfo();
 
-    void SetCenterWidget();
+    void InitializeCenterWidget();
+    void SetBookCenterWidget();
+    void SetUserCenterWidget();
+    void UpdateUserCenterWidget();
+    void SetCenterWidget(string strCenterWidget);
 
     void AddUserAction();
     void DeleteUserAction();
     void ModifyUserAction();
     void QueryUserAction();
+    void QueryAllUserAction();
 
     void AddBookAction();
     void DeleteBookAction();
     void ModifyBookAction();
     void QueryBookAction();
+    void QueryAllBookAction();
 
-    void DisplayAddUser(QString &str);
+    void DisplayAddUser(QString &strRet);
     void DisplayDeleteUser(QString &str);
     void DisplayModifyUser(QString &str);
-    void DisplayQueryUser(QString &str);
+    void DisplayQueryUser(set<UserModel> &setUserData, QString &strRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
     void DisplayModifyBook(QString &str);
     void DisplayQueryBook(QString &str);
-
+    void DisplayQueryAllBook(set<BookModel> &setUserData, QString &strRet);
+    void UpdateBookCache();
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
@@ -80,8 +98,14 @@ private:
 
     QToolBar *m_toolBar;
     QStatusBar *m_statusBar;
-    QTableWidget *m_tableWidget;
 
+    //中心部件
+    QueryUserForm *m_queryUser;
+    QTableWidget *m_tableWidgetBook;
+    map<string, QWidget*> m_stringMapCenterWidget;
+
+    //图书缓存
+    set<BookModel> m_tableCacheBook;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -94,6 +118,8 @@ private:
     QString m_strLabelNumber;
     QString m_strLabelIntro;
 
+signals:
+    void SendUserData(set<UserModel> setUserData);
 public slots:
     void ReceiveAddUser(UserModel userModel);
 

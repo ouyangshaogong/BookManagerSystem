@@ -1,46 +1,11 @@
 #include "mainwindow.h"
 #include <QDesktopWidget>
 #include "datacommonfunc.h"
-#include "usermodel.h"
 #include <QString>
+#include <QSplitter>
 
-//封装参数递归终止函数
-void PackageParamMainWin(map<string, void*> &mapParam)
-{
-}
-
-//封装参数展开函数
-template <class T, class ...Args>
-void PackageParamMainWin(map<string, void*> &mapParam, T head, Args... rest)
-{
-    T *t = new T;
-    *t = head;
-    mapParam.insert(map<string, void*>::value_type(typeid(head).name(), (void*)t));
-    PackageParamMainWin(mapParam, rest...);
-}
-
-//解析参数递归终止函数
-void ParseParamMainWin(map<string, void*> &mapParam)
-{
-    mapParam.clear();
-    qDebug() << "g_strMapVoid.size:" << mapParam.size();
-}
-
-//解析参数展开函数
-template <class T, class ...Args>
-void ParseParamMainWin(map<string, void*> &mapParam, T &head, Args&... rest)
-{
-    map<string, void*>::iterator iter = mapParam.find(typeid(T).name());
-    if (iter != mapParam.end())
-    {
-        head = *((T*)iter->second);
-    }
-
-    T *t = (T*)iter->second;
-    delete t;
-
-    ParseParamMainWin(mapParam, rest...);
-}
+PACKAGEPARAMETER(MainWin)
+PARSEPARAMETER(MainWin)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_strLabelNumber.append("剩余数量");
     m_strLabelIntro.append("简介");
 
+    InitializeCenterWidget();
     //重绘大小和位置
     ReSizeAndPos();
     //添加菜单栏
@@ -76,28 +42,32 @@ MainWindow::MainWindow(QWidget *parent)
     AddStatusInfo();
 
     //设置中心部件
-    SetCenterWidget();
+    SetCenterWidget(BOOK_CENTER_WIDGET);
+
+    //查询用户信息
+    QueryAllUserAction();
 
     //添加用户
     AddUserAction();
     //删除用户
-    DeleteUserAction();
+    //DeleteUserAction();
     //修改用户信息
-    ModifyUserAction();
-    //查询用户信息
-    QueryUserAction();
+    //ModifyUserAction();
+
 
     AddBookAction();
-    DeleteBookAction();
-    ModifyBookAction();
-    QueryBookAction();
+    //DeleteBookAction();
+    //ModifyBookAction();
+    QueryAllBookAction();
 
 
 }
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "MainWindow析构了";
 }
+
 
 list<int> MainWindow::ReceiveMsg()
 {
@@ -108,11 +78,13 @@ list<int> MainWindow::ReceiveMsg()
     listMsg.push_back(MSG_DELETEUSER);
     listMsg.push_back(MSG_MODIFYUSER);
     listMsg.push_back(MSG_QUERYUSER);
+    listMsg.push_back(MSG_QUERYALLUSER);
 
     listMsg.push_back(MSG_ADDBOOK);
     listMsg.push_back(MSG_DELETEBOOK);
     listMsg.push_back(MSG_MODIFYBOOK);
     listMsg.push_back(MSG_QUERYBOOK);
+    listMsg.push_back(MSG_QUERYALLBOOK);
 
     return listMsg;
 }
@@ -157,13 +129,14 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             DisplayModifyUser(str);
             break;
         }
-        case MSG_QUERYUSER:
+        case MSG_QUERYALLUSER:
         {
             int nRet = 0;
-            QString str;
-            ParseParamMainWin(notify.GetMapParam(), nRet);
-            str = QString::number(nRet);
-            DisplayQueryUser(str);
+            QString strRet;
+            set<UserModel> setUserData;
+            ParseParamMainWin(notify.GetMapParam(), setUserData, nRet);
+            strRet = QString::number(nRet);
+            DisplayQueryUser(setUserData, strRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -175,9 +148,16 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_MODIFYBOOK:
             //DisplayModifyBook(str);
             break;
-        case MSG_QUERYBOOK:
-            //DisplayQueryBook(str);
+        case MSG_QUERYALLBOOK:
+        {
+            int nRet = 0;
+            QString strRet;
+            set<BookModel> setBookData;
+            ParseParamMainWin(notify.GetMapParam(), setBookData, nRet);
+            strRet = QString::number(nRet);
+            DisplayQueryAllBook(setBookData, strRet);
             break;
+        }
         default:
             break;
     }
@@ -206,18 +186,18 @@ void MainWindow::AddMenuAction()
 {
     m_addUserAction = m_userMgrMenu->addAction("添加用户");
     m_userMgrMenu->addSeparator();
-    m_deleteUserAction = m_userMgrMenu->addAction("删除用户");
-    m_userMgrMenu->addSeparator();
-    m_modifyUserAction = m_userMgrMenu->addAction("修改用户");
-    m_userMgrMenu->addSeparator();
+    //m_deleteUserAction = m_userMgrMenu->addAction("删除用户");
+    //m_userMgrMenu->addSeparator();
+    //m_modifyUserAction = m_userMgrMenu->addAction("修改用户");
+    //m_userMgrMenu->addSeparator();
     m_queryUserAction = m_userMgrMenu->addAction("查询用户");
 
     m_addBookAction = m_bookMgrMenu->addAction("添加图书");
     m_bookMgrMenu->addSeparator();
-    m_deleteBookAction = m_bookMgrMenu->addAction("删除图书");
-    m_bookMgrMenu->addSeparator();
-    m_modifyBookAction = m_bookMgrMenu->addAction("修改图书");
-    m_bookMgrMenu->addSeparator();
+    //m_deleteBookAction = m_bookMgrMenu->addAction("删除图书");
+    //m_bookMgrMenu->addSeparator();
+    //m_modifyBookAction = m_bookMgrMenu->addAction("修改图书");
+    //m_bookMgrMenu->addSeparator();
     m_queryBookAction = m_bookMgrMenu->addAction("查询图书");
 }
 
@@ -242,20 +222,21 @@ void MainWindow::AddToolAction()
     m_toolBar->addAction(m_addUserAction);
     //添加分割线
     m_toolBar->addSeparator();
-    m_toolBar->addAction(m_deleteUserAction);
-    m_toolBar->addSeparator();
-    m_toolBar->addAction(m_modifyUserAction);
-    m_toolBar->addSeparator();
+    //m_toolBar->addAction(m_deleteUserAction);
+    //m_toolBar->addSeparator();
+    //m_toolBar->addAction(m_modifyUserAction);
+    //m_toolBar->addSeparator();
     m_toolBar->addAction(m_queryUserAction);
+    m_toolBar->addSeparator();
 
     //工具栏中可以设置内容
     m_toolBar->addAction(m_addBookAction);
     //添加分割线
     m_toolBar->addSeparator();
-    m_toolBar->addAction(m_deleteBookAction);
-    m_toolBar->addSeparator();
-    m_toolBar->addAction(m_modifyBookAction);
-    m_toolBar->addSeparator();
+    //m_toolBar->addAction(m_deleteBookAction);
+    //m_toolBar->addSeparator();
+    //m_toolBar->addAction(m_modifyBookAction);
+    //m_toolBar->addSeparator();
     m_toolBar->addAction(m_queryBookAction);
 }
 
@@ -278,14 +259,12 @@ void MainWindow::AddStatusInfo()
     m_statusBar->addPermanentWidget(labelLastOp);
 }
 
-void MainWindow::SetCenterWidget()
+void MainWindow::SetBookCenterWidget()
 {
     //设置中心部件 只能一个
-    m_tableWidget = new QTableWidget(this);
-    setCentralWidget(m_tableWidget);
-
+    m_tableWidgetBook = new QTableWidget(this);
     //设置列数
-    m_tableWidget->setColumnCount(10);
+    m_tableWidgetBook->setColumnCount(10);
     //设置水平表头
     QStringList strListLabels;
     strListLabels.append(m_strLabelName);
@@ -299,7 +278,47 @@ void MainWindow::SetCenterWidget()
     strListLabels.append(m_strLabelNumber);
     strListLabels.append(m_strLabelIntro);
 
-    m_tableWidget->setHorizontalHeaderLabels(strListLabels);
+    m_tableWidgetBook->setHorizontalHeaderLabels(strListLabels);
+
+    m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(BOOK_CENTER_WIDGET, m_tableWidgetBook));
+}
+
+void MainWindow::SetUserCenterWidget()
+{
+    m_queryUser = new QueryUserForm;
+    m_queryUser->resize(this->width(), this->height());
+    m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
+}
+
+void MainWindow::UpdateUserCenterWidget()
+{
+
+}
+
+void MainWindow::InitializeCenterWidget()
+{
+    SetBookCenterWidget();
+    SetUserCenterWidget();
+    connect(this, &MainWindow::SendUserData, m_queryUser, &QueryUserForm::ReceiveUserData);
+}
+
+void MainWindow::SetCenterWidget(string strCenterWidget)
+{
+//    map<string, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
+//    if(iter != m_stringMapCenterWidget.end())
+//    {
+//        setCentralWidget(iter->second);
+//    }
+
+    if (strCenterWidget == BOOK_CENTER_WIDGET)
+    {
+        setCentralWidget(m_tableWidgetBook);
+    }
+    else if (strCenterWidget == USER_CENTER_WIDGET)
+    {
+        setCentralWidget(m_queryUser);
+    }
+
 }
 
 void MainWindow::AddUserAction()
@@ -349,16 +368,21 @@ void MainWindow::ModifyUserAction()
     });
 }
 
-void MainWindow::QueryUserAction()
+//查询所有用户，界面只显示５００条数据
+void MainWindow::QueryAllUserAction()
 {
     connect(m_queryUserAction, &QAction::triggered,[=](){
-
-        string strAuthor("村上春树");
+        SetCenterWidget(USER_CENTER_WIDGET);
         NotifyMsg notify;
-        notify.nMsg = MSG_QUERYUSER;
-        PackageParamMainWin(notify.GetMapParam(), strAuthor);
+        notify.nMsg = MSG_QUERYALLUSER;
+        PackageParamMainWin(notify.GetMapParam());
         DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
+}
+
+void MainWindow::QueryUserAction()
+{
+
 }
 
 
@@ -389,13 +413,19 @@ void MainWindow::ModifyBookAction()
     });
 }
 
-void MainWindow::QueryBookAction()
+void MainWindow::QueryAllBookAction()
 {
     connect(m_queryBookAction, &QAction::triggered,[=](){
+        SetCenterWidget(BOOK_CENTER_WIDGET);
         NotifyMsg notify;
-        notify.nMsg = MSG_QUERYBOOK;
+        notify.nMsg = MSG_QUERYALLBOOK;
         DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
     });
+}
+
+void MainWindow::QueryBookAction()
+{
+
 }
 
 void MainWindow::DisplayAddUser(QString &str)
@@ -413,9 +443,10 @@ void MainWindow::DisplayModifyUser(QString &str)
     qDebug() << "DisplayModifyUser:" << str.toUtf8().data();
 }
 
-void MainWindow::DisplayQueryUser(QString &str)
+void MainWindow::DisplayQueryUser(set<UserModel> &setUserData, QString &strRet)
 {
-    qDebug() << "DisplayQueryUser:" << str.toUtf8().data();
+    qDebug() << "DisplayQueryUser:" << strRet.toUtf8().data();
+    emit this->SendUserData(setUserData);
 }
 
 
@@ -434,9 +465,37 @@ void MainWindow::DisplayModifyBook(QString &str)
     qDebug() << "DisplayModifyBook:" << str.toUtf8().data();
 }
 
-void MainWindow::DisplayQueryBook(QString &str)
+void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRet)
 {
-    qDebug() << "DisplayQueryBook:" << str.toUtf8().data();
+    qDebug() << "DisplayQueryBook:" << strRet.toUtf8().data();
+    m_tableWidgetBook->setRowCount(setBookData.size());
+    m_tableCacheBook.insert(setBookData.begin(), setBookData.end());
+    UpdateBookCache();
+
+
+}
+
+void MainWindow::UpdateBookCache()
+{
+    set<BookModel>::iterator iter = m_tableCacheBook.begin();
+
+    int nRow = 0;
+    for (; iter != m_tableCacheBook.end(); ++iter)
+    {
+        BookModel bookata = *iter;
+
+        m_tableWidgetBook->setItem(nRow, 0, new QTableWidgetItem(QString(bookata.GetName().c_str())));
+        m_tableWidgetBook->setItem(nRow, 1, new QTableWidgetItem(QString(bookata.GetAuthor().c_str())));
+        m_tableWidgetBook->setItem(nRow, 2, new QTableWidgetItem(QString(bookata.GetPublish().c_str())));
+        m_tableWidgetBook->setItem(nRow, 3, new QTableWidgetItem(QString(bookata.GetISBN().c_str())));
+        m_tableWidgetBook->setItem(nRow, 4, new QTableWidgetItem(QString(bookata.GetLanguage().c_str())));
+        m_tableWidgetBook->setItem(nRow, 5, new QTableWidgetItem(QString::number(bookata.GetPrice())));
+        m_tableWidgetBook->setItem(nRow, 6, new QTableWidgetItem(QString(bookata.GetPubDate().c_str())));
+        m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(QString("暂无分类")));
+        m_tableWidgetBook->setItem(nRow, 8, new QTableWidgetItem(QString::number(bookata.GetNumber())));
+        m_tableWidgetBook->setItem(nRow, 9, new QTableWidgetItem(QString(bookata.GetIntroduction().c_str())));
+        nRow++;
+    }
 }
 
 void MainWindow::ReceiveAddUser(UserModel userModel)
