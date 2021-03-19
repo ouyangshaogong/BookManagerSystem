@@ -3,6 +3,8 @@
 #include "datacommonfunc.h"
 #include <QString>
 #include <QSplitter>
+#include <QHeaderView>
+
 
 PACKAGEPARAMETER(MainWin)
 PARSEPARAMETER(MainWin)
@@ -21,46 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_strLabelNumber.append("剩余数量");
     m_strLabelIntro.append("简介");
 
-    InitializeCenterWidget();
-    //重绘大小和位置
-    ReSizeAndPos();
-    //添加菜单栏
-    AddMenuBar();
-    //创建菜单
-    AddMenu();
-    //创建菜单项
-    AddMenuAction();
-    //添加工具栏
-    AddToolBar();
-    //为工具栏添加action
-    AddToolAction();
-    //为action添加功能
-
-    //添加状态栏
-    AddStatusBar();
-    //为状态栏添加widget
-    AddStatusInfo();
-
-    //设置中心部件
-    SetCenterWidget(BOOK_CENTER_WIDGET);
-
-    //查询用户信息
-    QueryAllUserAction();
-
-    //添加用户
-    AddUserAction();
-    //删除用户
-    //DeleteUserAction();
-    //修改用户信息
-    //ModifyUserAction();
-
-
-    AddBookAction();
-    //DeleteBookAction();
-    //ModifyBookAction();
-    QueryAllBookAction();
-
-
+    InitializeMainWindow();
+    InitializeConnect();
 }
 
 MainWindow::~MainWindow()
@@ -69,24 +33,24 @@ MainWindow::~MainWindow()
 }
 
 
-list<int> MainWindow::ReceiveMsg()
+
+list<int> &MainWindow::ReceiveMsg()
 {
-    list<int> listMsg;
-    listMsg.push_back(MSG_ADDLEVEL);
+    m_listMsg.push_back(MSG_ADDLEVEL);
 
-    listMsg.push_back(MSG_ADDUSER);
-    listMsg.push_back(MSG_DELETEUSER);
-    listMsg.push_back(MSG_MODIFYUSER);
-    listMsg.push_back(MSG_QUERYUSER);
-    listMsg.push_back(MSG_QUERYALLUSER);
+    m_listMsg.push_back(MSG_ADDUSER);
+    m_listMsg.push_back(MSG_DELETEUSER);
+    m_listMsg.push_back(MSG_MODIFYUSER);
+    m_listMsg.push_back(MSG_QUERYUSER);
+    m_listMsg.push_back(MSG_QUERYALLUSER);
 
-    listMsg.push_back(MSG_ADDBOOK);
-    listMsg.push_back(MSG_DELETEBOOK);
-    listMsg.push_back(MSG_MODIFYBOOK);
-    listMsg.push_back(MSG_QUERYBOOK);
-    listMsg.push_back(MSG_QUERYALLBOOK);
+    m_listMsg.push_back(MSG_ADDBOOK);
+    m_listMsg.push_back(MSG_DELETEBOOK);
+    m_listMsg.push_back(MSG_MODIFYBOOK);
+    m_listMsg.push_back(MSG_QUERYBOOK);
+    m_listMsg.push_back(MSG_QUERYALLBOOK);
 
-    return listMsg;
+    return m_listMsg;
 }
 
 void MainWindow::HandleNotifyCation(NotifyMsg notify)
@@ -163,9 +127,48 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
     }
 }
 
+void MainWindow::SendCmdMsg()
+{
+    NotifyMsg notify;
+    notify.nMsg = MSG_QUERYALLBOOK;
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::showEvent(QShowEvent *evt)
+{
+    //在窗口出现之后，显示图书数据
+    QueryAllBookAction();
+}
+
+void MainWindow::InitializeMainWindow()
+{
+    //重绘大小和位置
+    ReSizeAndPos();
+    //添加菜单栏
+    AddMenuBar();
+    //创建菜单
+    AddMenu();
+    //创建菜单项
+    AddMenuAction();
+    //添加工具栏
+    AddToolBar();
+    //为工具栏添加action
+    AddToolAction();
+    //为action添加功能
+
+    //添加状态栏
+    AddStatusBar();
+    //为状态栏添加widget
+    AddStatusInfo();
+
+    InitializeCenterWidget();
+    //设置中心部件为图书部件
+    SetCenterWidget(BOOK_CENTER_WIDGET);
+}
+
 void MainWindow::ReSizeAndPos()
 {
-    resize(1000, 800);
+    resize(1200, 800);
     QDesktopWidget* desktop = QApplication::desktop();
     move((desktop->width() - this->width())/2, (desktop->height() - this->height())/2);
 }
@@ -280,6 +283,9 @@ void MainWindow::SetBookCenterWidget()
 
     m_tableWidgetBook->setHorizontalHeaderLabels(strListLabels);
 
+    //自适应列宽和设置自动等宽
+    m_tableWidgetBook->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(BOOK_CENTER_WIDGET, m_tableWidgetBook));
 }
 
@@ -288,11 +294,6 @@ void MainWindow::SetUserCenterWidget()
     m_queryUser = new QueryUserForm;
     m_queryUser->resize(this->width(), this->height());
     m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
-}
-
-void MainWindow::UpdateUserCenterWidget()
-{
-
 }
 
 void MainWindow::InitializeCenterWidget()
@@ -304,80 +305,60 @@ void MainWindow::InitializeCenterWidget()
 
 void MainWindow::SetCenterWidget(string strCenterWidget)
 {
-//    map<string, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
-//    if(iter != m_stringMapCenterWidget.end())
-//    {
-//        setCentralWidget(iter->second);
-//    }
-
-    if (strCenterWidget == BOOK_CENTER_WIDGET)
+    takeCentralWidget();
+    map<string, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
+    if(iter != m_stringMapCenterWidget.end())
     {
-        setCentralWidget(m_tableWidgetBook);
+        setCentralWidget(iter->second);
     }
-    else if (strCenterWidget == USER_CENTER_WIDGET)
-    {
-        setCentralWidget(m_queryUser);
-    }
+}
 
+void MainWindow::InitializeConnect()
+{
+    connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
+    connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
+    connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
+
+
+    //双击单元格
+    connect(m_tableWidgetBook, &QTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
 }
 
 void MainWindow::AddUserAction()
 {
     qDebug() << "MainWindow::AddUserAction" << endl;
-    connect(m_addUserAction, &QAction::triggered, this, [=](){
-        //先弹框，然后等待用户输入
-        AddUserDialog addUserDlg(this);
-        void(AddUserDialog:: *sendsig)(UserModel) = &AddUserDialog::SendAddUser;
-        void(MainWindow:: *receiveSlot)(UserModel)  = &MainWindow::ReceiveAddUser;
-        connect(&addUserDlg, sendsig, this, receiveSlot);
-        if (addUserDlg.exec() == QDialog::Accepted)
-        {
-            qDebug() << "Accepted" << endl;
-        }
-        else
-        {
-            qDebug() << "Rejected" << endl;
-        }
-    });
+    //先弹框，然后等待用户输入
+    AddUserDialog addUserDlg(this);
+    void(AddUserDialog:: *sendsig)(UserModel) = &AddUserDialog::SendAddUser;
+    void(MainWindow:: *receiveSlot)(UserModel)  = &MainWindow::ReceiveAddUser;
+    connect(&addUserDlg, sendsig, this, receiveSlot);
+    if (addUserDlg.exec() == QDialog::Accepted)
+    {
+        qDebug() << "Accepted" << endl;
+    }
+    else
+    {
+        qDebug() << "Rejected" << endl;
+    }
 }
 
 void MainWindow::DeleteUserAction()
 {
-    connect(m_deleteUserAction, &QAction::triggered,[=](){
-        //通过userid删除用户
-        int userid = 10;
-        NotifyMsg notify;
-        notify.nMsg = MSG_DELETEUSER;
-        PackageParamMainWin(notify.GetMapParam(), userid);
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
 }
 
 void MainWindow::ModifyUserAction()
 {
 
-    connect(m_modifyUserAction, &QAction::triggered,[=](){
-
-        int userid = 2;
-        string address = "纽约";
-        NotifyMsg notify;
-        notify.nMsg = MSG_MODIFYUSER;
-        PackageParamMainWin(notify.GetMapParam(), userid, address);
-        //通过userid修改用户地址address
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
 }
 
 //查询所有用户，界面只显示５００条数据
 void MainWindow::QueryAllUserAction()
 {
-    connect(m_queryUserAction, &QAction::triggered,[=](){
-        SetCenterWidget(USER_CENTER_WIDGET);
-        NotifyMsg notify;
-        notify.nMsg = MSG_QUERYALLUSER;
-        PackageParamMainWin(notify.GetMapParam());
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
+    SetCenterWidget(USER_CENTER_WIDGET);
+    NotifyMsg notify;
+    notify.nMsg = MSG_QUERYALLUSER;
+    PackageParamMainWin(notify.GetMapParam());
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::QueryUserAction()
@@ -388,39 +369,23 @@ void MainWindow::QueryUserAction()
 
 void MainWindow::AddBookAction()
 {
-    connect(m_addBookAction, &QAction::triggered,[=](){
-        NotifyMsg notify;
-        notify.nMsg = MSG_ADDBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
 }
 
 void MainWindow::DeleteBookAction()
 {
-    connect(m_deleteBookAction, &QAction::triggered,[=](){
-        NotifyMsg notify;
-        notify.nMsg = MSG_DELETEBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
 }
 
 void MainWindow::ModifyBookAction()
 {
-    connect(m_modifyBookAction, &QAction::triggered,[=](){
-        NotifyMsg notify;
-        notify.nMsg = MSG_MODIFYBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
 }
 
 void MainWindow::QueryAllBookAction()
 {
-    connect(m_queryBookAction, &QAction::triggered,[=](){
-        SetCenterWidget(BOOK_CENTER_WIDGET);
-        NotifyMsg notify;
-        notify.nMsg = MSG_QUERYALLBOOK;
-        DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-    });
+    qDebug() << "MainWindow::QueryAllBookAction";
+    SetCenterWidget(BOOK_CENTER_WIDGET);
+    NotifyMsg notify;
+    notify.nMsg = MSG_QUERYALLBOOK;
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::QueryBookAction()
@@ -506,6 +471,32 @@ void MainWindow::ReceiveAddUser(UserModel userModel)
     PackageParamMainWin(notify.GetMapParam(), userModel);
     qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMapParam().size());
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::ReceiveCellDouble(int row, int column)
+{
+    qDebug() << "MainWindow::ReceiveCellDouble";
+
+    if (column == 9)
+    {
+
+        QDialog *dlg = new QDialog(this);
+        dlg->resize(300, 300);
+        dlg->setWindowTitle("简介");
+
+        QTextEdit *textEdit = new QTextEdit(dlg);
+        textEdit->resize(300, 300);
+
+        //获取单元格的数据，并显示到textEdit
+        QString strIntro = m_tableWidgetBook->item(row, column)->text();
+        textEdit->setText(strIntro);
+
+        dlg->show();
+        dlg->setAttribute(Qt::WA_DeleteOnClose); //55号 属性
+        qDebug() << "双击显示简介对话框弹出了";
+    }
+
+
 }
 
 

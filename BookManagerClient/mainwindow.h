@@ -37,10 +37,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    virtual list<int> ReceiveMsg();
+
+    virtual list<int> &ReceiveMsg();
     virtual void HandleNotifyCation(NotifyMsg notifydata);
+    void SendCmdMsg();
+
+protected:
+    //showEvent事件在窗体显示后才触发
+    void showEvent(QShowEvent *evt);
 
 public:
+    void InitializeMainWindow();
+
     void AddMenuBar();
     void ReSizeAndPos();
     void AddMenu();
@@ -55,9 +63,11 @@ public:
     void InitializeCenterWidget();
     void SetBookCenterWidget();
     void SetUserCenterWidget();
-    void UpdateUserCenterWidget();
     void SetCenterWidget(string strCenterWidget);
+public:
+    void InitializeConnect();
 
+public slots:
     void AddUserAction();
     void DeleteUserAction();
     void ModifyUserAction();
@@ -70,6 +80,7 @@ public:
     void QueryBookAction();
     void QueryAllBookAction();
 
+public:
     void DisplayAddUser(QString &strRet);
     void DisplayDeleteUser(QString &str);
     void DisplayModifyUser(QString &str);
@@ -81,6 +92,7 @@ public:
     void DisplayQueryBook(QString &str);
     void DisplayQueryAllBook(set<BookModel> &setUserData, QString &strRet);
     void UpdateBookCache();
+
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
@@ -122,6 +134,7 @@ signals:
     void SendUserData(set<UserModel> setUserData);
 public slots:
     void ReceiveAddUser(UserModel userModel);
+    void ReceiveCellDouble(int row, int column);
 
 };
 #endif // MAINWINDOW_H

@@ -4,12 +4,11 @@
 
 extern void SendNotifyCationToController(int nCmdMsg);
 
-list<int> DataView::ReceiveMsg()
+list<int> &DataView::ReceiveMsg()
 {
-    list<int> listMsg;
-    listMsg.push_back(MSG_ADDLEVEL);
+    m_listMsg.push_back(MSG_ADDLEVEL);
 
-    return listMsg;
+    return m_listMsg;
 }
 
 void DataView::HandleNotifyCation(NotifyMsg notify)

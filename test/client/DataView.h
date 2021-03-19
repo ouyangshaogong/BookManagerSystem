@@ -13,7 +13,7 @@ public:
     DataView(){}
     ~DataView(){}
 
-    virtual list<int> ReceiveMsg();
+    virtual list<int> &ReceiveMsg();
     virtual void HandleNotifyCation(NotifyMsg notifydata);
 };
 

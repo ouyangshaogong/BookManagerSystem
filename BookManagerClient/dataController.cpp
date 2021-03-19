@@ -22,7 +22,6 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             break;
         case MSG_ADDUSER:
         {
-
             UserModel userModel;
             ParseParamController(notifyIn.GetMapParam(), userModel);
             int nRet = dataProxy->AddUser(userModel);

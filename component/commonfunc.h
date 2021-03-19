@@ -31,7 +31,7 @@ private:
 
     Proxy *m_nProxy;
     map<string, void*> m_StringMapProxy;
-
+    
     static CommonFunc* m_instance;
     static pthread_mutex_t m_Mutex;
 };

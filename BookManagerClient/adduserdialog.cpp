@@ -15,7 +15,7 @@ AddUserDialog::AddUserDialog(QWidget *parent) :
     setWindowTitle("添加用户");
     //设置固定大小
     setFixedSize(QSize(270, 300));
-    ui->comboBoxUserType->addItems(QStringList() << "管理员" << "普通读者");
+    ui->comboBoxUserType->addItems(QStringList() << "管理员" << "普通读者" << "游客");
 
     connect(ui->BtnOK, &QPushButton::clicked, this, [=](){
         UserModel userModel;

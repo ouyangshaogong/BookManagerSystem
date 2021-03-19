@@ -34,17 +34,6 @@ void QueryUserForm::SetWidgetHeader()
     listHeader << "管理员" << "普通读者" << "游客";
     ui->listWidget->addItems(listHeader);
 
-//    QListWidgetItem * item = new QListWidgetItem("管理员");
-//    item->setSelected(true);
-//    ui->listWidget->addItem(item);
-
-//    QListWidgetItem * item1 = new QListWidgetItem("普通读者");
-//    ui->listWidget->addItem(item1);
-
-//    QListWidgetItem * item2 = new QListWidgetItem("游客");
-//    ui->listWidget->addItem(item2);
-
-
     QStringList tableHeader;
     //设置列数
     ui->tableWidget->setColumnCount(5);
@@ -55,6 +44,8 @@ void QueryUserForm::SetWidgetHeader()
     tableHeader.append("家庭地址");
     tableHeader.append("电话");
     ui->tableWidget->setHorizontalHeaderLabels(tableHeader);
+
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void QueryUserForm::LayoutWidget()

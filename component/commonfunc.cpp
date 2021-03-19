@@ -82,10 +82,8 @@ void CommonFunc::RegisterView(View *view)
 //send data to view
 void CommonFunc::SendNotifyCationToView(NotifyMsg notify)
 {
-    list<int> listMsg = m_nView->ReceiveMsg();
-
-    list<int>::iterator iter = listMsg.begin();
-    for (; iter != listMsg.end(); ++iter)
+    list<int>::iterator iter = m_nView->ReceiveMsg().begin();
+    for (; iter != m_nView->ReceiveMsg().end(); ++iter)
     {
         if ((*iter) == notify.nMsg)
         {

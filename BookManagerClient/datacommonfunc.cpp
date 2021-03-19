@@ -4,14 +4,14 @@
 void DataCommonFunc::RegisterView(MainWindow *mainWin)
 {
     m_mainWinView = mainWin;
+    m_mainWinView->ReceiveMsg();
 }
 
 void DataCommonFunc::SendNotifyCationToView(NotifyMsg notify)
 {
-    list<int> listMsg = m_mainWinView->ReceiveMsg();
 
-    list<int>::iterator iter = listMsg.begin();
-    for (; iter != listMsg.end(); ++iter)
+    list<int>::iterator iter = m_mainWinView->ReceiveMsg().begin();
+    for (; iter != m_mainWinView->ReceiveMsg().end(); ++iter)
     {
         if ((*iter) == notify.nMsg)
         {
