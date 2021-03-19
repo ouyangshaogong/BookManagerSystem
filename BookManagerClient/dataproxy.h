@@ -15,6 +15,7 @@ public:
     int AddUser(UserModel userModel);
     int DeleteUser(int userid);
     int ModifyUser(int userid, string address);
+    int ModifyPasswd(string strOldPasswd, string strNewPasswd, string strRepeatPasswd);
     int QueryAllUser(set<UserModel> &userModel);
 
     void AddBook();

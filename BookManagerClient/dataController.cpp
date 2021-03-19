@@ -48,6 +48,17 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut.GetMapParam(), nRet);
             break;
         }
+        case MSG_MODIFYPASSWD:
+        {
+            QString strOldPasswd;
+            QString strNewPasswd;
+            QString strRepeatPasswd;
+            ParseParamController(notifyIn.GetMapParam(), strOldPasswd, strNewPasswd, strRepeatPasswd);
+            int nRet = dataProxy->ModifyPasswd(strOldPasswd.toUtf8().data(), strNewPasswd.toUtf8().data(), strRepeatPasswd.toUtf8().data());
+            notifyOut.nMsg = MSG_MODIFYPASSWD;
+            PackageParamController(notifyOut.GetMapParam(), nRet);
+            break;
+        }
         case MSG_QUERYALLUSER:
         {
             set<UserModel> setUserData;

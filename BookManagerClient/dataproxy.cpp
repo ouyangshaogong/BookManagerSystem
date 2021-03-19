@@ -46,6 +46,18 @@ int DataProxy::ModifyUser(int userid, string address)
     return nRet;
 }
 
+int DataProxy::ModifyPasswd(string strOldPasswd, string strNewPasswd, string strRepeatPasswd)
+{
+    static int nRetStatic = 0;
+    int nRet = 0;
+
+    qDebug() << "strOldPasswd = " << strOldPasswd.c_str() << "strNewPasswd" << strNewPasswd.c_str() << "strRepeatPasswd" << strRepeatPasswd.c_str();
+    nRetStatic++;
+    nRet = nRetStatic % 8;
+
+    return nRet;
+}
+
 int DataProxy::QueryAllUser(set<UserModel> &setUserData)
 {
     int nRet = 0;

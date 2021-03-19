@@ -4,7 +4,6 @@
 #include <QString>
 #include <QSplitter>
 #include <QHeaderView>
-#include "testform.h"
 #include "searchbox.h"
 
 PACKAGEPARAMETER(MainWin)
@@ -23,6 +22,18 @@ MainWindow::MainWindow(QWidget *parent)
     m_strLabelClass.append("分类");
     m_strLabelNumber.append("剩余数量");
     m_strLabelIntro.append("简介");
+
+    m_bookClass.push_back("马克思主义");
+    m_bookClass.push_back("哲学");
+    m_bookClass.push_back("社会科学总论");
+    m_bookClass.push_back("政治法律");
+    m_bookClass.push_back("军事");
+    m_bookClass.push_back("经济");
+    m_bookClass.push_back("文化");
+    m_bookClass.push_back("语言");
+    m_bookClass.push_back("文学");
+    m_bookClass.push_back("艺术");
+
     m_isAddBookExist = false;
     m_isAddUserExist = false;
 
@@ -44,6 +55,7 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_ADDUSER);
     m_listMsg.push_back(MSG_DELETEUSER);
     m_listMsg.push_back(MSG_MODIFYUSER);
+    m_listMsg.push_back(MSG_MODIFYPASSWD);
     m_listMsg.push_back(MSG_QUERYUSER);
     m_listMsg.push_back(MSG_QUERYALLUSER);
 
@@ -94,6 +106,14 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             ParseParamMainWin(notify.GetMapParam(), nRet);
             str = QString::number(nRet);
             DisplayModifyUser(str);
+            break;
+        }
+        case MSG_MODIFYPASSWD:
+        {
+            int nRet = 0;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            QString strRet = QString::number(nRet);
+            DisplayModifyUser(strRet);
             break;
         }
         case MSG_QUERYALLUSER:
@@ -157,7 +177,6 @@ void MainWindow::InitializeMainWindow()
     //添加工具栏
     AddToolBar();
 
-
     //添加状态栏
     AddStatusBar();
     //为状态栏添加widget
@@ -191,18 +210,14 @@ void MainWindow::AddMenuAction()
 {
     m_addUserAction = m_userMgrMenu->addAction("添加用户");
     m_userMgrMenu->addSeparator();
-    //m_deleteUserAction = m_userMgrMenu->addAction("删除用户");
-    //m_userMgrMenu->addSeparator();
-    //m_modifyUserAction = m_userMgrMenu->addAction("修改用户");
-    //m_userMgrMenu->addSeparator();
-    m_queryUserAction = m_userMgrMenu->addAction("查询用户");
+    m_modifyPasswdAction = m_userMgrMenu->addAction("修改密码");
+    m_userMgrMenu->addSeparator();
+    m_queryUserAction = m_userMgrMenu->addAction("查询用户信息");
+    m_userMgrMenu->addSeparator();
+    m_queryUserLoginAction = m_userMgrMenu->addAction("查询用户登录历史");
 
     m_addBookAction = m_bookMgrMenu->addAction("添加图书");
     m_bookMgrMenu->addSeparator();
-    //m_deleteBookAction = m_bookMgrMenu->addAction("删除图书");
-    //m_bookMgrMenu->addSeparator();
-    //m_modifyBookAction = m_bookMgrMenu->addAction("修改图书");
-    //m_bookMgrMenu->addSeparator();
     m_queryBookAction = m_bookMgrMenu->addAction("查询图书");
 }
 
@@ -235,6 +250,7 @@ void MainWindow::AddToolAction(QString strCenterWidget)
         if (m_isAddUserExist)
         {
             m_toolBarDynamic->removeAction(m_addUserAction);
+            m_toolBarDynamic->removeAction(m_modifyPasswdAction);
             m_isAddUserExist = false;
         }
 
@@ -251,6 +267,7 @@ void MainWindow::AddToolAction(QString strCenterWidget)
 
         m_isAddUserExist = true;
         m_toolBarDynamic->addAction(m_addUserAction);
+        m_toolBarDynamic->addAction(m_modifyPasswdAction);
     }
 }
 
@@ -263,10 +280,10 @@ void MainWindow::AddStatusBar()
 void MainWindow::AddStatusInfo()
 {
     //放标签控件
-    QLabel * labelTime = new QLabel("时间",this);
+    QLabel * labelTime = new QLabel("登录时间",this);
     m_statusBar->addWidget(labelTime);
 
-    QLabel * labelStatus = new QLabel("状态",this);
+    QLabel * labelStatus = new QLabel("登录用户",this);
     m_statusBar->addWidget(labelStatus);
 
     QLabel * labelLastOp = new QLabel("上一个操作",this);
@@ -332,6 +349,7 @@ void MainWindow::InitializeConnect()
 {
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
+    connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
 
     //双击单元格
@@ -363,6 +381,21 @@ void MainWindow::DeleteUserAction()
 void MainWindow::ModifyUserAction()
 {
 
+}
+
+void MainWindow::ModifyPasswdAction()
+{
+    ModifyPasswdDialog modifyPasswddlg(this);
+
+
+    if (modifyPasswddlg.exec() == QDialog::Accepted)
+    {
+        qDebug() << "Accepted" << endl;
+    }
+    else
+    {
+        qDebug() << "Rejected" << endl;
+    }
 }
 
 //查询所有用户，界面只显示５００条数据
@@ -425,6 +458,11 @@ void MainWindow::DisplayModifyUser(QString &str)
     qDebug() << "DisplayModifyUser:" << str.toUtf8().data();
 }
 
+void MainWindow::DisplayModifyPasswd(QString &strRet)
+{
+    qDebug() << "DisplayModifyPasswd:" << strRet.toUtf8().data();
+}
+
 void MainWindow::DisplayQueryUser(set<UserModel> &setUserData, QString &strRet)
 {
     qDebug() << "DisplayQueryUser:" << strRet.toUtf8().data();
@@ -460,7 +498,7 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
 void MainWindow::UpdateBookCache(QString strText)
 {
     //清空所有内容
-    m_tableWidgetBook->clear();
+    m_tableWidgetBook->clearContents();
     set<BookModel>::iterator iter = m_tableCacheBook.begin();
 
     int nRow = 0;
@@ -470,7 +508,7 @@ void MainWindow::UpdateBookCache(QString strText)
         if (strText.toUtf8().data() == bookata.GetName() || strText.toUtf8().data() == bookata.GetAuthor()
             || strText.toUtf8().data() == bookata.GetPublish() || strText.toUtf8().data() == bookata.GetISBN()
             || strText.toUtf8().data() == bookata.GetLanguage() || strText == QString::number(bookata.GetPrice())
-            || strText.toUtf8().data() == bookata.GetPubDate() || strText == "暂无分类"
+            || strText.toUtf8().data() == bookata.GetPubDate() || strText == m_bookClass[bookata.GetClassID()]
             || strText.toUtf8().data() == QString::number(bookata.GetNumber()
             || strText.toUtf8().data() == bookata.GetIntroduction()))
         {
@@ -481,7 +519,7 @@ void MainWindow::UpdateBookCache(QString strText)
             m_tableWidgetBook->setItem(nRow, 4, new QTableWidgetItem(QString(bookata.GetLanguage().c_str())));
             m_tableWidgetBook->setItem(nRow, 5, new QTableWidgetItem(QString::number(bookata.GetPrice())));
             m_tableWidgetBook->setItem(nRow, 6, new QTableWidgetItem(QString(bookata.GetPubDate().c_str())));
-            m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(QString("暂无分类")));
+            m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(m_bookClass[bookata.GetClassID()]));
             m_tableWidgetBook->setItem(nRow, 8, new QTableWidgetItem(QString::number(bookata.GetNumber())));
             m_tableWidgetBook->setItem(nRow, 9, new QTableWidgetItem(QString(bookata.GetIntroduction().c_str())));
             nRow++;
@@ -493,7 +531,7 @@ void MainWindow::UpdateBookCache(QString strText)
 
 void MainWindow::UpdateBookCache()
 {
-    m_tableWidgetBook->clear();
+    m_tableWidgetBook->clearContents();
     set<BookModel>::iterator iter = m_tableCacheBook.begin();
 
     int nRow = 0;
@@ -508,7 +546,7 @@ void MainWindow::UpdateBookCache()
         m_tableWidgetBook->setItem(nRow, 4, new QTableWidgetItem(QString(bookata.GetLanguage().c_str())));
         m_tableWidgetBook->setItem(nRow, 5, new QTableWidgetItem(QString::number(bookata.GetPrice())));
         m_tableWidgetBook->setItem(nRow, 6, new QTableWidgetItem(QString(bookata.GetPubDate().c_str())));
-        m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(QString("暂无分类")));
+        m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(m_bookClass[bookata.GetClassID()]));
         m_tableWidgetBook->setItem(nRow, 8, new QTableWidgetItem(QString::number(bookata.GetNumber())));
         m_tableWidgetBook->setItem(nRow, 9, new QTableWidgetItem(QString(bookata.GetIntroduction().c_str())));
         nRow++;
@@ -571,4 +609,13 @@ void MainWindow::AddSearchBox()
     connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
 }
 
+void MainWindow::ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd)
+{
+    qDebug() << "MainWindow::ReceiveAddUser" << endl;
+    NotifyMsg notify;
+    notify.nMsg = MSG_MODIFYPASSWD;
+    PackageParamMainWin(notify.GetMapParam(), strOldPasswd, strNewPasswd, strRepeatPasswd);
+    qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMapParam().size());
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
 

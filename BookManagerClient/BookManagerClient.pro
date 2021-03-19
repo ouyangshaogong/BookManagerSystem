@@ -16,10 +16,10 @@ SOURCES += \
     dataproxy.cpp \
     main.cpp \
     mainwindow.cpp \
+    modifypasswddialog.cpp \
     myapplication.cpp \
     queryuserform.cpp \
     searchbox.cpp \
-    testform.cpp \
     usermodel.cpp
 
 HEADERS += \
@@ -30,10 +30,10 @@ HEADERS += \
     datacontroller.h \
     dataproxy.h \
     mainwindow.h \
+    modifypasswddialog.h \
     myapplication.h \
     queryuserform.h \
     searchbox.h \
-    testform.h \
     usermodel.h
 
 # Default rules for deployment.
@@ -47,9 +47,9 @@ LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
 
 FORMS += \
     adduserdialog.ui \
+    modifypasswddialog.ui \
     queryuserform.ui \
-    searchbox.ui \
-    testform.ui
+    searchbox.ui
 
 RESOURCES += \
     res.qrc

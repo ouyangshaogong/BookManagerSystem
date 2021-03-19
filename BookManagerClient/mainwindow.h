@@ -25,6 +25,7 @@
 #include "usermodel.h"
 #include "bookmodel.h"
 #include "searchbox.h"
+#include "modifypasswddialog.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -77,6 +78,7 @@ public:
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
     void DisplayModifyBook(QString &str);
+    void DisplayModifyPasswd(QString &strRet);
     void DisplayQueryBook(QString &str);
     void DisplayQueryAllBook(set<BookModel> &setUserData, QString &strRet);
     void UpdateBookCache();
@@ -92,7 +94,9 @@ private:
     QAction *m_addUserAction;
     QAction *m_deleteUserAction;
     QAction *m_modifyUserAction;
+    QAction *m_modifyPasswdAction;
     QAction *m_queryUserAction;
+    QAction *m_queryUserLoginAction;
 
     QAction *m_addBookAction;
     QAction *m_deleteBookAction;
@@ -110,6 +114,7 @@ private:
 
     //图书缓存
     set<BookModel> m_tableCacheBook;
+    vector<QString> m_bookClass;
     SearchBox *m_searchBox;
 
     bool m_isAddUserExist;
@@ -133,6 +138,7 @@ public slots:
     void AddUserAction();
     void DeleteUserAction();
     void ModifyUserAction();
+    void ModifyPasswdAction();
     void QueryUserAction();
     void QueryAllUserAction();
 
@@ -143,6 +149,7 @@ public slots:
     void QueryAllBookAction();
 
     void ReceiveAddUser(UserModel userModel);
+    void ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd);
     void ReceiveCellDouble(int row, int column);
     void DoSearchBook(QString strText);
 };

@@ -2,9 +2,6 @@
 #include "ui_queryuserform.h"
 #include <QDebug>
 
-
-
-
 QueryUserForm::QueryUserForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QueryUserForm)
@@ -92,21 +89,6 @@ void QueryUserForm::UpdateTableUserData(int currentRow)
 
 void QueryUserForm::ReceiveUserData(set<UserModel> setUserData)
 {
-
-
-//    int nRow = 0;
-//    for (int i = 0; i < vecUserData.size(); ++i)
-//    {
-//        if (vecUserData[i].GetUserType() == 0)
-//        {
-//            ui->tableWidget->setItem(nRow, 0, new QTableWidgetItem(QString(vecUserData[i].GetUserName().c_str())));
-//            ui->tableWidget->setItem(nRow, 1, new QTableWidgetItem(QString(vecUserData[i].GetSex().c_str())));
-//            ui->tableWidget->setItem(nRow, 2, new QTableWidgetItem(QString(vecUserData[i].GetBirth().c_str())));
-//            ui->tableWidget->setItem(nRow, 3, new QTableWidgetItem(QString(vecUserData[i].GetAddress().c_str())));
-//            ui->tableWidget->setItem(nRow, 4, new QTableWidgetItem(QString(vecUserData[i].GetPhone().c_str())));
-//            nRow++;
-//        }
-//    }
 
     m_tableCache.insert(setUserData.begin(), setUserData.end());
 
