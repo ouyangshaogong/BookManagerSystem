@@ -4,7 +4,8 @@
 #include <QString>
 #include <QSplitter>
 #include <QHeaderView>
-
+#include "testform.h"
+#include "searchbox.h"
 
 PACKAGEPARAMETER(MainWin)
 PARSEPARAMETER(MainWin)
@@ -22,9 +23,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_strLabelClass.append("分类");
     m_strLabelNumber.append("剩余数量");
     m_strLabelIntro.append("简介");
+    m_isAddBookExist = false;
+    m_isAddUserExist = false;
 
     InitializeMainWindow();
-    InitializeConnect();
+    InitializeConnect(); 
 }
 
 MainWindow::~MainWindow()
@@ -150,11 +153,10 @@ void MainWindow::InitializeMainWindow()
     AddMenu();
     //创建菜单项
     AddMenuAction();
+
     //添加工具栏
     AddToolBar();
-    //为工具栏添加action
-    AddToolAction();
-    //为action添加功能
+
 
     //添加状态栏
     AddStatusBar();
@@ -162,8 +164,8 @@ void MainWindow::InitializeMainWindow()
     AddStatusInfo();
 
     InitializeCenterWidget();
-    //设置中心部件为图书部件
-    SetCenterWidget(BOOK_CENTER_WIDGET);
+
+    AddSearchBox();
 }
 
 void MainWindow::ReSizeAndPos()
@@ -206,41 +208,50 @@ void MainWindow::AddMenuAction()
 
 void MainWindow::AddToolBar()
 {
-    m_toolBar = new QToolBar(this);
-    addToolBar(Qt::TopToolBarArea, m_toolBar);
-
+    m_toolBarDynamic = new QToolBar(this);
     //只允许停靠在上面
-    m_toolBar->setAllowedAreas( Qt::TopToolBarArea);
-
+    m_toolBarDynamic->setAllowedAreas( Qt::TopToolBarArea);
     //设置为不浮动
-    m_toolBar->setFloatable(false);
-
+    m_toolBarDynamic->setFloatable(false);
     //设置移动 (总开关)
-    m_toolBar->setMovable(false);
+    m_toolBarDynamic->setMovable(false);
+    addToolBar(Qt::TopToolBarArea, m_toolBarDynamic);
+
+
+    m_toolBarStatic = new QToolBar(this);
+    //只允许停靠在上面
+    m_toolBarStatic->setAllowedAreas( Qt::TopToolBarArea);
+    //设置为不浮动
+    m_toolBarStatic->setFloatable(false);
+    //设置不移动 (总开关)
+    m_toolBarStatic->setMovable(false);
+    addToolBar(Qt::TopToolBarArea, m_toolBarStatic);
 }
 
-void MainWindow::AddToolAction()
+void MainWindow::AddToolAction(QString strCenterWidget)
 {
-    //工具栏中可以设置内容
-    m_toolBar->addAction(m_addUserAction);
-    //添加分割线
-    m_toolBar->addSeparator();
-    //m_toolBar->addAction(m_deleteUserAction);
-    //m_toolBar->addSeparator();
-    //m_toolBar->addAction(m_modifyUserAction);
-    //m_toolBar->addSeparator();
-    m_toolBar->addAction(m_queryUserAction);
-    m_toolBar->addSeparator();
+    if (strCenterWidget == BOOK_CENTER_WIDGET)
+    {
+        if (m_isAddUserExist)
+        {
+            m_toolBarDynamic->removeAction(m_addUserAction);
+            m_isAddUserExist = false;
+        }
 
-    //工具栏中可以设置内容
-    m_toolBar->addAction(m_addBookAction);
-    //添加分割线
-    m_toolBar->addSeparator();
-    //m_toolBar->addAction(m_deleteBookAction);
-    //m_toolBar->addSeparator();
-    //m_toolBar->addAction(m_modifyBookAction);
-    //m_toolBar->addSeparator();
-    m_toolBar->addAction(m_queryBookAction);
+        m_isAddBookExist = true;
+        m_toolBarDynamic->addAction(m_addBookAction);
+    }
+    else if (strCenterWidget == USER_CENTER_WIDGET)
+    {
+        if (m_isAddBookExist)
+        {
+            m_toolBarDynamic->removeAction(m_addBookAction);
+            m_isAddBookExist = false;
+        }
+
+        m_isAddUserExist = true;
+        m_toolBarDynamic->addAction(m_addUserAction);
+    }
 }
 
 void MainWindow::AddStatusBar()
@@ -286,14 +297,14 @@ void MainWindow::SetBookCenterWidget()
     //自适应列宽和设置自动等宽
     m_tableWidgetBook->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(BOOK_CENTER_WIDGET, m_tableWidgetBook));
+    m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(BOOK_CENTER_WIDGET, m_tableWidgetBook));
 }
 
 void MainWindow::SetUserCenterWidget()
 {
     m_queryUser = new QueryUserForm;
     m_queryUser->resize(this->width(), this->height());
-    m_stringMapCenterWidget.insert(map<string, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
+    m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
 }
 
 void MainWindow::InitializeCenterWidget()
@@ -303,10 +314,14 @@ void MainWindow::InitializeCenterWidget()
     connect(this, &MainWindow::SendUserData, m_queryUser, &QueryUserForm::ReceiveUserData);
 }
 
-void MainWindow::SetCenterWidget(string strCenterWidget)
+void MainWindow::SetCenterWidget(QString strCenterWidget)
 {
+
+    //为工具栏添加action
+    AddToolAction(strCenterWidget);
+
     takeCentralWidget();
-    map<string, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
+    map<QString, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
     if(iter != m_stringMapCenterWidget.end())
     {
         setCentralWidget(iter->second);
@@ -318,7 +333,6 @@ void MainWindow::InitializeConnect()
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
-
 
     //双击单元格
     connect(m_tableWidgetBook, &QTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
@@ -355,6 +369,9 @@ void MainWindow::ModifyUserAction()
 void MainWindow::QueryAllUserAction()
 {
     SetCenterWidget(USER_CENTER_WIDGET);
+
+
+
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLUSER;
     PackageParamMainWin(notify.GetMapParam());
@@ -440,8 +457,43 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
 
 }
 
+void MainWindow::UpdateBookCache(QString strText)
+{
+    //清空所有内容
+    m_tableWidgetBook->clear();
+    set<BookModel>::iterator iter = m_tableCacheBook.begin();
+
+    int nRow = 0;
+    for (; iter != m_tableCacheBook.end(); ++iter)
+    {
+        BookModel bookata = *iter;
+        if (strText.toUtf8().data() == bookata.GetName() || strText.toUtf8().data() == bookata.GetAuthor()
+            || strText.toUtf8().data() == bookata.GetPublish() || strText.toUtf8().data() == bookata.GetISBN()
+            || strText.toUtf8().data() == bookata.GetLanguage() || strText == QString::number(bookata.GetPrice())
+            || strText.toUtf8().data() == bookata.GetPubDate() || strText == "暂无分类"
+            || strText.toUtf8().data() == QString::number(bookata.GetNumber()
+            || strText.toUtf8().data() == bookata.GetIntroduction()))
+        {
+            m_tableWidgetBook->setItem(nRow, 0, new QTableWidgetItem(QString(bookata.GetName().c_str())));
+            m_tableWidgetBook->setItem(nRow, 1, new QTableWidgetItem(QString(bookata.GetAuthor().c_str())));
+            m_tableWidgetBook->setItem(nRow, 2, new QTableWidgetItem(QString(bookata.GetPublish().c_str())));
+            m_tableWidgetBook->setItem(nRow, 3, new QTableWidgetItem(QString(bookata.GetISBN().c_str())));
+            m_tableWidgetBook->setItem(nRow, 4, new QTableWidgetItem(QString(bookata.GetLanguage().c_str())));
+            m_tableWidgetBook->setItem(nRow, 5, new QTableWidgetItem(QString::number(bookata.GetPrice())));
+            m_tableWidgetBook->setItem(nRow, 6, new QTableWidgetItem(QString(bookata.GetPubDate().c_str())));
+            m_tableWidgetBook->setItem(nRow, 7, new QTableWidgetItem(QString("暂无分类")));
+            m_tableWidgetBook->setItem(nRow, 8, new QTableWidgetItem(QString::number(bookata.GetNumber())));
+            m_tableWidgetBook->setItem(nRow, 9, new QTableWidgetItem(QString(bookata.GetIntroduction().c_str())));
+            nRow++;
+        }
+
+
+    }
+}
+
 void MainWindow::UpdateBookCache()
 {
+    m_tableWidgetBook->clear();
     set<BookModel>::iterator iter = m_tableCacheBook.begin();
 
     int nRow = 0;
@@ -495,8 +547,28 @@ void MainWindow::ReceiveCellDouble(int row, int column)
         dlg->setAttribute(Qt::WA_DeleteOnClose); //55号 属性
         qDebug() << "双击显示简介对话框弹出了";
     }
+}
 
+void MainWindow::DoSearchBook(QString strText)
+{
+    qDebug() << "MainWindow::DoSearchBook";
 
+    if (strText.isEmpty())
+    {
+        UpdateBookCache();
+    }
+    else
+    {
+        UpdateBookCache(strText);
+    }
+}
+
+void MainWindow::AddSearchBox()
+{
+    m_searchBox = new SearchBox(this);
+    m_toolBarStatic->addWidget(m_searchBox);
+    //搜索框
+    connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
 }
 
 

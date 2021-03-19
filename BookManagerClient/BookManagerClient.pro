@@ -18,6 +18,8 @@ SOURCES += \
     mainwindow.cpp \
     myapplication.cpp \
     queryuserform.cpp \
+    searchbox.cpp \
+    testform.cpp \
     usermodel.cpp
 
 HEADERS += \
@@ -30,6 +32,8 @@ HEADERS += \
     mainwindow.h \
     myapplication.h \
     queryuserform.h \
+    searchbox.h \
+    testform.h \
     usermodel.h
 
 # Default rules for deployment.
@@ -43,4 +47,9 @@ LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
 
 FORMS += \
     adduserdialog.ui \
-    queryuserform.ui
+    queryuserform.ui \
+    searchbox.ui \
+    testform.ui
+
+RESOURCES += \
+    res.qrc

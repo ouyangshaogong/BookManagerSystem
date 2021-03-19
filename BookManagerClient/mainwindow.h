@@ -24,7 +24,7 @@
 #include "queryuserform.h"
 #include "usermodel.h"
 #include "bookmodel.h"
-
+#include "searchbox.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -55,7 +55,7 @@ public:
     void AddMenuAction();
 
     void AddToolBar();
-    void AddToolAction();
+    void AddToolAction(QString strCenterWidget);
 
     void AddStatusBar();
     void AddStatusInfo();
@@ -63,22 +63,10 @@ public:
     void InitializeCenterWidget();
     void SetBookCenterWidget();
     void SetUserCenterWidget();
-    void SetCenterWidget(string strCenterWidget);
-public:
+    void SetCenterWidget(QString strCenterWidget);
+
     void InitializeConnect();
 
-public slots:
-    void AddUserAction();
-    void DeleteUserAction();
-    void ModifyUserAction();
-    void QueryUserAction();
-    void QueryAllUserAction();
-
-    void AddBookAction();
-    void DeleteBookAction();
-    void ModifyBookAction();
-    void QueryBookAction();
-    void QueryAllBookAction();
 
 public:
     void DisplayAddUser(QString &strRet);
@@ -92,6 +80,9 @@ public:
     void DisplayQueryBook(QString &str);
     void DisplayQueryAllBook(set<BookModel> &setUserData, QString &strRet);
     void UpdateBookCache();
+    void UpdateBookCache(QString strText);
+
+    void AddSearchBox();
 
 private:
     QMenuBar *m_menuBar;
@@ -108,16 +99,21 @@ private:
     QAction *m_modifyBookAction;
     QAction *m_queryBookAction;
 
-    QToolBar *m_toolBar;
+    QToolBar *m_toolBarDynamic;
+    QToolBar *m_toolBarStatic;
     QStatusBar *m_statusBar;
 
     //中心部件
     QueryUserForm *m_queryUser;
     QTableWidget *m_tableWidgetBook;
-    map<string, QWidget*> m_stringMapCenterWidget;
+    map<QString, QWidget*> m_stringMapCenterWidget;
 
     //图书缓存
     set<BookModel> m_tableCacheBook;
+    SearchBox *m_searchBox;
+
+    bool m_isAddUserExist;
+    bool m_isAddBookExist;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -133,8 +129,21 @@ private:
 signals:
     void SendUserData(set<UserModel> setUserData);
 public slots:
+
+    void AddUserAction();
+    void DeleteUserAction();
+    void ModifyUserAction();
+    void QueryUserAction();
+    void QueryAllUserAction();
+
+    void AddBookAction();
+    void DeleteBookAction();
+    void ModifyBookAction();
+    void QueryBookAction();
+    void QueryAllBookAction();
+
     void ReceiveAddUser(UserModel userModel);
     void ReceiveCellDouble(int row, int column);
-
+    void DoSearchBook(QString strText);
 };
 #endif // MAINWINDOW_H

@@ -57,6 +57,7 @@ void QueryUserForm::LayoutWidget()
     // 设置部件间的间隔
     m_layout->setSpacing(15);
     // 按比例设置控件位置
+    m_layout->setStretch(0, 1);
     m_layout->setStretch(1, 5);
     setLayout(m_layout);
 }
