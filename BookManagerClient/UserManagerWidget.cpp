@@ -1,51 +1,46 @@
-#include "queryuserform.h"
-#include "ui_queryuserform.h"
+#include "UserManagerWidget.h"
+#include "ui_UserManagerWidget.h"
 #include <QDebug>
 
-QueryUserForm::QueryUserForm(QWidget *parent) :
+UserManagerWidget::UserManagerWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::QueryUserForm)
+    ui(new Ui::UserManagerWidget)
 {
     ui->setupUi(this);
 
     //按比例布局控件
     LayoutWidget();
-    //设置空间头部
-    SetWidgetHeader();
 
-    connect(ui->listWidget, &QListWidget::itemClicked, this, &QueryUserForm::DisplayUserData);
+    //点击用户类型显示用户数据
+    connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserData);
 
-    qDebug() << "QueryUserForm 构造了";
+    qDebug() << "UserManagerWidget 构造了";
 }
 
-QueryUserForm::~QueryUserForm()
+UserManagerWidget::~UserManagerWidget()
 {
-    qDebug() << "QueryUserForm 析构了";
+    qDebug() << "UserManagerWidget 析构了";
     delete m_layout;
     delete ui;
 }
 
-void QueryUserForm::SetWidgetHeader()
+void UserManagerWidget::GetWidgetHeader(QStringList &strListHeader, QStringList &strTableHeader)
 {
-    QStringList listHeader;
-    listHeader << "管理员" << "普通读者" << "游客";
-    ui->listWidget->addItems(listHeader);
+    ui->listWidget->clear();
+    ui->tableWidget->clear();
 
-    QStringList tableHeader;
+    //listHeader << "管理员" << "普通读者" << "游客";
+    ui->listWidget->addItems(strListHeader);
+
     //设置列数
-    ui->tableWidget->setColumnCount(5);
+    ui->tableWidget->setColumnCount(strTableHeader.size());
     //设置水平表头
-    tableHeader.append("用户名");
-    tableHeader.append("性别");
-    tableHeader.append("生日");
-    tableHeader.append("家庭地址");
-    tableHeader.append("电话");
-    ui->tableWidget->setHorizontalHeaderLabels(tableHeader);
+    ui->tableWidget->setHorizontalHeaderLabels(strTableHeader);
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
-void QueryUserForm::LayoutWidget()
+void UserManagerWidget::LayoutWidget()
 {
     m_layout = new QHBoxLayout;      // 新建水平布局管理器
     m_layout->addWidget(ui->listWidget);        // 向布局管理器中添加部件
@@ -59,15 +54,18 @@ void QueryUserForm::LayoutWidget()
     setLayout(m_layout);
 }
 
-void QueryUserForm::DisplayUserData(QListWidgetItem *item)
+void UserManagerWidget::DisplayUserData(QListWidgetItem *item)
 {
 
     UpdateTableUserData(ui->listWidget->currentRow());
-    qDebug() << "QueryUserForm::DisplayUserData>>";
+    qDebug() << "UserManagerWidget::DisplayUserData>>";
 }
 
-void QueryUserForm::UpdateTableUserData(int currentRow)
+void UserManagerWidget::UpdateTableUserData(int currentRow)
 {
+    //清理tableWidget内容
+    ui->tableWidget->clearContents();
+
     int nRow = 0;
     ui->tableWidget->setRowCount(m_tableCache.size());
     set<UserModel>::iterator iter = m_tableCache.begin();
@@ -87,11 +85,10 @@ void QueryUserForm::UpdateTableUserData(int currentRow)
     }
 }
 
-void QueryUserForm::ReceiveUserData(set<UserModel> setUserData)
+void UserManagerWidget::ReceiveUserData(set<UserModel> setUserData)
 {
-
     m_tableCache.insert(setUserData.begin(), setUserData.end());
-
     UpdateTableUserData(0);
-    qDebug() << "QueryUserForm::ReceiveUserData>>m_tableCache.size" << m_tableCache.size();
+
+    qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableCache.size();
 }

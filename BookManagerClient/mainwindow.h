@@ -15,13 +15,14 @@
 #include <QListWidget>
 #include <QTableWidget>
 #include <QString>
+#include <QStringList>
 #include <QSplitter>
 #include <QListWidget>
 #include <QTableWidget>
 #include "adduserdialog.h"
 #include <QHBoxLayout>
 #include <QPushButton>
-#include "queryuserform.h"
+#include "UserManagerWidget.h"
 #include "usermodel.h"
 #include "bookmodel.h"
 #include "searchbox.h"
@@ -73,7 +74,7 @@ public:
     void DisplayAddUser(QString &strRet);
     void DisplayDeleteUser(QString &str);
     void DisplayModifyUser(QString &str);
-    void DisplayQueryUser(set<UserModel> &setUserData, QString &strRet);
+    void DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
@@ -108,7 +109,7 @@ private:
     QStatusBar *m_statusBar;
 
     //中心部件
-    QueryUserForm *m_queryUser;
+    UserManagerWidget *m_queryUser;
     QTableWidget *m_tableWidgetBook;
     map<QString, QWidget*> m_stringMapCenterWidget;
 
@@ -133,6 +134,7 @@ private:
 
 signals:
     void SendUserData(set<UserModel> setUserData);
+    void SendUserHeader(QStringList &strListHeader, QStringList &strTableHeader);
 public slots:
 
     void AddUserAction();
@@ -141,6 +143,7 @@ public slots:
     void ModifyPasswdAction();
     void QueryUserAction();
     void QueryAllUserAction();
+    void QueryLoginHistoryAction();
 
     void AddBookAction();
     void DeleteBookAction();

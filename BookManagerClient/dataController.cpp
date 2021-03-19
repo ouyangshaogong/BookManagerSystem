@@ -67,6 +67,14 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
             break;
         }
+        case MSG_LOGINHISTORY:
+        {
+            //set<UserModel> setUserData;
+            //int nRet = dataProxy->QueryAllUser(setUserData);
+            notifyOut.nMsg = MSG_LOGINHISTORY;
+            //PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
+            break;
+        }
         case MSG_ADDBOOK:
             dataProxy->AddBook();
             break;

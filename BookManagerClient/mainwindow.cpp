@@ -58,6 +58,7 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_MODIFYPASSWD);
     m_listMsg.push_back(MSG_QUERYUSER);
     m_listMsg.push_back(MSG_QUERYALLUSER);
+    m_listMsg.push_back(MSG_LOGINHISTORY);
 
     m_listMsg.push_back(MSG_ADDBOOK);
     m_listMsg.push_back(MSG_DELETEBOOK);
@@ -123,7 +124,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             set<UserModel> setUserData;
             ParseParamMainWin(notify.GetMapParam(), setUserData, nRet);
             strRet = QString::number(nRet);
-            DisplayQueryUser(setUserData, strRet);
+            DisplayQueryAllUser(setUserData, strRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -319,7 +320,7 @@ void MainWindow::SetBookCenterWidget()
 
 void MainWindow::SetUserCenterWidget()
 {
-    m_queryUser = new QueryUserForm;
+    m_queryUser = new UserManagerWidget;
     m_queryUser->resize(this->width(), this->height());
     m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
 }
@@ -328,7 +329,8 @@ void MainWindow::InitializeCenterWidget()
 {
     SetBookCenterWidget();
     SetUserCenterWidget();
-    connect(this, &MainWindow::SendUserData, m_queryUser, &QueryUserForm::ReceiveUserData);
+    connect(this, &MainWindow::SendUserHeader, m_queryUser, &UserManagerWidget::GetWidgetHeader);
+    connect(this, &MainWindow::SendUserData, m_queryUser, &UserManagerWidget::ReceiveUserData);
 }
 
 void MainWindow::SetCenterWidget(QString strCenterWidget)
@@ -349,6 +351,7 @@ void MainWindow::InitializeConnect()
 {
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
+
     connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
 
@@ -403,10 +406,43 @@ void MainWindow::QueryAllUserAction()
 {
     SetCenterWidget(USER_CENTER_WIDGET);
 
+    QStringList strListHeader;
+    strListHeader << "管理员" << "普通读者" << "游客";
 
+    QStringList strTableHeader;
+    strTableHeader.append("用户姓名");
+    strTableHeader.append("性别");
+    strTableHeader.append("生日");
+    strTableHeader.append("家庭地址");
+    strTableHeader.append("电话");
+
+    this->SendUserHeader(strListHeader, strTableHeader);
 
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLUSER;
+    PackageParamMainWin(notify.GetMapParam());
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::QueryLoginHistoryAction()
+{
+    SetCenterWidget(USER_CENTER_WIDGET);
+
+    QStringList strListHeader;
+    strListHeader << "正在登录" << "历史登录";
+
+    QStringList strTableHeader;
+    strTableHeader.append("登录帐号");
+    strTableHeader.append("登录IP");
+    strTableHeader.append("登录端口");
+    strTableHeader.append("登录开始时间");
+    strTableHeader.append("登录结束时间");
+    strTableHeader.append("登录持续时间");
+
+    this->SendUserHeader(strListHeader, strTableHeader);
+
+    NotifyMsg notify;
+    notify.nMsg = MSG_LOGINHISTORY;
     PackageParamMainWin(notify.GetMapParam());
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
@@ -463,7 +499,7 @@ void MainWindow::DisplayModifyPasswd(QString &strRet)
     qDebug() << "DisplayModifyPasswd:" << strRet.toUtf8().data();
 }
 
-void MainWindow::DisplayQueryUser(set<UserModel> &setUserData, QString &strRet)
+void MainWindow::DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRet)
 {
     qDebug() << "DisplayQueryUser:" << strRet.toUtf8().data();
     emit this->SendUserData(setUserData);

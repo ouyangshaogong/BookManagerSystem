@@ -9,6 +9,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    UserManagerWidget.cpp \
     adduserdialog.cpp \
     bookmodel.cpp \
     dataController.cpp \
@@ -18,11 +19,11 @@ SOURCES += \
     mainwindow.cpp \
     modifypasswddialog.cpp \
     myapplication.cpp \
-    queryuserform.cpp \
     searchbox.cpp \
     usermodel.cpp
 
 HEADERS += \
+    UserManagerWidget.h \
     adduserdialog.h \
     bookmodel.h \
     commonmsg.h \
@@ -32,7 +33,6 @@ HEADERS += \
     mainwindow.h \
     modifypasswddialog.h \
     myapplication.h \
-    queryuserform.h \
     searchbox.h \
     usermodel.h
 
@@ -46,9 +46,9 @@ INCLUDEPATH += /home/zhangfengli/vscode-projects/BookManagerSystem/include/commo
 LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
 
 FORMS += \
+    UserManagerWidget.ui \
     adduserdialog.ui \
     modifypasswddialog.ui \
-    queryuserform.ui \
     searchbox.ui
 
 RESOURCES += \

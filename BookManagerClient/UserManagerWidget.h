@@ -8,25 +8,26 @@
 #include <QTableWidgetItem>
 #include <QListWidgetItem>
 namespace Ui {
-class QueryUserForm;
+class UserManagerWidget;
 }
 
-class QueryUserForm : public QWidget
+class UserManagerWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QueryUserForm(QWidget *parent = nullptr);
-    ~QueryUserForm();
+    explicit UserManagerWidget(QWidget *parent = nullptr);
+    ~UserManagerWidget();
 
     void LayoutWidget();
-    void SetWidgetHeader();
+
     void UpdateTableUserData(int currentRow);
 public slots:
+    void GetWidgetHeader(QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveUserData(set<UserModel> setUserData);
     void DisplayUserData(QListWidgetItem *item);
 private:
-    Ui::QueryUserForm *ui;
+    Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
     set<UserModel> m_tableCache;
 };
