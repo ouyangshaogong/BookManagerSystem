@@ -34,9 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_bookClass.push_back("文学");
     m_bookClass.push_back("艺术");
 
-    m_isAddBookExist = false;
-    m_isAddUserExist = false;
-
     InitializeMainWindow();
     InitializeConnect(); 
 }
@@ -253,40 +250,28 @@ void MainWindow::AddToolBar()
 
 void MainWindow::AddToolAction(QString strCenterWidget, const int nCmdOp)
 {
+    for (int i = 0; i < m_saveNeedDelAction.size(); ++i)
+    {
+        m_toolBarDynamic->removeAction(m_saveNeedDelAction[i]);
+    }
+    m_saveNeedDelAction.clear();
+
     if (strCenterWidget == BOOK_CENTER_WIDGET)
     {
-        if (m_isAddUserExist)
-        {
-            m_toolBarDynamic->removeAction(m_addUserAction);
-            m_toolBarDynamic->removeAction(m_modifyPasswdAction);
-            m_isAddUserExist = false;
-        }
-
-        m_isAddBookExist = true;
         m_toolBarDynamic->addAction(m_addBookAction);
+        m_saveNeedDelAction.push_back(m_addBookAction);
     }
     else if (strCenterWidget == USER_CENTER_WIDGET)
     {
-        if (m_isAddBookExist)
-        {
-            m_toolBarDynamic->removeAction(m_addBookAction);
-            m_isAddBookExist = false;
-        }
-
         if (nCmdOp == CMD_QUERY_USER_DATA)
         {
-            m_isAddUserExist = true;
             m_toolBarDynamic->addAction(m_addUserAction);
             m_toolBarDynamic->addAction(m_modifyPasswdAction);
+            m_saveNeedDelAction.push_back(m_addUserAction);
+            m_saveNeedDelAction.push_back(m_modifyPasswdAction);
         }
         else if (nCmdOp == CMD_QUERY_LOGIN_HISTORY)
         {
-            if (m_isAddUserExist)
-            {
-                m_toolBarDynamic->removeAction(m_addUserAction);
-                m_toolBarDynamic->removeAction(m_modifyPasswdAction);
-                m_isAddUserExist = false;
-            }
         }
 
     }

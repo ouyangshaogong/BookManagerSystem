@@ -22,6 +22,8 @@
 #include "adduserdialog.h"
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QAction>
+
 #include "UserManagerWidget.h"
 #include "usermodel.h"
 #include "bookmodel.h"
@@ -121,8 +123,7 @@ private:
     vector<QString> m_bookClass;
     SearchBox *m_searchBox;
 
-    bool m_isAddUserExist;
-    bool m_isAddBookExist;
+    vector<QAction*> m_saveNeedDelAction;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
