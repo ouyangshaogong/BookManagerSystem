@@ -250,6 +250,7 @@ void MainWindow::AddToolBar()
 
 void MainWindow::AddToolAction(QString strCenterWidget, const int nCmdOp)
 {
+    //清理上次切换加到工具栏的action
     for (int i = 0; i < m_saveNeedDelAction.size(); ++i)
     {
         m_toolBarDynamic->removeAction(m_saveNeedDelAction[i]);
@@ -342,6 +343,8 @@ void MainWindow::InitializeCenterWidget()
 void MainWindow::SetCenterWidget(QString strCenterWidget, const int nCmdOp)
 {
 
+    m_strCenterWidget = strCenterWidget;
+    m_nCmdOperate = nCmdOp;
     //为工具栏添加action
     AddToolAction(strCenterWidget, nCmdOp);
 
@@ -642,13 +645,20 @@ void MainWindow::DoSearchBook(QString strText)
 {
     qDebug() << "MainWindow::DoSearchBook";
 
-    if (strText.isEmpty())
+    if (m_strCenterWidget == USER_CENTER_WIDGET)
     {
-        UpdateBookCache();
+        emit this->SendSearchText(m_nCmdOperate, strText);
     }
-    else
+    else if (m_strCenterWidget == BOOK_CENTER_WIDGET)
     {
-        UpdateBookCache(strText);
+        if (strText.isEmpty())
+        {
+            UpdateBookCache();
+        }
+        else
+        {
+            UpdateBookCache(strText);
+        }
     }
 }
 
@@ -658,6 +668,7 @@ void MainWindow::AddSearchBox()
     m_toolBarStatic->addWidget(m_searchBox);
     //搜索框
     connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
+    connect(this, &MainWindow::SendSearchText, m_queryUser, &UserManagerWidget::ReceiveSearchText);
 }
 
 void MainWindow::ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd)

@@ -91,6 +91,60 @@ void UserManagerWidget::UpdateTableUserData(int currentRow)
     }
 }
 
+void UserManagerWidget::SearchTableUserData(int currentRow, QString &strText)
+{
+    int nRow = 0;
+    set<UserModel>::iterator iter = m_tableUserCache.begin();
+    for (; iter != m_tableUserCache.end(); ++iter)
+    {
+        UserModel userata = *iter;
+        if ((userata.GetUserName().c_str() == strText
+            || userata.GetSex().c_str() == strText
+            || userata.GetBirth().c_str() == strText
+            || userata.GetAddress().c_str() == strText
+            || userata.GetPhone().c_str() == strText)
+            && currentRow == userata.GetUserType())
+        {
+            ui->tableWidget->setItem(nRow, 0, new QTableWidgetItem(QString(userata.GetUserName().c_str())));
+            ui->tableWidget->setItem(nRow, 1, new QTableWidgetItem(QString(userata.GetSex().c_str())));
+            ui->tableWidget->setItem(nRow, 2, new QTableWidgetItem(QString(userata.GetBirth().c_str())));
+            ui->tableWidget->setItem(nRow, 3, new QTableWidgetItem(QString(userata.GetAddress().c_str())));
+            ui->tableWidget->setItem(nRow, 4, new QTableWidgetItem(QString(userata.GetPhone().c_str())));
+            nRow++;
+        }
+
+    }
+}
+
+void UserManagerWidget::SearchTableLoginHistory(int currentRow, QString &strText)
+{
+    int nRow = 0;
+    set<LoginHistoryModel>::iterator iter = m_tableLoginCache.begin();
+    for (; iter != m_tableLoginCache.end(); ++iter)
+    {
+        LoginHistoryModel loginHistory = *iter;
+        if ((loginHistory.GetAccount().c_str() == strText
+            || loginHistory.GetIP().c_str() == strText
+            || loginHistory.GetPort().c_str() == strText
+            || loginHistory.GetBeginTime().c_str() == strText
+            || loginHistory.GetEndTime().c_str() == strText
+            || loginHistory.GetContinueTimeSec().c_str() == strText
+            || loginHistory.GetContinueTimeDay().c_str() == strText)
+            && currentRow == loginHistory.GetLoginType())
+        {
+            ui->tableWidget->setItem(nRow, 0, new QTableWidgetItem(QString(loginHistory.GetAccount().c_str())));
+            ui->tableWidget->setItem(nRow, 1, new QTableWidgetItem(QString(loginHistory.GetIP().c_str())));
+            ui->tableWidget->setItem(nRow, 2, new QTableWidgetItem(QString(loginHistory.GetPort().c_str())));
+            ui->tableWidget->setItem(nRow, 3, new QTableWidgetItem(QString(loginHistory.GetBeginTime().c_str())));
+            ui->tableWidget->setItem(nRow, 4, new QTableWidgetItem(QString(loginHistory.GetEndTime().c_str())));
+            ui->tableWidget->setItem(nRow, 5, new QTableWidgetItem(QString(loginHistory.GetContinueTimeSec().c_str())));
+            ui->tableWidget->setItem(nRow, 6, new QTableWidgetItem(QString(loginHistory.GetContinueTimeDay().c_str())));
+            nRow++;
+        }
+
+    }
+}
+
 void UserManagerWidget::ReceiveUserData(set<UserModel> &setUserData)
 {
     m_tableUserCache.insert(setUserData.begin(), setUserData.end());
@@ -105,6 +159,23 @@ void UserManagerWidget::ReceiveLoginHistory(set<LoginHistoryModel> &setLoginHist
     UpdateTableLoginHistory(0);
 
     qDebug() << "UserManagerWidget::ReceiveLoginHistory>>m_tableLoginCache.size" << m_tableLoginCache.size();
+}
+
+void UserManagerWidget::ReceiveSearchText(int nCmdOp, QString &strText)
+{
+    ui->tableWidget->clearContents();
+    int currentRow = ui->listWidget->currentRow() == -1 ? 0 : ui->listWidget->currentRow();
+
+
+
+    if (nCmdOp == CMD_QUERY_USER_DATA)
+    {
+        strText.isEmpty() ? UpdateTableUserData(currentRow) : SearchTableUserData(currentRow, strText);
+    }
+    else if (nCmdOp == CMD_QUERY_LOGIN_HISTORY)
+    {
+        strText.isEmpty() ? UpdateTableLoginHistory(currentRow) : SearchTableLoginHistory(currentRow, strText);
+    }
 }
 
 void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
@@ -131,3 +202,4 @@ void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
         }
     }
 }
+

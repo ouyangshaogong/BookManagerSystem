@@ -117,6 +117,8 @@ private:
     UserManagerWidget *m_queryUser;
     QTableWidget *m_tableWidgetBook;
     map<QString, QWidget*> m_stringMapCenterWidget;
+    QString m_strCenterWidget;
+    int m_nCmdOperate;
 
     //图书缓存
     set<BookModel> m_tableCacheBook;
@@ -140,6 +142,7 @@ signals:
     void SendUserData(set<UserModel> &setUserData);
     void SendLoginHistory(set<LoginHistoryModel> &setLoginData);
     void SendUserHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
+    void SendSearchText(int nCmdOp, QString &strText);
 public slots:
 
     void AddUserAction();
