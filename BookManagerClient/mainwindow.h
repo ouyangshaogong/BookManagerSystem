@@ -59,7 +59,7 @@ public:
     void AddMenuAction();
 
     void AddToolBar();
-    void AddToolAction(QString strCenterWidget);
+    void AddToolAction(QString strCenterWidget, const int nCmdOp);
 
     void AddStatusBar();
     void AddStatusInfo();
@@ -67,7 +67,7 @@ public:
     void InitializeCenterWidget();
     void SetBookCenterWidget();
     void SetUserCenterWidget();
-    void SetCenterWidget(QString strCenterWidget);
+    void SetCenterWidget(QString strCenterWidget, const int nCmdOp);
 
     void InitializeConnect();
 

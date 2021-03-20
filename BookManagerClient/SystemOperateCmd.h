@@ -4,5 +4,6 @@
 const int CMD_QUERY_USER_DATA = 1;
 const int CMD_QUERY_LOGIN_HISTORY = 2;
 
+const int CMD_BOOK_NONE = 10;
 
 #endif // SYSTEMOPERATECMD_H

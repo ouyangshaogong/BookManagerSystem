@@ -251,7 +251,7 @@ void MainWindow::AddToolBar()
     addToolBar(Qt::TopToolBarArea, m_toolBarStatic);
 }
 
-void MainWindow::AddToolAction(QString strCenterWidget)
+void MainWindow::AddToolAction(QString strCenterWidget, const int nCmdOp)
 {
     if (strCenterWidget == BOOK_CENTER_WIDGET)
     {
@@ -273,9 +273,22 @@ void MainWindow::AddToolAction(QString strCenterWidget)
             m_isAddBookExist = false;
         }
 
-        m_isAddUserExist = true;
-        m_toolBarDynamic->addAction(m_addUserAction);
-        m_toolBarDynamic->addAction(m_modifyPasswdAction);
+        if (nCmdOp == CMD_QUERY_USER_DATA)
+        {
+            m_isAddUserExist = true;
+            m_toolBarDynamic->addAction(m_addUserAction);
+            m_toolBarDynamic->addAction(m_modifyPasswdAction);
+        }
+        else if (nCmdOp == CMD_QUERY_LOGIN_HISTORY)
+        {
+            if (m_isAddUserExist)
+            {
+                m_toolBarDynamic->removeAction(m_addUserAction);
+                m_toolBarDynamic->removeAction(m_modifyPasswdAction);
+                m_isAddUserExist = false;
+            }
+        }
+
     }
 }
 
@@ -341,11 +354,11 @@ void MainWindow::InitializeCenterWidget()
     connect(this, &MainWindow::SendLoginHistory, m_queryUser, &UserManagerWidget::ReceiveLoginHistory);
 }
 
-void MainWindow::SetCenterWidget(QString strCenterWidget)
+void MainWindow::SetCenterWidget(QString strCenterWidget, const int nCmdOp)
 {
 
     //为工具栏添加action
-    AddToolAction(strCenterWidget);
+    AddToolAction(strCenterWidget, nCmdOp);
 
     takeCentralWidget();
     map<QString, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
@@ -413,7 +426,7 @@ void MainWindow::ModifyPasswdAction()
 //查询所有用户，界面只显示５００条数据
 void MainWindow::QueryAllUserAction()
 {
-    SetCenterWidget(USER_CENTER_WIDGET);
+    SetCenterWidget(USER_CENTER_WIDGET, CMD_QUERY_USER_DATA);
 
     QStringList strListHeader;
     strListHeader << "管理员" << "普通读者" << "游客";
@@ -436,7 +449,7 @@ void MainWindow::QueryAllUserAction()
 void MainWindow::QueryLoginHistoryAction()
 {
     qDebug() << "MainWindow::QueryLoginHistoryAction" << endl;
-    SetCenterWidget(USER_CENTER_WIDGET);
+    SetCenterWidget(USER_CENTER_WIDGET, CMD_QUERY_LOGIN_HISTORY);
 
     QStringList strListHeader;
     strListHeader << "正在登录" << "历史登录";
@@ -479,7 +492,7 @@ void MainWindow::ModifyBookAction()
 void MainWindow::QueryAllBookAction()
 {
     qDebug() << "MainWindow::QueryAllBookAction";
-    SetCenterWidget(BOOK_CENTER_WIDGET);
+    SetCenterWidget(BOOK_CENTER_WIDGET, CMD_BOOK_NONE);
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLBOOK;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
