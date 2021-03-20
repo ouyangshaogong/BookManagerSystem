@@ -21,9 +21,6 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
 
     //右击删除修改操作
     connect(ui->tableWidget, &MyTableWidget::SendRightButton, this, &UserManagerWidget::DisplayUserOperate);
-
-
-
     qDebug() << "UserManagerWidget 构造了";
 }
 
@@ -44,6 +41,8 @@ void UserManagerWidget::GetWidgetHeader(const int &nOpType, QStringList &strList
     ui->listWidget->addItems(strListHeader);
     //设置列数
     ui->tableWidget->setColumnCount(strTableHeader.size());
+    m_nColomuCount = strTableHeader.size();
+    m_strTableHeader = strTableHeader;
     //设置水平表头
     ui->tableWidget->setHorizontalHeaderLabels(strTableHeader);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -81,14 +80,27 @@ void UserManagerWidget::DisplayUserOperate()
 
     QMenu *m_rightButtonMenu = new QMenu(this);
     m_deleteItemAction = new QAction("删除", m_rightButtonMenu);
-    m_modifyItemAction = new QAction("修改", m_rightButtonMenu);
     m_rightButtonMenu->addAction(m_deleteItemAction);
-    m_rightButtonMenu->addAction(m_modifyItemAction);
+    //触发删除操作
+    connect(m_deleteItemAction, &QAction::triggered, this, &UserManagerWidget::DeleteItemAction);
+
+    if (m_nOpType == CMD_QUERY_USER_DATA)
+    {
+        m_copyRowItemAction = new QAction("复制该行", m_rightButtonMenu);
+        m_rightButtonMenu->addAction(m_copyRowItemAction);
+        //触发复制该行操作
+        connect(m_copyRowItemAction, &QAction::triggered, this, &UserManagerWidget::CopyRowItemAction);
+    }
+    else if (m_nOpType == CMD_QUERY_LOGIN_HISTORY)
+    {
+        m_queryDetailItemAction = new QAction("查询详细信息", m_rightButtonMenu);
+        m_rightButtonMenu->addAction(m_queryDetailItemAction);
+        //触发复制该行操作
+        connect(m_queryDetailItemAction, &QAction::triggered, this, &UserManagerWidget::QueryDetailAction);
+    }
+
     m_rightButtonMenu->move(cursor().pos()); //让菜单显示的位置在鼠标的坐标上
     m_rightButtonMenu->show();
-
-    //触发删除操作
-    connect(m_deleteItemAction, &QAction::triggered, this, &UserManagerWidget::DeleteTableItem);
 }
 
 void UserManagerWidget::UpdateTableUserData(int currentRow)
@@ -190,8 +202,6 @@ void UserManagerWidget::ReceiveSearchText(int nCmdOp, QString &strText)
     ui->tableWidget->clearContents();
     int currentRow = ui->listWidget->currentRow() == -1 ? 0 : ui->listWidget->currentRow();
 
-
-
     if (nCmdOp == CMD_QUERY_USER_DATA)
     {
         strText.isEmpty() ? UpdateTableUserData(currentRow) : SearchTableUserData(currentRow, strText);
@@ -227,7 +237,7 @@ void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
     }
 }
 
-void UserManagerWidget::DeleteTableItem()
+void UserManagerWidget::DeleteItemAction()
 {
     QTableWidgetItem *item = ui->tableWidget->currentItem();
     int currentRow = ui->tableWidget->currentRow();
@@ -274,7 +284,42 @@ void UserManagerWidget::DeleteTableItem()
     ui->tableWidget->removeRow(ui->tableWidget->currentRow());
 }
 
-void UserManagerWidget::ModifyTableItem()
+void UserManagerWidget::CopyRowItemAction()
 {
+    QString strText;
+    int currentRow = ui->tableWidget->currentRow();
+    for (int i = 0; i < m_nColomuCount; ++i)
+    {
+        QTableWidgetItem *item = ui->tableWidget->item(currentRow, i);
+        strText += item->text() + " ";
+    }
 
+    QClipboard *clip = QApplication::clipboard();
+    clip->setText(strText);
+}
+
+void UserManagerWidget::QueryDetailAction()
+{
+    QDialog *dlg = new QDialog(this);
+    dlg->resize(300, 300);
+    dlg->setWindowTitle("查看详细信息");
+
+    QTextEdit *textEdit = new QTextEdit(dlg);
+    textEdit->resize(300, 300);
+    textEdit->setReadOnly(true);
+
+    //获取单元格的数据，并显示到textEdit
+    QString strText;
+    int currentRow = ui->tableWidget->currentRow();
+    QStringList::iterator iter = m_strTableHeader.begin();
+    for (int i = 0; i < m_nColomuCount && iter != m_strTableHeader.end(); ++i, ++iter)
+    {
+        QTableWidgetItem *item = ui->tableWidget->item(currentRow, i);
+        strText += (*iter) + ": " + item->text() + "\r\n";
+    }
+
+    textEdit->setText(strText);
+
+    dlg->show();
+    dlg->setAttribute(Qt::WA_DeleteOnClose); //55号 属性
 }

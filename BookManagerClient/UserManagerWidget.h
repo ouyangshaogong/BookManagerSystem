@@ -12,7 +12,10 @@
 #include <QMouseEvent>
 #include <QEvent>
 #include <QMenu>
+#include <QDialog>
+#include <QTextEdit>
 #include <map>
+#include <QClipboard>
 #include "SystemOperateCmd.h"
 
 
@@ -39,9 +42,6 @@ public:
     void UpdateTableLoginHistory(int currentRow);
     void SearchTableLoginHistory(int currentRow, QString &strText);
 
-    void DeleteTableItem();
-    void ModifyTableItem();
-
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveUserData(set<UserModel> &setUserData);
@@ -49,6 +49,10 @@ public slots:
     void DisplayUserManagerData(QListWidgetItem *item);
     void DisplayUserOperate();
     void ReceiveSearchText(int nCmdOp, QString &strText);
+
+    void DeleteItemAction();
+    void CopyRowItemAction();
+    void QueryDetailAction();
 private:
     Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
@@ -62,7 +66,10 @@ private:
 
     QMenu *m_rightButtonMenu;
     QAction *m_deleteItemAction;
-    QAction *m_modifyItemAction;
+    QAction *m_copyRowItemAction;
+    int m_nColomuCount;
+    QAction *m_queryDetailItemAction;
+    QStringList m_strTableHeader;
 };
 
 #endif // QUERYUSERFORM_H

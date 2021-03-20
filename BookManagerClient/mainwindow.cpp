@@ -623,13 +623,13 @@ void MainWindow::ReceiveCellDouble(int row, int column)
 
     if (column == 9)
     {
-
         QDialog *dlg = new QDialog(this);
         dlg->resize(300, 300);
         dlg->setWindowTitle("简介");
 
         QTextEdit *textEdit = new QTextEdit(dlg);
         textEdit->resize(300, 300);
+        textEdit->setReadOnly(true);
 
         //获取单元格的数据，并显示到textEdit
         QString strIntro = m_tableWidgetBook->item(row, column)->text();
