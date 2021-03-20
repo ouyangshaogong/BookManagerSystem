@@ -4,7 +4,8 @@
 #include "proxy.h"
 #include "usermodel.h"
 #include "bookmodel.h"
-
+#include "loginhistorymodel.h"
+#include <QDateTime>
 
 class DataProxy: public Proxy
 {
@@ -23,9 +24,10 @@ public:
     void ModifyBook();
     void QueryBook();
     int QueryAllBook(set<BookModel> &setBookModel);
+
+    int QueryLoginHistory(set<LoginHistoryModel> & setLoginHisroty);
 private:
-    UserModel m_userModel;
-    BookModel m_bookModel;
+
 };
 
 #endif

@@ -69,10 +69,10 @@ void DataController::handleEvent(NotifyMsg notifyIn)
         }
         case MSG_LOGINHISTORY:
         {
-            //set<UserModel> setUserData;
-            //int nRet = dataProxy->QueryAllUser(setUserData);
+            set<LoginHistoryModel> setLoginHistory;
+            int nRet = dataProxy->QueryLoginHistory(setLoginHistory);
             notifyOut.nMsg = MSG_LOGINHISTORY;
-            //PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
+            PackageParamController(notifyOut.GetMapParam(), setLoginHistory, nRet);
             break;
         }
         case MSG_ADDBOOK:

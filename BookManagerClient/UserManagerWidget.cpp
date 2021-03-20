@@ -10,11 +10,12 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
 
     //m_strOpTypList << QUERY_USER_DATA << QUERY_LOGIN_HISTORY;
     m_nCmdMapUpdateOpData[CMD_QUERY_USER_DATA] = &UserManagerWidget::UpdateTableUserData;
+    m_nCmdMapUpdateOpData[CMD_QUERY_LOGIN_HISTORY] = &UserManagerWidget::UpdateTableLoginHistory;
     //按比例布局控件
     LayoutWidget();
 
     //点击用户类型显示用户数据
-    connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserData);
+    connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserManagerData);
 
     qDebug() << "UserManagerWidget 构造了";
 }
@@ -55,7 +56,7 @@ void UserManagerWidget::LayoutWidget()
     setLayout(m_layout);
 }
 
-void UserManagerWidget::DisplayUserData(QListWidgetItem *item)
+void UserManagerWidget::DisplayUserManagerData(QListWidgetItem *item)
 {
     qDebug() << "UserManagerWidget::DisplayUserData>>";
 
@@ -72,9 +73,9 @@ void UserManagerWidget::UpdateTableUserData(int currentRow)
     ui->tableWidget->clearContents();
 
     int nRow = 0;
-    ui->tableWidget->setRowCount(m_tableCache.size());
-    set<UserModel>::iterator iter = m_tableCache.begin();
-    for (; iter != m_tableCache.end(); ++iter)
+    ui->tableWidget->setRowCount(m_tableUserCache.size());
+    set<UserModel>::iterator iter = m_tableUserCache.begin();
+    for (; iter != m_tableUserCache.end(); ++iter)
     {
         UserModel userdata = *iter;
         if (userdata.GetUserType() == currentRow)
@@ -90,10 +91,43 @@ void UserManagerWidget::UpdateTableUserData(int currentRow)
     }
 }
 
-void UserManagerWidget::ReceiveUserData(set<UserModel> setUserData)
+void UserManagerWidget::ReceiveUserData(set<UserModel> &setUserData)
 {
-    m_tableCache.insert(setUserData.begin(), setUserData.end());
+    m_tableUserCache.insert(setUserData.begin(), setUserData.end());
     UpdateTableUserData(0);
 
-    qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableCache.size();
+    qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableUserCache.size();
+}
+
+void UserManagerWidget::ReceiveLoginHistory(set<LoginHistoryModel> &setLoginHistory)
+{
+    m_tableLoginCache.insert(setLoginHistory.begin(), setLoginHistory.end());
+    UpdateTableLoginHistory(0);
+
+    qDebug() << "UserManagerWidget::ReceiveLoginHistory>>m_tableLoginCache.size" << m_tableLoginCache.size();
+}
+
+void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
+{
+    //清理tableWidget内容
+    ui->tableWidget->clearContents();
+
+    int nRow = 0;
+    ui->tableWidget->setRowCount(m_tableLoginCache.size());
+    set<LoginHistoryModel>::iterator iter = m_tableLoginCache.begin();
+    for (; iter != m_tableLoginCache.end(); ++iter)
+    {
+        LoginHistoryModel loginHistory = *iter;
+        if (loginHistory.GetLoginType() == currentRow)
+        {
+            ui->tableWidget->setItem(nRow, 0, new QTableWidgetItem(QString(loginHistory.GetAccount().c_str())));
+            ui->tableWidget->setItem(nRow, 1, new QTableWidgetItem(QString(loginHistory.GetIP().c_str())));
+            ui->tableWidget->setItem(nRow, 2, new QTableWidgetItem(QString(loginHistory.GetPort().c_str())));
+            ui->tableWidget->setItem(nRow, 3, new QTableWidgetItem(QString(loginHistory.GetBeginTime().c_str())));
+            ui->tableWidget->setItem(nRow, 4, new QTableWidgetItem(QString(loginHistory.GetEndTime().c_str())));
+            ui->tableWidget->setItem(nRow, 5, new QTableWidgetItem(QString(loginHistory.GetContinueTimeSec().c_str())));
+            ui->tableWidget->setItem(nRow, 6, new QTableWidgetItem(QString(loginHistory.GetContinueTimeDay().c_str())));
+            nRow++;
+        }
+    }
 }

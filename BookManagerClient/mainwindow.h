@@ -25,6 +25,7 @@
 #include "UserManagerWidget.h"
 #include "usermodel.h"
 #include "bookmodel.h"
+#include "loginhistorymodel.h"
 #include "searchbox.h"
 #include "modifypasswddialog.h"
 #include "SystemOperateCmd.h"
@@ -76,6 +77,7 @@ public:
     void DisplayDeleteUser(QString &str);
     void DisplayModifyUser(QString &str);
     void DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRet);
+    void DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
@@ -134,7 +136,8 @@ private:
     QString m_strLabelIntro;
 
 signals:
-    void SendUserData(set<UserModel> setUserData);
+    void SendUserData(set<UserModel> &setUserData);
+    void SendLoginHistory(set<LoginHistoryModel> &setLoginData);
     void SendUserHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
 public slots:
 

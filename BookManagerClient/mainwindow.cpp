@@ -127,6 +127,15 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             DisplayQueryAllUser(setUserData, strRet);
             break;
         }
+        case MSG_LOGINHISTORY:
+        {
+            int nRet = 0;
+            set<LoginHistoryModel> setLoginHistory;
+            ParseParamMainWin(notify.GetMapParam(), setLoginHistory, nRet);
+            QString strRet = QString::number(nRet);
+            DisplayLoginHistory(setLoginHistory, strRet);
+            break;
+        }
         case MSG_ADDBOOK:
             //DisplayAddBook(str);
             break;
@@ -329,6 +338,7 @@ void MainWindow::InitializeCenterWidget()
     SetUserCenterWidget();
     connect(this, &MainWindow::SendUserHeader, m_queryUser, &UserManagerWidget::GetWidgetHeader);
     connect(this, &MainWindow::SendUserData, m_queryUser, &UserManagerWidget::ReceiveUserData);
+    connect(this, &MainWindow::SendLoginHistory, m_queryUser, &UserManagerWidget::ReceiveLoginHistory);
 }
 
 void MainWindow::SetCenterWidget(QString strCenterWidget)
@@ -437,7 +447,8 @@ void MainWindow::QueryLoginHistoryAction()
     strTableHeader.append("登录端口");
     strTableHeader.append("登录开始时间");
     strTableHeader.append("登录结束时间");
-    strTableHeader.append("登录持续时间");
+    strTableHeader.append("登录持续秒数");
+    strTableHeader.append("登录持续天数");
 
     this->SendUserHeader(CMD_QUERY_LOGIN_HISTORY, strListHeader, strTableHeader);
 
@@ -503,6 +514,12 @@ void MainWindow::DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRe
 {
     qDebug() << "DisplayQueryUser:" << strRet.toUtf8().data();
     emit this->SendUserData(setUserData);
+}
+
+void MainWindow::DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet)
+{
+    qDebug() << "DisplayLoginHistory:" << strRet.toUtf8().data();
+    emit this->SendLoginHistory(setLoginData);
 }
 
 

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QResizeEvent>
 #include "usermodel.h"
+#include "loginhistorymodel.h"
 #include <QLayout>
 #include <QTableWidgetItem>
 #include <QListWidgetItem>
@@ -35,14 +36,17 @@ public:
     void LayoutWidget();
 
     void UpdateTableUserData(int currentRow);
+    void UpdateTableLoginHistory(int currentRow);
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
-    void ReceiveUserData(set<UserModel> setUserData);
-    void DisplayUserData(QListWidgetItem *item);
+    void ReceiveUserData(set<UserModel> &setUserData);
+    void ReceiveLoginHistory(set<LoginHistoryModel> &setLoginData);
+    void DisplayUserManagerData(QListWidgetItem *item);
 private:
     Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
-    set<UserModel> m_tableCache;
+    set<UserModel> m_tableUserCache;
+    set<LoginHistoryModel> m_tableLoginCache;
     QStringList m_strOpTypList;
     int m_nOpType;
 

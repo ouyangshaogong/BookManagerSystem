@@ -1,5 +1,15 @@
 #include "loginhistorymodel.h"
 
+void LoginHistoryModel::SetLoginID(int nLoginID)
+{
+    m_nLoginID = nLoginID;
+}
+
+int LoginHistoryModel::GetLoginID()
+{
+    return m_nLoginID;
+}
+
 void LoginHistoryModel::SetAccount(string strAccount)
 {
     m_strAccount = strAccount;
@@ -50,13 +60,52 @@ string LoginHistoryModel::GetEndTime()
     return m_strEndTime;
 }
 
-void LoginHistoryModel::SetContinueTime(string strContinueTime)
+void LoginHistoryModel::SetContinueTimeSec(string strContinueTimeSec)
 {
-    m_strContinueTime = strContinueTime;
+    m_strContinueTimeSec = strContinueTimeSec;
 }
 
-string LoginHistoryModel::GetContinueTime()
+void LoginHistoryModel::SetContinueTimeMin(string strContinueTimeSecMin)
 {
-    return m_strContinueTime;
+    m_strContinueTimeMin = strContinueTimeSecMin;
 }
 
+void LoginHistoryModel::SetContinueTimeDay(string strContinueTimeDay)
+{
+    m_strContinueTimeDay = strContinueTimeDay;
+}
+
+void LoginHistoryModel::SetContinueTimeHour(string strContinueTimeHour)
+{
+    m_strContinueTimeHour = strContinueTimeHour;
+}
+
+string LoginHistoryModel::GetContinueTimeSec()
+{
+    return m_strContinueTimeSec;
+}
+
+string LoginHistoryModel::GetContinueTimeMin()
+{
+    return m_strContinueTimeMin;
+}
+
+string LoginHistoryModel::GetContinueTimeHour()
+{
+    return m_strContinueTimeHour;
+}
+
+string LoginHistoryModel::GetContinueTimeDay()
+{
+    return m_strContinueTimeDay;
+}
+
+void LoginHistoryModel::SetLoginType(int nLoginType)
+{
+    m_nLoginType = nLoginType;
+}
+
+int LoginHistoryModel::GetLoginType()
+{
+    return m_nLoginType;
+}

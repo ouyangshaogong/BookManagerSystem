@@ -253,3 +253,108 @@ int DataProxy::QueryAllBook(set<BookModel> &setBookModel)
     return nRet;
 }
 
+int DataProxy::QueryLoginHistory(set<LoginHistoryModel> &setLoginHisroty)
+{
+    LoginHistoryModel loginHistory[100];
+
+    int nRet = 0;
+    int i = 0;
+    int count = 100;
+
+    //构造登录账户数据
+    int nAccount = 1;
+    for (; i < count; i++)
+    {
+        stringstream ss;
+        ss << setw(6) << setfill('0') << nAccount;
+        nAccount++;
+
+        string strTmp;
+        ss >> strTmp;
+
+        string strAccount("SX");
+        strAccount += strTmp;
+        loginHistory[i].SetAccount(strAccount);
+        loginHistory[i].SetLoginID(i + 1);
+
+        if (nAccount == 400000)
+        {
+            nAccount = 1;
+        }
+    }
+
+    //构造登录ＩＰ数据
+    i = 0;
+    for (; i < count; i++)
+    {
+        string strIP("192.168.2.");
+        strIP += to_string(i + 1);
+        loginHistory[i].SetIP(strIP);
+    }
+
+    //构造登录port数据
+    i = 0;
+    for (; i < count; i++)
+    {
+        string strPort;
+        strPort += to_string(i + 2000);
+        loginHistory[i].SetPort(strPort);
+    }
+
+    //构造开始登录时间数据
+    int nD = 0;
+    for(int m = 4; m <= 8; ++m)
+    {
+        for (int d = 1; d <= 20; ++d)
+        {
+            QDate date(2007, m, d);
+            QTime time;
+            QString strDateTime;
+            strDateTime = date.toString("yyyy-MM-dd ") + time.currentTime().toString("hh:mm:ss");
+            loginHistory[nD].SetBeginTime(strDateTime.toUtf8().data());
+            nD++;
+        }
+    }
+
+    //构造结束登录时间数据
+    nD = 0;
+    for(int m = 4; m <= 8; ++m)
+    {
+        for (int d = 1; d <= 20; ++d)
+        {
+            QDate date(2008, m, d);
+            QTime time;
+            QString strDateTime;
+            strDateTime = date.toString("yyyy-MM-dd ") + time.currentTime().toString("hh:mm:ss");
+            loginHistory[nD].SetEndTime(strDateTime.toUtf8().data());
+            nD++;
+        }
+    }
+
+    //构造持续登录时间数据
+    i = 0;
+    for (; i < count; i++)
+    {
+        QDateTime begin_time = QDateTime::fromString(QString(loginHistory[i].GetBeginTime().c_str()), "yyyy-MM-dd hh:mm:ss");
+        QDateTime end_time = QDateTime::fromString(QString(loginHistory[i].GetEndTime().c_str()), "yyyy-MM-dd hh:mm:ss");
+        loginHistory[i].SetContinueTimeSec(to_string(begin_time.secsTo(end_time)));//转换为秒数
+        //loginHistory[i].SetContinueTimeMin(begin_time.msecsTo(end_time));
+        //loginHistory[i].SetContinueTimeHour(begin_time.secsTo(end_time));
+        loginHistory[i].SetContinueTimeDay(to_string(begin_time.daysTo(end_time)));//转换为天数
+    }
+
+    //构造持续登录时间数据
+    i = 0;
+    for (; i < count; i++)
+    {
+        loginHistory[i].SetLoginType(i % 2);
+    }
+
+    for (i = 0; i < count; ++i)
+    {
+        setLoginHisroty.insert(loginHistory[i]);
+    }
+
+    return nRet;
+}
+
