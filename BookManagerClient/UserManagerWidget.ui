@@ -23,7 +23,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTableWidget" name="tableWidget">
+  <widget class="MyTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
      <x>170</x>
@@ -34,6 +34,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>mytablewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

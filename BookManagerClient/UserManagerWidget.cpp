@@ -20,7 +20,9 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
     connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserManagerData);
 
     //右击删除修改操作
-    connect(ui->tableWidget, &QTableWidget::itemClicked, this, &UserManagerWidget::DisplayUserOperate);
+    connect(ui->tableWidget, &MyTableWidget::SendRightButton, this, &UserManagerWidget::DisplayUserOperate);
+
+
 
     qDebug() << "UserManagerWidget 构造了";
 }
@@ -76,6 +78,17 @@ void UserManagerWidget::DisplayUserManagerData(QListWidgetItem *item)
 void UserManagerWidget::DisplayUserOperate()
 {
     qDebug() << "UserManagerWidget::DisplayUserOperate>>";
+
+    QMenu *m_rightButtonMenu = new QMenu(this);
+    m_deleteItemAction = new QAction("删除", m_rightButtonMenu);
+    m_modifyItemAction = new QAction("修改", m_rightButtonMenu);
+    m_rightButtonMenu->addAction(m_deleteItemAction);
+    m_rightButtonMenu->addAction(m_modifyItemAction);
+    m_rightButtonMenu->move(cursor().pos()); //让菜单显示的位置在鼠标的坐标上
+    m_rightButtonMenu->show();
+
+    //触发删除操作
+    connect(m_deleteItemAction, &QAction::triggered, this, &UserManagerWidget::DeleteTableItem);
 }
 
 void UserManagerWidget::UpdateTableUserData(int currentRow)
@@ -214,17 +227,54 @@ void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
     }
 }
 
-bool UserManagerWidget::eventFilter(QObject *obj, QEvent *e)
+void UserManagerWidget::DeleteTableItem()
 {
-    if (obj == ui->tableWidget)
+    QTableWidgetItem *item = ui->tableWidget->currentItem();
+    int currentRow = ui->tableWidget->currentRow();
+
+    //删除缓存中的数据
+    if (m_nOpType == CMD_QUERY_USER_DATA)
     {
-       // qDebug() << "事件过滤器" << QString::number(e->type());
-        //if (e->type() == QEvent::MouseButtonPress)
-        //{
-       //     qDebug() << "事件过滤器 MouseButtonDblClick";
-       //     return true;
-       // }
+        item = ui->tableWidget->item(currentRow, 4);
+        qDebug() << "UserManagerWidget::DeleteTableItem" << item->text();
+        set<UserModel>::iterator iter = m_tableUserCache.begin();
+        for (;iter != m_tableUserCache.end();)
+        {
+            UserModel userdata = *iter;
+            if (item->text() == QString(userdata.GetPhone().c_str()))
+            {
+                iter = m_tableUserCache.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
+    }
+    else if (m_nOpType == CMD_QUERY_LOGIN_HISTORY)
+    {
+        item = ui->tableWidget->item(currentRow, 0);
+        qDebug() << "UserManagerWidget::DeleteTableItem" << item->text();
+        set<LoginHistoryModel>::iterator iter = m_tableLoginCache.begin();
+        for (;iter != m_tableLoginCache.end();)
+        {
+            LoginHistoryModel logindata = *iter;
+            if (item->text() == QString(logindata.GetAccount().c_str()))
+            {
+                iter = m_tableLoginCache.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
     }
 
-    return QWidget::eventFilter(obj, e);
+    //删除控件中的数据
+    ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+}
+
+void UserManagerWidget::ModifyTableItem()
+{
+
 }

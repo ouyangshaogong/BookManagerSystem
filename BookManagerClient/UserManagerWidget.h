@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QMouseEvent>
 #include <QEvent>
+#include <QMenu>
 #include <map>
 #include "SystemOperateCmd.h"
 
@@ -21,11 +22,7 @@ using namespace std;
 
 namespace Ui {
 class UserManagerWidget;
-
-
 }
-
-
 
 class UserManagerWidget : public QWidget
 {
@@ -42,8 +39,8 @@ public:
     void UpdateTableLoginHistory(int currentRow);
     void SearchTableLoginHistory(int currentRow, QString &strText);
 
-
-    bool eventFilter(QObject *, QEvent *);
+    void DeleteTableItem();
+    void ModifyTableItem();
 
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
@@ -62,6 +59,10 @@ private:
 
     typedef void (UserManagerWidget::*pUpdateOperateData)(int);
     map<int, pUpdateOperateData> m_nCmdMapUpdateOpData;
+
+    QMenu *m_rightButtonMenu;
+    QAction *m_deleteItemAction;
+    QAction *m_modifyItemAction;
 };
 
 #endif // QUERYUSERFORM_H
