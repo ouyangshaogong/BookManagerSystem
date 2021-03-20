@@ -17,10 +17,13 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
     LayoutWidget();
 
     //点击用户类型显示用户数据
-    connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserManagerData);
+    connect(ui->listWidget, &MyListWidget::SendLeftButton, this, &UserManagerWidget::DisplayUserManagerData);
 
-    //右击删除修改操作
-    connect(ui->tableWidget, &MyTableWidget::SendRightButton, this, &UserManagerWidget::DisplayUserOperate);
+    //listWidget点击用户类型显示用户数据
+    connect(ui->listWidget, &MyListWidget::SendRightButton, this, &UserManagerWidget::DisplayUserListOperate);
+
+    //tableWidget右击删除修改操作
+    connect(ui->tableWidget, &MyTableWidget::SendRightButton, this, &UserManagerWidget::DisplayUserTableOperate);
     qDebug() << "UserManagerWidget 构造了";
 }
 
@@ -62,7 +65,7 @@ void UserManagerWidget::LayoutWidget()
     setLayout(m_layout);
 }
 
-void UserManagerWidget::DisplayUserManagerData(QListWidgetItem *item)
+void UserManagerWidget::DisplayUserManagerData()
 {
     qDebug() << "UserManagerWidget::DisplayUserData>>";
 
@@ -74,33 +77,50 @@ void UserManagerWidget::DisplayUserManagerData(QListWidgetItem *item)
 
 }
 
-void UserManagerWidget::DisplayUserOperate()
+void UserManagerWidget::DisplayUserListOperate()
+{
+    if (m_nOpType == CMD_QUERY_USER_DATA)
+    {
+        m_rightButtonListMenu = new QMenu(this);
+        m_addUserTypeAction = new QAction("添加用户类型", m_rightButtonListMenu);
+        m_rightButtonListMenu->addAction(m_addUserTypeAction);
+        //触发复制该行操作
+        connect(m_addUserTypeAction, &QAction::triggered, this, &UserManagerWidget::AddUserTypeItemAction);
+
+        //让菜单显示的位置在鼠标的坐标上
+        m_rightButtonListMenu->move(cursor().pos());
+        m_rightButtonListMenu->show();
+    }
+
+}
+
+void UserManagerWidget::DisplayUserTableOperate()
 {
     qDebug() << "UserManagerWidget::DisplayUserOperate>>";
 
-    QMenu *m_rightButtonMenu = new QMenu(this);
-    m_deleteItemAction = new QAction("删除", m_rightButtonMenu);
-    m_rightButtonMenu->addAction(m_deleteItemAction);
+    m_rightButtonTableMenu = new QMenu(this);
+    m_deleteItemAction = new QAction("删除", m_rightButtonTableMenu);
+    m_rightButtonTableMenu->addAction(m_deleteItemAction);
     //触发删除操作
     connect(m_deleteItemAction, &QAction::triggered, this, &UserManagerWidget::DeleteItemAction);
 
     if (m_nOpType == CMD_QUERY_USER_DATA)
     {
-        m_copyRowItemAction = new QAction("复制该行", m_rightButtonMenu);
-        m_rightButtonMenu->addAction(m_copyRowItemAction);
+        m_copyRowItemAction = new QAction("复制该行", m_rightButtonTableMenu);
+        m_rightButtonTableMenu->addAction(m_copyRowItemAction);
         //触发复制该行操作
         connect(m_copyRowItemAction, &QAction::triggered, this, &UserManagerWidget::CopyRowItemAction);
     }
     else if (m_nOpType == CMD_QUERY_LOGIN_HISTORY)
     {
-        m_queryDetailItemAction = new QAction("查询详细信息", m_rightButtonMenu);
-        m_rightButtonMenu->addAction(m_queryDetailItemAction);
+        m_queryDetailItemAction = new QAction("查询详细信息", m_rightButtonTableMenu);
+        m_rightButtonTableMenu->addAction(m_queryDetailItemAction);
         //触发复制该行操作
         connect(m_queryDetailItemAction, &QAction::triggered, this, &UserManagerWidget::QueryDetailAction);
     }
 
-    m_rightButtonMenu->move(cursor().pos()); //让菜单显示的位置在鼠标的坐标上
-    m_rightButtonMenu->show();
+    m_rightButtonTableMenu->move(cursor().pos()); //让菜单显示的位置在鼠标的坐标上
+    m_rightButtonTableMenu->show();
 }
 
 void UserManagerWidget::UpdateTableUserData(int currentRow)
@@ -282,6 +302,42 @@ void UserManagerWidget::DeleteItemAction()
 
     //删除控件中的数据
     ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+}
+
+void UserManagerWidget::AddUserTypeItemAction()
+{
+    QDialog *dlg = new QDialog(this, Qt::WindowCloseButtonHint);
+
+    QLabel *label = new QLabel(dlg);
+    label->setText("用户类型:");
+    label->move(10, 10);
+
+    QLineEdit *lineEdit = new QLineEdit(dlg);
+    lineEdit->move(label->width() - 20, 10);
+
+    QHBoxLayout *hBoxLayout = new QHBoxLayout;
+    hBoxLayout->addWidget(label);
+    hBoxLayout->addWidget(lineEdit);
+    setLayout(hBoxLayout);
+
+    QPushButton *btnOk = new QPushButton(dlg);
+    btnOk->resize(75, 35);
+    btnOk->move(25, 55);
+    btnOk->setText("确定");
+    QPushButton *btnBack = new QPushButton(dlg);
+    btnBack->resize(75, 35);
+    btnBack->move(140, 55);
+    btnBack->setText("返回");
+
+    QHBoxLayout *hBoxLayoutButton = new QHBoxLayout;
+    hBoxLayout->addWidget(btnOk);
+    hBoxLayout->addWidget(btnBack);
+    setLayout(hBoxLayoutButton);
+
+    //dlg->resize(240, 50);
+    dlg->setWindowTitle("添加用户类型");
+    dlg->setFixedSize(240, 100);
+    dlg->show();
 }
 
 void UserManagerWidget::CopyRowItemAction()

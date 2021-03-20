@@ -15,7 +15,11 @@
 #include <QDialog>
 #include <QTextEdit>
 #include <map>
+#include <QLabel>
 #include <QClipboard>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 #include "SystemOperateCmd.h"
 
 
@@ -46,13 +50,15 @@ public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveUserData(set<UserModel> &setUserData);
     void ReceiveLoginHistory(set<LoginHistoryModel> &setLoginData);
-    void DisplayUserManagerData(QListWidgetItem *item);
-    void DisplayUserOperate();
+    void DisplayUserManagerData();
+    void DisplayUserListOperate();
+    void DisplayUserTableOperate();
     void ReceiveSearchText(int nCmdOp, QString &strText);
 
     void DeleteItemAction();
     void CopyRowItemAction();
     void QueryDetailAction();
+    void AddUserTypeItemAction();
 private:
     Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
@@ -64,9 +70,12 @@ private:
     typedef void (UserManagerWidget::*pUpdateOperateData)(int);
     map<int, pUpdateOperateData> m_nCmdMapUpdateOpData;
 
-    QMenu *m_rightButtonMenu;
+    QMenu *m_rightButtonTableMenu;
+    QMenu *m_rightButtonListMenu;
+
     QAction *m_deleteItemAction;
     QAction *m_copyRowItemAction;
+    QAction *m_addUserTypeAction;
     int m_nColomuCount;
     QAction *m_queryDetailItemAction;
     QStringList m_strTableHeader;

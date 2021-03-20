@@ -20,6 +20,7 @@ SOURCES += \
     mainwindow.cpp \
     modifypasswddialog.cpp \
     myapplication.cpp \
+    mylistwidget.cpp \
     mytablewidget.cpp \
     searchbox.cpp \
     usermodel.cpp
@@ -37,6 +38,7 @@ HEADERS += \
     mainwindow.h \
     modifypasswddialog.h \
     myapplication.h \
+    mylistwidget.h \
     mytablewidget.h \
     searchbox.h \
     usermodel.h
