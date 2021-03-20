@@ -9,6 +9,8 @@
 #include <QTableWidgetItem>
 #include <QListWidgetItem>
 #include <QStringList>
+#include <QMouseEvent>
+#include <QEvent>
 #include <map>
 #include "SystemOperateCmd.h"
 
@@ -39,11 +41,16 @@ public:
     void SearchTableUserData(int currentRow, QString &strText);
     void UpdateTableLoginHistory(int currentRow);
     void SearchTableLoginHistory(int currentRow, QString &strText);
+
+
+    bool eventFilter(QObject *, QEvent *);
+
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveUserData(set<UserModel> &setUserData);
     void ReceiveLoginHistory(set<LoginHistoryModel> &setLoginData);
     void DisplayUserManagerData(QListWidgetItem *item);
+    void DisplayUserOperate();
     void ReceiveSearchText(int nCmdOp, QString &strText);
 private:
     Ui::UserManagerWidget *ui;

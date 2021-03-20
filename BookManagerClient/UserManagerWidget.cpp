@@ -8,7 +8,9 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //m_strOpTypList << QUERY_USER_DATA << QUERY_LOGIN_HISTORY;
+    //给QTableWidget安装事件拦截器
+    ui->tableWidget->installEventFilter(this);
+
     m_nCmdMapUpdateOpData[CMD_QUERY_USER_DATA] = &UserManagerWidget::UpdateTableUserData;
     m_nCmdMapUpdateOpData[CMD_QUERY_LOGIN_HISTORY] = &UserManagerWidget::UpdateTableLoginHistory;
     //按比例布局控件
@@ -16,6 +18,9 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
 
     //点击用户类型显示用户数据
     connect(ui->listWidget, &QListWidget::itemClicked, this, &UserManagerWidget::DisplayUserManagerData);
+
+    //右击删除修改操作
+    connect(ui->tableWidget, &QTableWidget::itemClicked, this, &UserManagerWidget::DisplayUserOperate);
 
     qDebug() << "UserManagerWidget 构造了";
 }
@@ -65,6 +70,12 @@ void UserManagerWidget::DisplayUserManagerData(QListWidgetItem *item)
     {
         (this->*iter->second)(ui->listWidget->currentRow());
     }
+
+}
+
+void UserManagerWidget::DisplayUserOperate()
+{
+    qDebug() << "UserManagerWidget::DisplayUserOperate>>";
 }
 
 void UserManagerWidget::UpdateTableUserData(int currentRow)
@@ -203,3 +214,17 @@ void UserManagerWidget::UpdateTableLoginHistory(int currentRow)
     }
 }
 
+bool UserManagerWidget::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == ui->tableWidget)
+    {
+       // qDebug() << "事件过滤器" << QString::number(e->type());
+        //if (e->type() == QEvent::MouseButtonPress)
+        //{
+       //     qDebug() << "事件过滤器 MouseButtonDblClick";
+       //     return true;
+       // }
+    }
+
+    return QWidget::eventFilter(obj, e);
+}
