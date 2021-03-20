@@ -7,9 +7,22 @@
 #include <QLayout>
 #include <QTableWidgetItem>
 #include <QListWidgetItem>
+#include <QStringList>
+#include <map>
+#include "SystemOperateCmd.h"
+
+
+using namespace std;
+
+
+
 namespace Ui {
 class UserManagerWidget;
+
+
 }
+
+
 
 class UserManagerWidget : public QWidget
 {
@@ -23,13 +36,18 @@ public:
 
     void UpdateTableUserData(int currentRow);
 public slots:
-    void GetWidgetHeader(QStringList &strListHeader, QStringList &strTableHeader);
+    void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveUserData(set<UserModel> setUserData);
     void DisplayUserData(QListWidgetItem *item);
 private:
     Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
     set<UserModel> m_tableCache;
+    QStringList m_strOpTypList;
+    int m_nOpType;
+
+    typedef void (UserManagerWidget::*pUpdateOperateData)(int);
+    map<int, pUpdateOperateData> m_nCmdMapUpdateOpData;
 };
 
 #endif // QUERYUSERFORM_H

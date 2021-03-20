@@ -27,6 +27,7 @@
 #include "bookmodel.h"
 #include "searchbox.h"
 #include "modifypasswddialog.h"
+#include "SystemOperateCmd.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -97,7 +98,7 @@ private:
     QAction *m_modifyUserAction;
     QAction *m_modifyPasswdAction;
     QAction *m_queryUserAction;
-    QAction *m_queryUserLoginAction;
+    QAction *m_queryLoginAction;
 
     QAction *m_addBookAction;
     QAction *m_deleteBookAction;
@@ -134,7 +135,7 @@ private:
 
 signals:
     void SendUserData(set<UserModel> setUserData);
-    void SendUserHeader(QStringList &strListHeader, QStringList &strTableHeader);
+    void SendUserHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
 public slots:
 
     void AddUserAction();

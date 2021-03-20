@@ -99,7 +99,7 @@ int DataProxy::QueryAllUser(set<UserModel> &setUserData)
         {
             QDate date(1990, m, d);
             userModel[i].SetBirth(date.toString("yyyy-MM-dd").toUtf8().data());
-            qDebug() << "m = " << QString::number(m) << "d = " << QString::number(d) << "i = " << QString::number(i);
+            //qDebug() << "m = " << QString::number(m) << "d = " << QString::number(d) << "i = " << QString::number(i);
             i++;
         }
     }

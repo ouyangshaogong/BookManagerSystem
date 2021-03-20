@@ -8,6 +8,8 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //m_strOpTypList << QUERY_USER_DATA << QUERY_LOGIN_HISTORY;
+    m_nCmdMapUpdateOpData[CMD_QUERY_USER_DATA] = &UserManagerWidget::UpdateTableUserData;
     //按比例布局控件
     LayoutWidget();
 
@@ -24,19 +26,18 @@ UserManagerWidget::~UserManagerWidget()
     delete ui;
 }
 
-void UserManagerWidget::GetWidgetHeader(QStringList &strListHeader, QStringList &strTableHeader)
+void UserManagerWidget::GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader)
 {
+    qDebug() << "UserManagerWidget::GetWidgetHeader";
     ui->listWidget->clear();
     ui->tableWidget->clear();
 
-    //listHeader << "管理员" << "普通读者" << "游客";
+    m_nOpType = nOpType;
     ui->listWidget->addItems(strListHeader);
-
     //设置列数
     ui->tableWidget->setColumnCount(strTableHeader.size());
     //设置水平表头
     ui->tableWidget->setHorizontalHeaderLabels(strTableHeader);
-
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
@@ -56,9 +57,13 @@ void UserManagerWidget::LayoutWidget()
 
 void UserManagerWidget::DisplayUserData(QListWidgetItem *item)
 {
-
-    UpdateTableUserData(ui->listWidget->currentRow());
     qDebug() << "UserManagerWidget::DisplayUserData>>";
+
+    map<int, pUpdateOperateData>::iterator iter = m_nCmdMapUpdateOpData.find(m_nOpType);
+    if (iter != m_nCmdMapUpdateOpData.end())
+    {
+        (this->*iter->second)(ui->listWidget->currentRow());
+    }
 }
 
 void UserManagerWidget::UpdateTableUserData(int currentRow)
@@ -75,7 +80,7 @@ void UserManagerWidget::UpdateTableUserData(int currentRow)
         if (userdata.GetUserType() == currentRow)
         {
             ui->tableWidget->setItem(nRow, 0, new QTableWidgetItem(QString(userdata.GetUserName().c_str())));
-            qDebug() << userdata.GetUserName().c_str() << QString::number(ui->listWidget->currentRow());
+            //qDebug() << userdata.GetUserName().c_str() << QString::number(ui->listWidget->currentRow());
             ui->tableWidget->setItem(nRow, 1, new QTableWidgetItem(QString(userdata.GetSex().c_str())));
             ui->tableWidget->setItem(nRow, 2, new QTableWidgetItem(QString(userdata.GetBirth().c_str())));
             ui->tableWidget->setItem(nRow, 3, new QTableWidgetItem(QString(userdata.GetAddress().c_str())));

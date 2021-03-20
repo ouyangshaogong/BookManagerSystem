@@ -209,13 +209,11 @@ void MainWindow::AddMenu()
 
 void MainWindow::AddMenuAction()
 {
-    m_addUserAction = m_userMgrMenu->addAction("添加用户");
+    m_addUserAction = new QAction("添加用户");
+    m_modifyPasswdAction = new QAction("修改密码");
+    m_queryUserAction = m_userMgrMenu->addAction("用户");
     m_userMgrMenu->addSeparator();
-    m_modifyPasswdAction = m_userMgrMenu->addAction("修改密码");
-    m_userMgrMenu->addSeparator();
-    m_queryUserAction = m_userMgrMenu->addAction("查询用户信息");
-    m_userMgrMenu->addSeparator();
-    m_queryUserLoginAction = m_userMgrMenu->addAction("查询用户登录历史");
+    m_queryLoginAction = m_userMgrMenu->addAction("历史登录");
 
     m_addBookAction = m_bookMgrMenu->addAction("添加图书");
     m_bookMgrMenu->addSeparator();
@@ -351,6 +349,7 @@ void MainWindow::InitializeConnect()
 {
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
+    connect(m_queryLoginAction, &QAction::triggered, this, &MainWindow::QueryLoginHistoryAction);
 
     connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
@@ -416,7 +415,7 @@ void MainWindow::QueryAllUserAction()
     strTableHeader.append("家庭地址");
     strTableHeader.append("电话");
 
-    this->SendUserHeader(strListHeader, strTableHeader);
+    this->SendUserHeader(CMD_QUERY_USER_DATA, strListHeader, strTableHeader);
 
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLUSER;
@@ -426,6 +425,7 @@ void MainWindow::QueryAllUserAction()
 
 void MainWindow::QueryLoginHistoryAction()
 {
+    qDebug() << "MainWindow::QueryLoginHistoryAction" << endl;
     SetCenterWidget(USER_CENTER_WIDGET);
 
     QStringList strListHeader;
@@ -439,7 +439,7 @@ void MainWindow::QueryLoginHistoryAction()
     strTableHeader.append("登录结束时间");
     strTableHeader.append("登录持续时间");
 
-    this->SendUserHeader(strListHeader, strTableHeader);
+    this->SendUserHeader(CMD_QUERY_LOGIN_HISTORY, strListHeader, strTableHeader);
 
     NotifyMsg notify;
     notify.nMsg = MSG_LOGINHISTORY;

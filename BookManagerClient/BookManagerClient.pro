@@ -15,6 +15,7 @@ SOURCES += \
     dataController.cpp \
     datacommonfunc.cpp \
     dataproxy.cpp \
+    loginhistorymodel.cpp \
     main.cpp \
     mainwindow.cpp \
     modifypasswddialog.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
     usermodel.cpp
 
 HEADERS += \
+    SystemOperateCmd.h \
     UserManagerWidget.h \
     adduserdialog.h \
     bookmodel.h \
@@ -30,6 +32,7 @@ HEADERS += \
     datacommonfunc.h \
     datacontroller.h \
     dataproxy.h \
+    loginhistorymodel.h \
     mainwindow.h \
     modifypasswddialog.h \
     myapplication.h \
