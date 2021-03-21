@@ -52,7 +52,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 INCLUDEPATH += /home/zhangfengli/vscode-projects/BookManagerSystem/include/component
 INCLUDEPATH += /home/zhangfengli/vscode-projects/BookManagerSystem/include/common
-LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
+INCLUDEPATH += /home/zhangfengli/vscode-projects/BookManagerSystem/include/utils
+LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent -lbookutils
 
 FORMS += \
     UserManagerWidget.ui \

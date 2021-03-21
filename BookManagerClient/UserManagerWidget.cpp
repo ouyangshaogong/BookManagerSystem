@@ -210,9 +210,15 @@ void UserManagerWidget::ReceiveAddUserData(UserModel userData)
 
 void UserManagerWidget::ReceiveQueryUserData(set<UserModel> &setUserData)
 {
-
+    static bool bSetMaxUserID = true;
     m_tableUserCache.insert(setUserData.begin(), setUserData.end());
     UpdateTableUserData(0);
+
+    if(bSetMaxUserID)
+    {
+        emit this->SendUerCacheMaxUserID(m_tableUserCache.size());
+        bSetMaxUserID = false;
+    }
 
     qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableUserCache.size();
 }

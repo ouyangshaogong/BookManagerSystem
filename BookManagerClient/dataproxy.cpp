@@ -2,9 +2,92 @@
 #include "datacommonfunc.h"
 #include <QDate>
 
+#define INIT_USER_DATA 85
+
+DataProxy::DataProxy()
+:Proxy("DataProxy"), m_vecUserModel(INIT_USER_DATA)
+{
+    MakeUserData();
+}
+
 DataProxy::~DataProxy()
 {
     qDebug() << "DataProxy析构了";
+}
+
+void DataProxy::MakeUserData()
+{
+    string strUserName[85] = {"彭万里", "高大山", "谢大海", "马宏宇", "林莽", "黄强辉", "章汉夫", "范长江", "林君雄", "谭平山",
+                              "朱希亮", "李四光", "甘铁生", "张绍祖", "马继祖", "程孝先", "宗敬先", "年广嗣", "汤绍箕", "吕显祖",
+                              "何光宗", "孙念祖", "马建国", "节振国", "冯兴国", "郝爱民", "于学忠", "马连良", "胡宝善", "李宗仁",
+                              "洪学智", "余克勤", "吴克俭", "杨惟义", "李文信", "王德茂", "李书诚", "杨勇", "高尚德", "刁富贵",
+                              "汤念祖", "吕奉先", "何光宗", "冷德友", "安怡孙", "贾德善", "蔡德霖", "关仁", "郑义贾怡", "孙天民",
+                              "赵大华", "赵进喜", "赵德荣", "赵德茂", "钱汉祥", "钱运高", "钱生禄", "孙寿康", "孙应吉", "孙顺达",
+                              "李秉贵", "李厚福", "李开富", "王子久", "刘永生", "刘宝瑞", "关玉和", "王仁兴", "李际泰", "罗元发",
+                              "刘造时", "刘乃超", "刘长胜", "张成基", "张国柱", "张志远", "张广才", "吕德榜", "吕文达", "吴家栋",
+                              "吴国梁", "吴立功", "李大江", "张石山", "王海"};
+    int count = 85;
+    for (int i = 0; i < count; ++i)
+    {
+        m_vecUserModel[i].SetUserID(i + 1);
+        m_vecUserModel[i].SetReaderID(i + 1);
+        m_vecUserModel[i].SetUserName(strUserName[i]);
+    }
+
+    for (int i = 0; i < count; ++i)
+    {
+        if (i % 2 == 0)
+        {
+            m_vecUserModel[i].SetSex("男");
+        }
+        else
+        {
+            m_vecUserModel[i].SetSex("女");
+        }
+    }
+
+    int i = 0;
+    for(int m = 3; m <= 7; ++m)
+    {
+        for (int d = 1; d <= 17; ++d)
+        {
+            QDate date(1990, m, d);
+            m_vecUserModel[i].SetBirth(date.toString("yyyy-MM-dd").toUtf8().data());
+            //qDebug() << "m = " << QString::number(m) << "d = " << QString::number(d) << "i = " << QString::number(i);
+            i++;
+        }
+    }
+
+    string strAddress[] = {"纽约", "东京", "大阪", "北京", "西安", "上海", "华盛顿", "纽西蓝", "京都", "横滨",
+                           "金陵", "建业", "建康", "江宁", "石头城", "临安", "钱塘", "武林", "姑苏", "吴郡",
+                           "平江", "淮上", "江都", "广陵", "淮扬", "郢都", "郑城"};
+
+    int iCount = 5;
+    int u = 0;
+    for (i = 0; i < iCount; ++i)
+    {
+        int jCount = 17;
+        for (int j = 0; j < jCount; ++j)
+        {
+            m_vecUserModel[u].SetAddress(strAddress[j]);
+            u++;
+        }
+    }
+
+    u = 0;
+    for (i = 0; i < count; ++i)
+    {
+        m_vecUserModel[i].SetUserType(i % 3);
+    }
+
+    u = 0;
+    string strPhone("187293652");
+    for (i = 0; i < count; ++i)
+    {
+        string tmpstr = strPhone + to_string(i + 10);
+        m_vecUserModel[i].SetPhone(tmpstr);
+    }
+
 }
 
 void DataProxy::AddLevel(int nLevel)
@@ -26,6 +109,8 @@ int DataProxy::AddUser(UserModel userModel)
     qDebug() << userModel.GetAddress().c_str();
     qDebug() << userModel.GetPhone().c_str();
     qDebug() << QString::number(userModel.GetUserType());
+
+    m_vecUserModel.push_back(userModel);
 
     return nRet;
 }
@@ -61,83 +146,7 @@ int DataProxy::ModifyPasswd(string strOldPasswd, string strNewPasswd, string str
 int DataProxy::QueryAllUser(set<UserModel> &setUserData)
 {
     int nRet = 0;
-    int count = 85;
-    UserModel userModel[85];
-    string strUserName[85] = {"彭万里", "高大山", "谢大海", "马宏宇", "林莽", "黄强辉", "章汉夫", "范长江", "林君雄", "谭平山",
-                              "朱希亮", "李四光", "甘铁生", "张绍祖", "马继祖", "程孝先", "宗敬先", "年广嗣", "汤绍箕", "吕显祖",
-                              "何光宗", "孙念祖", "马建国", "节振国", "冯兴国", "郝爱民", "于学忠", "马连良", "胡宝善", "李宗仁",
-                              "洪学智", "余克勤", "吴克俭", "杨惟义", "李文信", "王德茂", "李书诚", "杨勇", "高尚德", "刁富贵",
-                              "汤念祖", "吕奉先", "何光宗", "冷德友", "安怡孙", "贾德善", "蔡德霖", "关仁", "郑义贾怡", "孙天民",
-                              "赵大华", "赵进喜", "赵德荣", "赵德茂", "钱汉祥", "钱运高", "钱生禄", "孙寿康", "孙应吉", "孙顺达",
-                              "李秉贵", "李厚福", "李开富", "王子久", "刘永生", "刘宝瑞", "关玉和", "王仁兴", "李际泰", "罗元发",
-                              "刘造时", "刘乃超", "刘长胜", "张成基", "张国柱", "张志远", "张广才", "吕德榜", "吕文达", "吴家栋",
-                              "吴国梁", "吴立功", "李大江", "张石山", "王海"};
-
-    for (int i = 0; i < count; ++i)
-    {
-        userModel[i].SetUserID(i + 1);
-        userModel[i].SetReaderID(i + 1);
-        userModel[i].SetUserName(strUserName[i]);
-    }
-
-    for (int i = 0; i < count; ++i)
-    {
-        if (i % 2 == 0)
-        {
-            userModel[i].SetSex("男");
-        }
-        else
-        {
-            userModel[i].SetSex("女");
-        }
-    }
-
-    int i = 0;
-    for(int m = 3; m <= 7; ++m)
-    {
-        for (int d = 1; d <= 17; ++d)
-        {
-            QDate date(1990, m, d);
-            userModel[i].SetBirth(date.toString("yyyy-MM-dd").toUtf8().data());
-            //qDebug() << "m = " << QString::number(m) << "d = " << QString::number(d) << "i = " << QString::number(i);
-            i++;
-        }
-    }
-
-    string strAddress[] = {"纽约", "东京", "大阪", "北京", "西安", "上海", "华盛顿", "纽西蓝", "京都", "横滨",
-                           "金陵", "建业", "建康", "江宁", "石头城", "临安", "钱塘", "武林", "姑苏", "吴郡",
-                           "平江", "淮上", "江都", "广陵", "淮扬", "郢都", "郑城"};
-
-    int iCount = 5;
-    int u = 0;
-    for (i = 0; i < iCount; ++i)
-    {
-        int jCount = 17;
-        for (int j = 0; j < jCount; ++j)
-        {
-            userModel[u].SetAddress(strAddress[j]);
-            u++;
-        }
-    }
-
-    u = 0;
-    for (i = 0; i < count; ++i)
-    {
-        userModel[i].SetUserType(i % 3);
-    }
-
-    u = 0;
-    string strPhone("187293652");
-    for (i = 0; i < count; ++i)
-    {
-        string tmpstr = strPhone + to_string(i + 10);
-        userModel[i].SetPhone(tmpstr);
-    }
-
-    for (i = 0; i < count; ++i)
-    {
-        setUserData.insert(userModel[i]);
-    }
+    setUserData.insert(m_vecUserModel.begin(), m_vecUserModel.end());
 
     return nRet;
 }

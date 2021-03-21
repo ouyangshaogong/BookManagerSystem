@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 AddUserDialog::AddUserDialog(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent), m_nIdMaker(0),
     ui(new Ui::AddUserDialog)
 {
     qDebug() << "AddUserDialog::AddUserDialog";
@@ -26,7 +26,11 @@ AddUserDialog::AddUserDialog(QWidget *parent) :
         userModel.SetPhone(ui->lineEditPhone->text().toUtf8().data());
         userModel.SetAddress(ui->lineEditAddress->text().toUtf8().data());
         userModel.SetUserType(ui->comboBoxUserType->currentIndex());
-        userModel.SetUserID(m_nMaxUserID);
+
+        int nID = m_nIdMaker.GenerateID();
+        userModel.SetUserID(nID);
+        userModel.SetReaderID(nID);
+
         if (userModel.GetUserName().empty() || userModel.GetSex().empty()
             || userModel.GetBirth().empty() || userModel.GetPhone().empty()
             || userModel.GetAddress().empty())
@@ -70,7 +74,7 @@ void AddUserDialog::GetUserType(QString &strText)
     ui->comboBoxUserType->addItem(strText);
 }
 
-void AddUserDialog::GetUserID(int maxUserID)
+void AddUserDialog::GetMaxUserID(int nUserID)
 {
-    m_nMaxUserID = maxUserID;
+    m_nIdMaker.GetCurrentID(nUserID);
 }

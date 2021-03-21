@@ -32,7 +32,7 @@
 #include "searchcondition.h"
 #include "modifypasswddialog.h"
 #include "SystemOperateCmd.h"
-
+#include "IDMaker.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -102,6 +102,7 @@ private:
     QMenu *m_userMgrMenu;
     QMenu *m_bookMgrMenu;
 
+
     QAction *m_addUserAction;
     AddUserDialog *m_addUserDlg;
 
@@ -162,6 +163,7 @@ signals:
 public slots:
 
     void AddUserAction();
+    void SetUserCacheMaxUserID(int nMaxUserID);
 
     void ModifyUserAction();
     void ModifyPasswdAction();
@@ -178,6 +180,7 @@ public slots:
     void ReceiveAddUser(UserModel userModel);
     void ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd);
     void ReceiveCellDouble(int row, int column);
+    void ReceiveCellChanged(int row, int column);
     void DoSearchBook(QString strText);
 
     void ReceiveUserType(int userType, QString &strText);

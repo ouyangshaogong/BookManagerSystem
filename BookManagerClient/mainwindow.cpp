@@ -370,6 +370,8 @@ void MainWindow::InitializeCenterWidget()
     connect(m_queryUser, &UserManagerWidget::SendDeleteLoginHistory, this, &MainWindow::ReceiveDeleteLoginHistory);
     //删除用户数据
     connect(m_queryUser, &UserManagerWidget::SendDeleteUserData, this, &MainWindow::ReceiveDeleteUserData);
+    //发送用户缓存最大ID
+    connect(m_queryUser, &UserManagerWidget::SendUerCacheMaxUserID, this, &MainWindow::SetUserCacheMaxUserID);
     //添加用户类型
     connect(m_queryUser, &UserManagerWidget::SendUserType, this, &MainWindow::ReceiveUserType);
 }
@@ -404,6 +406,8 @@ void MainWindow::InitializeConnect()
 
     //双击单元格
     connect(m_tableWidgetBook, &QTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
+    //单元格发生改变
+    connect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
 }
 
 void MainWindow::AddUserAction()
@@ -420,6 +424,11 @@ void MainWindow::AddUserAction()
     {
         qDebug() << "Rejected" << endl;
     }
+}
+
+void MainWindow::SetUserCacheMaxUserID(int nMaxUserID)
+{
+    m_addUserDlg->GetMaxUserID(nMaxUserID);
 }
 
 void MainWindow::ModifyUserAction()
@@ -658,6 +667,12 @@ void MainWindow::ReceiveAddUser(UserModel userModel)
     PackageParamMainWin(notify.GetMapParam(), userModel);
     qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMapParam().size());
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::ReceiveCellChanged(int row, int column)
+{
+    QTableWidgetItem *item =  m_tableWidgetBook->item(row, column);
+    //item->text()
 }
 
 void MainWindow::ReceiveCellDouble(int row, int column)

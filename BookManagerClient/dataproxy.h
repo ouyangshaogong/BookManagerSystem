@@ -10,8 +10,11 @@
 class DataProxy: public Proxy
 {
 public:
-    DataProxy():Proxy("DataProxy"){};
+    DataProxy();
     ~DataProxy();
+
+    void MakeUserData();
+
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
     int DeleteUserByUserID(int userid);
@@ -29,7 +32,7 @@ public:
     int QueryLoginHistory(set<LoginHistoryModel> & setLoginHisroty);
     int DeleteLoginHistory(string strAcount);
 private:
-
+    vector<UserModel> m_vecUserModel;
 };
 
 #endif

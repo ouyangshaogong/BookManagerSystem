@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "usermodel.h"
+#include "IDMaker.h"
 
 namespace Ui {
 class AddUserDialog;
@@ -17,13 +18,13 @@ public:
     ~AddUserDialog();
 
     void GetUserType(QString &strText);
-    void GetUserID(int maxUserID);
+    void GetMaxUserID(int nUserID);
 signals:
     void SendAddUser(UserModel userModel);
 
 private:
     Ui::AddUserDialog *ui;
-    int m_nMaxUserID;
+    IDMaker m_nIdMaker;
 };
 
 #endif // ADDUSERDIALOG_H

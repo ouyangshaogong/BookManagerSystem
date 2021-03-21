@@ -50,6 +50,9 @@ signals:
     void SendUserType(int userType, QString &strText);
     void SendDeleteUserData(int userid);
     void SendDeleteLoginHistory(QString &strAssount);
+
+    void SendUerCacheMaxUserID(int nMaxUserID);
+
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveQueryUserData(set<UserModel> &setUserData);

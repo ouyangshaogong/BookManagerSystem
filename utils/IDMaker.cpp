@@ -8,6 +8,11 @@ IDMaker::IDMaker(int nID)
     m_Mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
+void IDMaker::GetCurrentID(int nID)
+{
+    m_nID = nID;
+}
+
 int IDMaker::GenerateID()
 {
     pthread_mutex_lock(&m_Mutex);    // 加锁

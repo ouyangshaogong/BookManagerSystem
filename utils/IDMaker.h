@@ -10,6 +10,7 @@ public:
     IDMaker(int nID);
     ~IDMaker(){};
 
+    void GetCurrentID(int nID);
     int GenerateID();
 
 private:
