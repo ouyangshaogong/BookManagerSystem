@@ -94,14 +94,17 @@ public:
     void UpdateBookCache();
     void UpdateBookCache(QString strText);
 
-    void AddSearchBox(int nOpType);
+    void AddSearchBox();
     void AddSearchCond();
+    void SetSearchCondVisible(int nOpType);
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
     QMenu *m_bookMgrMenu;
 
     QAction *m_addUserAction;
+    AddUserDialog *m_addUserDlg;
+
     QAction *m_deleteUserAction;
     QAction *m_modifyUserAction;
     QAction *m_modifyPasswdAction;
@@ -115,6 +118,7 @@ private:
 
     QToolBar *m_toolBarDynamic;
     QToolBar *m_toolBarStatic;
+    QToolBar *m_toolBarCondition;
     QStatusBar *m_statusBar;
 
     //中心部件
@@ -126,12 +130,13 @@ private:
 
     //图书缓存
     set<BookModel> m_tableCacheBook;
-    vector<QString> m_bookClass;
+    QStringList m_bookClass;
     SearchBox *m_searchBox;
     SearchCondition *m_searchCondPublish;
+    SearchCondition *m_searchCondLanguage;
+    SearchCondition *m_searchCondClass;
 
     vector<QAction*> m_saveNeedDelAction;
-    vector<SearchCondition*> m_saveNeedDelStaticAction;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -150,6 +155,10 @@ signals:
     void SendUserHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void SendSearchText(int nCmdOp, QString &strText);
     void SendAddUserData(UserModel userModel);
+
+    void SendCondPublishData(QStringList &strTextList);
+    void SendCondLanguageData(QStringList &strTextList);
+    void SendCondClassData(QStringList &strTextList);
 public slots:
 
     void AddUserAction();
@@ -174,5 +183,7 @@ public slots:
     void ReceiveUserType(int userType, QString &strText);
     void ReceiveDeleteUserData(int userid);
     void ReceiveDeleteLoginHistory(QString &strAcount);
+
+    void ReceiveComboBoxData(const QString &strText);
 };
 #endif // MAINWINDOW_H

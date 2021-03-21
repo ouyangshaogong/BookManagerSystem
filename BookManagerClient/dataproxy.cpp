@@ -221,7 +221,7 @@ int DataProxy::QueryAllBook(set<BookModel> &setBookModel)
     }
 
     //语言
-    string strLanguage[] = {"中文", "英文", "日本", "韩文", "法文", "俄语", "意大利语", "波斯文", "梵语", "土耳其文"};
+    string strLanguage[] = {"中文", "英文", "日文", "韩文", "法文", "俄语", "意大利语", "波斯文", "梵语", "土耳其文"};
     for (i = 0; i < count; ++i)
     {
         bookModel[i].SetLanguage(strLanguage[i % 10]);

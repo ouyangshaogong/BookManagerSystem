@@ -210,6 +210,7 @@ void UserManagerWidget::ReceiveAddUserData(UserModel userData)
 
 void UserManagerWidget::ReceiveQueryUserData(set<UserModel> &setUserData)
 {
+
     m_tableUserCache.insert(setUserData.begin(), setUserData.end());
     UpdateTableUserData(0);
 

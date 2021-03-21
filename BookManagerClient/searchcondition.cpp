@@ -13,10 +13,10 @@ SearchCondition::SearchCondition(QWidget *parent) :
 
     // 设置部件间的间隔
     m_hBoxLayout->setSpacing(5);
-    // 按比例设置控件位置
-    //m_hBoxLayout->setStretch(0, 4);
-    //m_hBoxLayout->setStretch(1, 1);
     setLayout(m_hBoxLayout);
+
+    //QComboBox 组件上选择项发生变化时，获取数据
+    connect(ui->comboBoxCond, &QComboBox::currentTextChanged, this, &SearchCondition::ReceiveComboBoxText);
 }
 
 SearchCondition::~SearchCondition()
@@ -28,4 +28,19 @@ SearchCondition::~SearchCondition()
 void SearchCondition::setLabelText(QString strText)
 {
     ui->labelCond->setText(strText);
+}
+
+void SearchCondition::setDefaultComboText(int index)
+{
+    ui->comboBoxCond->setCurrentIndex(index);
+}
+
+void SearchCondition::GetComboBoxText(QStringList &strTextList)
+{
+    ui->comboBoxCond->addItems(strTextList);
+}
+
+void SearchCondition::ReceiveComboBoxText(const QString &strText)
+{
+    emit SendComboBoxText(strText);
 }

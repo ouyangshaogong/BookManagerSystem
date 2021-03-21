@@ -2,6 +2,7 @@
 #include "ui_adduserdialog.h"
 #include <QStringList>
 #include <QDebug>
+#include <QMessageBox>
 
 AddUserDialog::AddUserDialog(QWidget *parent) :
     QDialog(parent),
@@ -25,8 +26,28 @@ AddUserDialog::AddUserDialog(QWidget *parent) :
         userModel.SetPhone(ui->lineEditPhone->text().toUtf8().data());
         userModel.SetAddress(ui->lineEditAddress->text().toUtf8().data());
         userModel.SetUserType(ui->comboBoxUserType->currentIndex());
+        userModel.SetUserID(m_nMaxUserID);
+        if (userModel.GetUserName().empty() || userModel.GetSex().empty()
+            || userModel.GetBirth().empty() || userModel.GetPhone().empty()
+            || userModel.GetAddress().empty())
+        {
+            QMessageBox::information(this,"info","输入有误");
+            ui->lineEditName->clear();
+            ui->lineEditSex->clear();
+            ui->lineEditBirth->clear();
+            ui->lineEditPhone->clear();
+            ui->lineEditAddress->clear();
+        }
+        else
+        {
+            emit this->SendAddUser(userModel);
+            ui->lineEditName->clear();
+            ui->lineEditSex->clear();
+            ui->lineEditBirth->clear();
+            ui->lineEditPhone->clear();
+            ui->lineEditAddress->clear();
+        }
 
-        emit this->SendAddUser(userModel);
 
         this->accept();
         qDebug() << "点确定,对话框关闭了";
@@ -42,4 +63,14 @@ AddUserDialog::~AddUserDialog()
 {
     qDebug() << "AddUserDialog析构了";
     delete ui;
+}
+
+void AddUserDialog::GetUserType(QString &strText)
+{
+    ui->comboBoxUserType->addItem(strText);
+}
+
+void AddUserDialog::GetUserID(int maxUserID)
+{
+    m_nMaxUserID = maxUserID;
 }

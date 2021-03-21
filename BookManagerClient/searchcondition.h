@@ -18,9 +18,13 @@ public:
     ~SearchCondition();
 
     void setLabelText(QString strText);
+    void setDefaultComboText(int index);
 
 signals:
     void SendComboBoxText(QString strText);
+public slots:
+    void GetComboBoxText(QStringList &strTextList);
+    void ReceiveComboBoxText(const QString &strText);
 private:
     Ui::SearchCondition *ui;
 

@@ -23,16 +23,16 @@ MainWindow::MainWindow(QWidget *parent)
     m_strLabelNumber.append("剩余数量");
     m_strLabelIntro.append("简介");
 
-    m_bookClass.push_back("马克思主义");
-    m_bookClass.push_back("哲学");
-    m_bookClass.push_back("社会科学总论");
-    m_bookClass.push_back("政治法律");
-    m_bookClass.push_back("军事");
-    m_bookClass.push_back("经济");
-    m_bookClass.push_back("文化");
-    m_bookClass.push_back("语言");
-    m_bookClass.push_back("文学");
-    m_bookClass.push_back("艺术");
+    m_bookClass.append("马克思主义");
+    m_bookClass.append("哲学");
+    m_bookClass.append("社会科学总论");
+    m_bookClass.append("政治法律");
+    m_bookClass.append("军事");
+    m_bookClass.append("经济");
+    m_bookClass.append("文化");
+    m_bookClass.append("计算机科学技术");
+    m_bookClass.append("文学");
+    m_bookClass.append("艺术");
 
     InitializeMainWindow();
     InitializeConnect(); 
@@ -205,7 +205,8 @@ void MainWindow::InitializeMainWindow()
 
     InitializeCenterWidget();
 
-    AddSearchBox(OPERATE_BOOK_CONDITION);
+    AddSearchBox();
+    AddSearchCond();
 }
 
 void MainWindow::ReSizeAndPos()
@@ -260,6 +261,16 @@ void MainWindow::AddToolBar()
     //设置不移动 (总开关)
     m_toolBarStatic->setMovable(false);
     addToolBar(Qt::TopToolBarArea, m_toolBarStatic);
+
+
+    m_toolBarCondition = new QToolBar(this);
+    //只允许停靠在上面
+    m_toolBarCondition->setAllowedAreas( Qt::TopToolBarArea);
+    //设置为不浮动
+    m_toolBarCondition->setFloatable(false);
+    //设置不移动 (总开关)
+    m_toolBarCondition->setMovable(false);
+    addToolBar(Qt::TopToolBarArea, m_toolBarCondition);
 }
 
 void MainWindow::AddToolAction(QString strCenterWidget, const int nCmdOp)
@@ -340,6 +351,7 @@ void MainWindow::SetBookCenterWidget()
 
 void MainWindow::SetUserCenterWidget()
 {
+    m_addUserDlg = new AddUserDialog(this);
     m_queryUser = new UserManagerWidget;
     m_queryUser->resize(this->width(), this->height());
     m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
@@ -369,7 +381,10 @@ void MainWindow::SetCenterWidget(QString strCenterWidget, const int nCmdOp)
     m_nCmdOperate = nCmdOp;
     //为工具栏添加action
     AddToolAction(strCenterWidget, nCmdOp);
+    //设置条件透明
+    SetSearchCondVisible(nCmdOp);
 
+    //去掉原来的中心部件
     takeCentralWidget();
     map<QString, QWidget*>::iterator iter = m_stringMapCenterWidget.find(strCenterWidget);
     if(iter != m_stringMapCenterWidget.end())
@@ -394,12 +409,10 @@ void MainWindow::InitializeConnect()
 void MainWindow::AddUserAction()
 {
     qDebug() << "MainWindow::AddUserAction" << endl;
-    //先弹框，然后等待用户输入
-    AddUserDialog addUserDlg(this);
     void(AddUserDialog:: *sendsig)(UserModel) = &AddUserDialog::SendAddUser;
     void(MainWindow:: *receiveSlot)(UserModel)  = &MainWindow::ReceiveAddUser;
-    connect(&addUserDlg, sendsig, this, receiveSlot);
-    if (addUserDlg.exec() == QDialog::Accepted)
+    connect(m_addUserDlg, sendsig, this, receiveSlot);
+    if (m_addUserDlg->exec() == QDialog::Accepted)
     {
         qDebug() << "Accepted" << endl;
     }
@@ -587,6 +600,7 @@ void MainWindow::UpdateBookCache(QString strText)
     for (; iter != m_tableCacheBook.end(); ++iter)
     {
         BookModel bookata = *iter;
+        qDebug() << "MainWindow::UpdateBookCache>>strText:" << strText << "BookClass:" << m_bookClass[bookata.GetClassID()];
         if (strText.toUtf8().data() == bookata.GetName() || strText.toUtf8().data() == bookata.GetAuthor()
             || strText.toUtf8().data() == bookata.GetPublish() || strText.toUtf8().data() == bookata.GetISBN()
             || strText.toUtf8().data() == bookata.GetLanguage() || strText == QString::number(bookata.GetPrice())
@@ -693,6 +707,7 @@ void MainWindow::DoSearchBook(QString strText)
 
 void MainWindow::ReceiveUserType(int userType, QString &strText)
 {
+    m_addUserDlg->GetUserType(strText);
     NotifyMsg notify;
     notify.nMsg = MSG_ADDUSERTYPE;
     PackageParamMainWin(notify.GetMapParam(), userType, strText);
@@ -715,31 +730,69 @@ void MainWindow::ReceiveDeleteLoginHistory(QString &strAcount)
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
+void MainWindow::ReceiveComboBoxData(const QString &strText)
+{
+    DoSearchBook(strText);
+}
+
+void MainWindow::SetSearchCondVisible(int nOpType)
+{
+    m_toolBarCondition->setVisible(true);
+
+    if (nOpType != OPERATE_BOOK_CONDITION)
+    {
+        m_toolBarCondition->setVisible(false);
+    }
+}
+
 void MainWindow::AddSearchCond()
 {
+    //添加其他搜索条件
+    m_searchCondPublish = new SearchCondition(this);
+    m_searchCondPublish->setLabelText(m_strLabelPublish + ":");
+    m_searchCondPublish->setDefaultComboText(5);
+    m_toolBarCondition->addWidget(m_searchCondPublish);
+    connect(this, &MainWindow::SendCondPublishData, m_searchCondPublish, &SearchCondition::GetComboBoxText);
+    connect(m_searchCondPublish, &SearchCondition::SendComboBoxText, this, &MainWindow::ReceiveComboBoxData);
 
+
+    QStringList strTextList;
+    strTextList << "培生" << "汤姆森路透" << "里德爱斯维尔" << "威科" << "企鹅兰登书屋";
+    strTextList << "中国南方出版传媒集团" << "阿歇特图书" << "麦格希教育" << "环球出版集团";
+    emit this->SendCondPublishData(strTextList);
+
+
+    m_searchCondLanguage = new SearchCondition(this);
+    m_searchCondLanguage->setLabelText(m_strLabelLanguage + ":");
+    m_searchCondLanguage->setDefaultComboText(8);
+    m_toolBarCondition->addWidget(m_searchCondLanguage);
+    connect(this, &MainWindow::SendCondLanguageData, m_searchCondLanguage, &SearchCondition::GetComboBoxText);
+    connect(m_searchCondLanguage, &SearchCondition::SendComboBoxText, this, &MainWindow::ReceiveComboBoxData);
+
+    strTextList.clear();
+    strTextList << "中文" << "英文" << "日文" << "韩文" << "法文";
+    strTextList << "俄语" << "意大利语" << "波斯文" << "梵语" << "土耳其文";
+    emit this->SendCondLanguageData(strTextList);
+
+
+    m_searchCondClass = new SearchCondition(this);
+    m_searchCondClass->setLabelText(m_strLabelClass + ":");
+    m_searchCondLanguage->setDefaultComboText(3);
+    m_toolBarCondition->addWidget(m_searchCondClass);
+    connect(this, &MainWindow::SendCondClassData, m_searchCondClass, &SearchCondition::GetComboBoxText);
+    connect(m_searchCondClass, &SearchCondition::SendComboBoxText, this, &MainWindow::ReceiveComboBoxData);
+    emit this->SendCondClassData(m_bookClass);
 
 }
 
-void MainWindow::AddSearchBox(int nOpType)
+void MainWindow::AddSearchBox()
 {
     //添加搜索框
     m_searchBox = new SearchBox(this);
     m_toolBarStatic->addWidget(m_searchBox);
-    m_toolBarStatic->addSeparator();
     //搜索框
     connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
     connect(this, &MainWindow::SendSearchText, m_queryUser, &UserManagerWidget::ReceiveSearchText);
-
-    if (nOpType == OPERATE_BOOK_CONDITION)
-    {
-        //添加其他搜索条件
-        m_searchCondPublish = new SearchCondition(this);
-        m_searchCondPublish->setLabelText("出版社:");
-        m_toolBarStatic->addWidget(m_searchCondPublish);
-        m_saveNeedDelStaticAction.push_back(m_searchCondPublish);
-    }
-
 
 }
 
