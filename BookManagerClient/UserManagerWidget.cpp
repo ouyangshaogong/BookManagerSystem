@@ -11,8 +11,8 @@ UserManagerWidget::UserManagerWidget(QWidget *parent) :
     //给QTableWidget安装事件拦截器
     ui->tableWidget->installEventFilter(this);
 
-    m_nCmdMapUpdateOpData[CMD_QUERY_USER_DATA] = &UserManagerWidget::UpdateTableUserData;
-    m_nCmdMapUpdateOpData[CMD_QUERY_LOGIN_HISTORY] = &UserManagerWidget::UpdateTableLoginHistory;
+    m_nCmdMapUpdateOpData[OPERATE_QUERY_USER_DATA] = &UserManagerWidget::UpdateTableUserData;
+    m_nCmdMapUpdateOpData[OPERATE_QUERY_LOGIN_HISTORY] = &UserManagerWidget::UpdateTableLoginHistory;
     //按比例布局控件
     LayoutWidget();
 
@@ -42,9 +42,10 @@ void UserManagerWidget::GetWidgetHeader(const int &nOpType, QStringList &strList
 
     m_nOpType = nOpType;
     ui->listWidget->addItems(strListHeader);
+    m_nListColumnCount = strListHeader.size();
     //设置列数
     ui->tableWidget->setColumnCount(strTableHeader.size());
-    m_nColomuCount = strTableHeader.size();
+    m_nTableColumnCount = strTableHeader.size();
     m_strTableHeader = strTableHeader;
     //设置水平表头
     ui->tableWidget->setHorizontalHeaderLabels(strTableHeader);
@@ -79,7 +80,7 @@ void UserManagerWidget::DisplayUserManagerData()
 
 void UserManagerWidget::DisplayUserListOperate()
 {
-    if (m_nOpType == CMD_QUERY_USER_DATA)
+    if (m_nOpType == OPERATE_QUERY_USER_DATA)
     {
         m_rightButtonListMenu = new QMenu(this);
         m_addUserTypeAction = new QAction("添加用户类型", m_rightButtonListMenu);
@@ -96,22 +97,20 @@ void UserManagerWidget::DisplayUserListOperate()
 
 void UserManagerWidget::DisplayUserTableOperate()
 {
-    qDebug() << "UserManagerWidget::DisplayUserOperate>>";
-
     m_rightButtonTableMenu = new QMenu(this);
     m_deleteItemAction = new QAction("删除", m_rightButtonTableMenu);
     m_rightButtonTableMenu->addAction(m_deleteItemAction);
     //触发删除操作
     connect(m_deleteItemAction, &QAction::triggered, this, &UserManagerWidget::DeleteItemAction);
 
-    if (m_nOpType == CMD_QUERY_USER_DATA)
+    if (m_nOpType == OPERATE_QUERY_USER_DATA)
     {
         m_copyRowItemAction = new QAction("复制该行", m_rightButtonTableMenu);
         m_rightButtonTableMenu->addAction(m_copyRowItemAction);
         //触发复制该行操作
         connect(m_copyRowItemAction, &QAction::triggered, this, &UserManagerWidget::CopyRowItemAction);
     }
-    else if (m_nOpType == CMD_QUERY_LOGIN_HISTORY)
+    else if (m_nOpType == OPERATE_QUERY_LOGIN_HISTORY)
     {
         m_queryDetailItemAction = new QAction("查询详细信息", m_rightButtonTableMenu);
         m_rightButtonTableMenu->addAction(m_queryDetailItemAction);
@@ -201,7 +200,15 @@ void UserManagerWidget::SearchTableLoginHistory(int currentRow, QString &strText
     }
 }
 
-void UserManagerWidget::ReceiveUserData(set<UserModel> &setUserData)
+void UserManagerWidget::ReceiveAddUserData(UserModel userData)
+{
+    m_tableUserCache.insert(userData);
+    UpdateTableUserData(0);
+
+    qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableUserCache.size();
+}
+
+void UserManagerWidget::ReceiveQueryUserData(set<UserModel> &setUserData)
 {
     m_tableUserCache.insert(setUserData.begin(), setUserData.end());
     UpdateTableUserData(0);
@@ -222,11 +229,11 @@ void UserManagerWidget::ReceiveSearchText(int nCmdOp, QString &strText)
     ui->tableWidget->clearContents();
     int currentRow = ui->listWidget->currentRow() == -1 ? 0 : ui->listWidget->currentRow();
 
-    if (nCmdOp == CMD_QUERY_USER_DATA)
+    if (nCmdOp == OPERATE_QUERY_USER_DATA)
     {
         strText.isEmpty() ? UpdateTableUserData(currentRow) : SearchTableUserData(currentRow, strText);
     }
-    else if (nCmdOp == CMD_QUERY_LOGIN_HISTORY)
+    else if (nCmdOp == OPERATE_QUERY_LOGIN_HISTORY)
     {
         strText.isEmpty() ? UpdateTableLoginHistory(currentRow) : SearchTableLoginHistory(currentRow, strText);
     }
@@ -263,7 +270,7 @@ void UserManagerWidget::DeleteItemAction()
     int currentRow = ui->tableWidget->currentRow();
 
     //删除缓存中的数据
-    if (m_nOpType == CMD_QUERY_USER_DATA)
+    if (m_nOpType == OPERATE_QUERY_USER_DATA)
     {
         item = ui->tableWidget->item(currentRow, 4);
         qDebug() << "UserManagerWidget::DeleteTableItem" << item->text();
@@ -274,14 +281,19 @@ void UserManagerWidget::DeleteItemAction()
             if (item->text() == QString(userdata.GetPhone().c_str()))
             {
                 iter = m_tableUserCache.erase(iter);
+                //删除用户数据操作发送到服务器
+                emit this->SendDeleteUserData(userdata.GetUserID());
             }
             else
             {
                 ++iter;
             }
         }
+
+
+
     }
-    else if (m_nOpType == CMD_QUERY_LOGIN_HISTORY)
+    else if (m_nOpType == OPERATE_QUERY_LOGIN_HISTORY)
     {
         item = ui->tableWidget->item(currentRow, 0);
         qDebug() << "UserManagerWidget::DeleteTableItem" << item->text();
@@ -292,6 +304,9 @@ void UserManagerWidget::DeleteItemAction()
             if (item->text() == QString(logindata.GetAccount().c_str()))
             {
                 iter = m_tableLoginCache.erase(iter);
+                //删除登录历史数据操作发送到服务器
+                QString strAcount = logindata.GetAccount().c_str();
+                emit this->SendDeleteLoginHistory(strAcount);
             }
             else
             {
@@ -315,11 +330,6 @@ void UserManagerWidget::AddUserTypeItemAction()
     QLineEdit *lineEdit = new QLineEdit(dlg);
     lineEdit->move(label->width() - 20, 10);
 
-    QHBoxLayout *hBoxLayout = new QHBoxLayout;
-    hBoxLayout->addWidget(label);
-    hBoxLayout->addWidget(lineEdit);
-    setLayout(hBoxLayout);
-
     QPushButton *btnOk = new QPushButton(dlg);
     btnOk->resize(75, 35);
     btnOk->move(25, 55);
@@ -329,22 +339,30 @@ void UserManagerWidget::AddUserTypeItemAction()
     btnBack->move(140, 55);
     btnBack->setText("返回");
 
-    QHBoxLayout *hBoxLayoutButton = new QHBoxLayout;
-    hBoxLayout->addWidget(btnOk);
-    hBoxLayout->addWidget(btnBack);
-    setLayout(hBoxLayoutButton);
+
 
     //dlg->resize(240, 50);
     dlg->setWindowTitle("添加用户类型");
     dlg->setFixedSize(240, 100);
     dlg->show();
+
+    connect(btnOk, &QPushButton::clicked, dlg, [=](){
+        QString strText = lineEdit->text();
+        ui->listWidget->addItem(strText);
+        emit this->SendUserType(m_nListColumnCount + 1, strText);
+        dlg->accept();
+    });
+
+    connect(btnBack, &QPushButton::clicked, dlg, [=](){
+        dlg->reject();
+    });
 }
 
 void UserManagerWidget::CopyRowItemAction()
 {
     QString strText;
     int currentRow = ui->tableWidget->currentRow();
-    for (int i = 0; i < m_nColomuCount; ++i)
+    for (int i = 0; i < m_nTableColumnCount; ++i)
     {
         QTableWidgetItem *item = ui->tableWidget->item(currentRow, i);
         strText += item->text() + " ";
@@ -368,7 +386,7 @@ void UserManagerWidget::QueryDetailAction()
     QString strText;
     int currentRow = ui->tableWidget->currentRow();
     QStringList::iterator iter = m_strTableHeader.begin();
-    for (int i = 0; i < m_nColomuCount && iter != m_strTableHeader.end(); ++i, ++iter)
+    for (int i = 0; i < m_nTableColumnCount && iter != m_strTableHeader.end(); ++i, ++iter)
     {
         QTableWidgetItem *item = ui->tableWidget->item(currentRow, i);
         strText += (*iter) + ": " + item->text() + "\r\n";

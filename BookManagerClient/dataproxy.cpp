@@ -30,17 +30,17 @@ int DataProxy::AddUser(UserModel userModel)
     return nRet;
 }
 
-int DataProxy::DeleteUser(int userid)
+int DataProxy::DeleteUserByUserID(int userid)
 {
     int nRet = 0;
-    qDebug() << "DataProxy::DeleteUser" << QString::number(userid);
+    qDebug() << "DataProxy::DeleteUserByUserID>>userid:" << QString::number(userid);
     return nRet;
 }
 
 int DataProxy::ModifyUser(int userid, string address)
 {
     int nRet = 0;
-    qDebug() << "DataProxy::ModifyUser" << QString::number(userid);
+    qDebug() << "DataProxy::ModifyUser>>userid:" << QString::number(userid);
     qDebug() << "DataProxy::ModifyUser" << address.c_str();
 
     return nRet;
@@ -140,6 +140,11 @@ int DataProxy::QueryAllUser(set<UserModel> &setUserData)
     }
 
     return nRet;
+}
+
+int DataProxy::AddUserType(int userType, string strText)
+{
+    qDebug() << "userType:" << QString::number(userType) << "strText:" << QString(strText.c_str());
 }
 
 void DataProxy::AddBook()
@@ -251,6 +256,11 @@ int DataProxy::QueryAllBook(set<BookModel> &setBookModel)
     }
 
     return nRet;
+}
+
+int DataProxy::DeleteLoginHistory(string strAcount)
+{
+    qDebug() << "DataProxy::DeleteLoginHistory>> strAcount:" << strAcount.c_str();
 }
 
 int DataProxy::QueryLoginHistory(set<LoginHistoryModel> &setLoginHisroty)

@@ -23,6 +23,7 @@ SOURCES += \
     mylistwidget.cpp \
     mytablewidget.cpp \
     searchbox.cpp \
+    searchcondition.cpp \
     usermodel.cpp
 
 HEADERS += \
@@ -41,6 +42,7 @@ HEADERS += \
     mylistwidget.h \
     mytablewidget.h \
     searchbox.h \
+    searchcondition.h \
     usermodel.h
 
 # Default rules for deployment.
@@ -56,7 +58,8 @@ FORMS += \
     UserManagerWidget.ui \
     adduserdialog.ui \
     modifypasswddialog.ui \
-    searchbox.ui
+    searchbox.ui \
+    searchcondition.ui
 
 RESOURCES += \
     res.qrc

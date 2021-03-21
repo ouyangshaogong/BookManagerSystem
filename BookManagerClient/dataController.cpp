@@ -10,7 +10,7 @@ PARSEPARAMETER(Controller)
 
 void DataController::handleEvent(NotifyMsg notifyIn)
 {
-    qDebug() << "DataController::handleEvent>>" << notifyIn.nMsg << QString::number(notifyIn.GetMapParam().size());
+    qDebug() << "DataController::handleEvent>>BEGIN>>notifyIn.nMsg:" << notifyIn.nMsg << "notifyIn>>size:" << QString::number(notifyIn.GetMapParam().size());
 
     DataProxy *dataProxy = (DataProxy*)DataCommonFunc::Instance()->RetrieveProxy(notifyIn.strClassName);
 
@@ -33,7 +33,7 @@ void DataController::handleEvent(NotifyMsg notifyIn)
         {
             int userid = 0;
             ParseParamController(notifyIn.GetMapParam(), userid);
-            int nRet = dataProxy->DeleteUser(userid);
+            int nRet = dataProxy->DeleteUserByUserID(userid);
             notifyOut.nMsg = MSG_DELETEUSER;
             PackageParamController(notifyOut.GetMapParam(), nRet);
             break;
@@ -67,12 +67,31 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
             break;
         }
+        case MSG_ADDUSERTYPE:
+        {
+            int userType = 0;
+            QString strText;
+            ParseParamController(notifyIn.GetMapParam(), userType, strText);
+            int nRet = dataProxy->AddUserType(userType, strText.toUtf8().data());
+            notifyOut.nMsg = MSG_ADDUSERTYPE;
+            PackageParamController(notifyOut.GetMapParam(), nRet);
+            break;
+        }
         case MSG_LOGINHISTORY:
         {
             set<LoginHistoryModel> setLoginHistory;
             int nRet = dataProxy->QueryLoginHistory(setLoginHistory);
             notifyOut.nMsg = MSG_LOGINHISTORY;
             PackageParamController(notifyOut.GetMapParam(), setLoginHistory, nRet);
+            break;
+        }
+        case MSG_DELETELOGINHISTORY:
+        {
+            QString strAccount;
+            ParseParamController(notifyIn.GetMapParam(), strAccount);
+            int nRet = dataProxy->DeleteLoginHistory(strAccount.toUtf8().data());
+            notifyOut.nMsg = MSG_DELETELOGINHISTORY;
+            PackageParamController(notifyOut.GetMapParam(), nRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -99,6 +118,6 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             break;
     }
 
-    qDebug() << "DataController::handleEvent>>" << notifyOut.nMsg << QString::number(notifyOut.GetMapParam().size());
+    qDebug() << "DataController::handleEvent>>END>>notifyOut.nMsg:" << notifyOut.nMsg << "notifyOut>>size:" << QString::number(notifyOut.GetMapParam().size());
     DataCommonFunc::Instance()->SendNotifyCationToView(notifyOut);
 }

@@ -46,9 +46,14 @@ public:
     void UpdateTableLoginHistory(int currentRow);
     void SearchTableLoginHistory(int currentRow, QString &strText);
 
+signals:
+    void SendUserType(int userType, QString &strText);
+    void SendDeleteUserData(int userid);
+    void SendDeleteLoginHistory(QString &strAssount);
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
-    void ReceiveUserData(set<UserModel> &setUserData);
+    void ReceiveQueryUserData(set<UserModel> &setUserData);
+    void ReceiveAddUserData(UserModel userData);
     void ReceiveLoginHistory(set<LoginHistoryModel> &setLoginData);
     void DisplayUserManagerData();
     void DisplayUserListOperate();
@@ -76,7 +81,8 @@ private:
     QAction *m_deleteItemAction;
     QAction *m_copyRowItemAction;
     QAction *m_addUserTypeAction;
-    int m_nColomuCount;
+    int m_nTableColumnCount;
+    int m_nListColumnCount;
     QAction *m_queryDetailItemAction;
     QStringList m_strTableHeader;
 };

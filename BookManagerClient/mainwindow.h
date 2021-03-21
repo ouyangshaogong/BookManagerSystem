@@ -29,8 +29,10 @@
 #include "bookmodel.h"
 #include "loginhistorymodel.h"
 #include "searchbox.h"
+#include "searchcondition.h"
 #include "modifypasswddialog.h"
 #include "SystemOperateCmd.h"
+
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -76,10 +78,12 @@ public:
 
 public:
     void DisplayAddUser(QString &strRet);
-    void DisplayDeleteUser(QString &str);
+    void DisplayDeleteUserByUserID(QString &strRet);
     void DisplayModifyUser(QString &str);
     void DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRet);
+    void DisplayAddUserType(QString &strRet);
     void DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet);
+    void DisplayDeleteLoginHistory(QString &strRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
@@ -90,8 +94,8 @@ public:
     void UpdateBookCache();
     void UpdateBookCache(QString strText);
 
-    void AddSearchBox();
-
+    void AddSearchBox(int nOpType);
+    void AddSearchCond();
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
@@ -124,8 +128,10 @@ private:
     set<BookModel> m_tableCacheBook;
     vector<QString> m_bookClass;
     SearchBox *m_searchBox;
+    SearchCondition *m_searchCondPublish;
 
     vector<QAction*> m_saveNeedDelAction;
+    vector<SearchCondition*> m_saveNeedDelStaticAction;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -139,14 +145,15 @@ private:
     QString m_strLabelIntro;
 
 signals:
-    void SendUserData(set<UserModel> &setUserData);
+    void SendQueryUserData(set<UserModel> &setUserData);
     void SendLoginHistory(set<LoginHistoryModel> &setLoginData);
     void SendUserHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void SendSearchText(int nCmdOp, QString &strText);
+    void SendAddUserData(UserModel userModel);
 public slots:
 
     void AddUserAction();
-    void DeleteUserAction();
+
     void ModifyUserAction();
     void ModifyPasswdAction();
     void QueryUserAction();
@@ -163,5 +170,9 @@ public slots:
     void ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd);
     void ReceiveCellDouble(int row, int column);
     void DoSearchBook(QString strText);
+
+    void ReceiveUserType(int userType, QString &strText);
+    void ReceiveDeleteUserData(int userid);
+    void ReceiveDeleteLoginHistory(QString &strAcount);
 };
 #endif // MAINWINDOW_H

@@ -14,10 +14,11 @@ public:
     ~DataProxy();
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
-    int DeleteUser(int userid);
+    int DeleteUserByUserID(int userid);
     int ModifyUser(int userid, string address);
     int ModifyPasswd(string strOldPasswd, string strNewPasswd, string strRepeatPasswd);
     int QueryAllUser(set<UserModel> &userModel);
+    int AddUserType(int userType, string strText);
 
     void AddBook();
     void DeleteBook();
@@ -26,6 +27,7 @@ public:
     int QueryAllBook(set<BookModel> &setBookModel);
 
     int QueryLoginHistory(set<LoginHistoryModel> & setLoginHisroty);
+    int DeleteLoginHistory(string strAcount);
 private:
 
 };

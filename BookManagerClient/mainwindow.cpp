@@ -56,6 +56,8 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_QUERYUSER);
     m_listMsg.push_back(MSG_QUERYALLUSER);
     m_listMsg.push_back(MSG_LOGINHISTORY);
+    m_listMsg.push_back(MSG_DELETELOGINHISTORY);
+    m_listMsg.push_back(MSG_ADDUSERTYPE);
 
     m_listMsg.push_back(MSG_ADDBOOK);
     m_listMsg.push_back(MSG_DELETEBOOK);
@@ -69,32 +71,28 @@ list<int> &MainWindow::ReceiveMsg()
 void MainWindow::HandleNotifyCation(NotifyMsg notify)
 {
 
-    qDebug() << "MainWindow::HandleNotifyCation>>" << QString::number(notify.GetMapParam().size());
+    qDebug() << "MainWindow::HandleNotifyCation>>BEGIN>>notify.nMsg:>>" << notify.nMsg << "notify>>size:" << QString::number(notify.GetMapParam().size());
 
     switch(notify.nMsg)
     {
         case MSG_ADDLEVEL:
         {
-            int *p;// = (int*)notify.pCommonData;
-            qDebug() << "LEVEL:" << QString().number(*p);
             break;
         }
         case MSG_ADDUSER:
         {
             int nRet = 0;
-            QString str;
             ParseParamMainWin(notify.GetMapParam(), nRet);
-            str = QString::number(nRet);
-            DisplayAddUser(str);
+            QString strRet = QString::number(nRet);
+            DisplayAddUser(strRet);
             break;
         }
         case MSG_DELETEUSER:
         {
             int nRet = 0;
-            QString str;
             ParseParamMainWin(notify.GetMapParam(), nRet);
-            str = QString::number(nRet);
-            DisplayDeleteUser(str);
+            QString strRet = QString::number(nRet);
+            DisplayDeleteUserByUserID(strRet);
             break;
         }
         case MSG_MODIFYUSER:
@@ -124,6 +122,14 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             DisplayQueryAllUser(setUserData, strRet);
             break;
         }
+        case MSG_ADDUSERTYPE:
+        {
+            int nRet = 0;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            QString strRet = QString::number(nRet);
+            DisplayAddUserType(strRet);
+            break;
+        }
         case MSG_LOGINHISTORY:
         {
             int nRet = 0;
@@ -131,6 +137,14 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             ParseParamMainWin(notify.GetMapParam(), setLoginHistory, nRet);
             QString strRet = QString::number(nRet);
             DisplayLoginHistory(setLoginHistory, strRet);
+            break;
+        }
+        case MSG_DELETELOGINHISTORY:
+        {
+            int nRet = 0;
+            ParseParamMainWin(notify.GetMapParam(), nRet);
+            QString strRet = QString::number(nRet);
+            DisplayDeleteLoginHistory(strRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -191,7 +205,7 @@ void MainWindow::InitializeMainWindow()
 
     InitializeCenterWidget();
 
-    AddSearchBox();
+    AddSearchBox(OPERATE_BOOK_CONDITION);
 }
 
 void MainWindow::ReSizeAndPos()
@@ -264,14 +278,14 @@ void MainWindow::AddToolAction(QString strCenterWidget, const int nCmdOp)
     }
     else if (strCenterWidget == USER_CENTER_WIDGET)
     {
-        if (nCmdOp == CMD_QUERY_USER_DATA)
+        if (nCmdOp == OPERATE_QUERY_USER_DATA)
         {
             m_toolBarDynamic->addAction(m_addUserAction);
             m_toolBarDynamic->addAction(m_modifyPasswdAction);
             m_saveNeedDelAction.push_back(m_addUserAction);
             m_saveNeedDelAction.push_back(m_modifyPasswdAction);
         }
-        else if (nCmdOp == CMD_QUERY_LOGIN_HISTORY)
+        else if (nCmdOp == OPERATE_QUERY_LOGIN_HISTORY)
         {
         }
 
@@ -336,8 +350,16 @@ void MainWindow::InitializeCenterWidget()
     SetBookCenterWidget();
     SetUserCenterWidget();
     connect(this, &MainWindow::SendUserHeader, m_queryUser, &UserManagerWidget::GetWidgetHeader);
-    connect(this, &MainWindow::SendUserData, m_queryUser, &UserManagerWidget::ReceiveUserData);
+    connect(this, &MainWindow::SendQueryUserData, m_queryUser, &UserManagerWidget::ReceiveQueryUserData);
+    connect(this, &MainWindow::SendAddUserData, m_queryUser, &UserManagerWidget::ReceiveAddUserData);
     connect(this, &MainWindow::SendLoginHistory, m_queryUser, &UserManagerWidget::ReceiveLoginHistory);
+
+    //删除登录历史
+    connect(m_queryUser, &UserManagerWidget::SendDeleteLoginHistory, this, &MainWindow::ReceiveDeleteLoginHistory);
+    //删除用户数据
+    connect(m_queryUser, &UserManagerWidget::SendDeleteUserData, this, &MainWindow::ReceiveDeleteUserData);
+    //添加用户类型
+    connect(m_queryUser, &UserManagerWidget::SendUserType, this, &MainWindow::ReceiveUserType);
 }
 
 void MainWindow::SetCenterWidget(QString strCenterWidget, const int nCmdOp)
@@ -387,10 +409,6 @@ void MainWindow::AddUserAction()
     }
 }
 
-void MainWindow::DeleteUserAction()
-{
-}
-
 void MainWindow::ModifyUserAction()
 {
 
@@ -414,7 +432,7 @@ void MainWindow::ModifyPasswdAction()
 //查询所有用户，界面只显示５００条数据
 void MainWindow::QueryAllUserAction()
 {
-    SetCenterWidget(USER_CENTER_WIDGET, CMD_QUERY_USER_DATA);
+    SetCenterWidget(USER_CENTER_WIDGET, OPERATE_QUERY_USER_DATA);
 
     QStringList strListHeader;
     strListHeader << "管理员" << "普通读者" << "游客";
@@ -426,7 +444,7 @@ void MainWindow::QueryAllUserAction()
     strTableHeader.append("家庭地址");
     strTableHeader.append("电话");
 
-    this->SendUserHeader(CMD_QUERY_USER_DATA, strListHeader, strTableHeader);
+    this->SendUserHeader(OPERATE_QUERY_USER_DATA, strListHeader, strTableHeader);
 
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLUSER;
@@ -437,7 +455,7 @@ void MainWindow::QueryAllUserAction()
 void MainWindow::QueryLoginHistoryAction()
 {
     qDebug() << "MainWindow::QueryLoginHistoryAction" << endl;
-    SetCenterWidget(USER_CENTER_WIDGET, CMD_QUERY_LOGIN_HISTORY);
+    SetCenterWidget(USER_CENTER_WIDGET, OPERATE_QUERY_LOGIN_HISTORY);
 
     QStringList strListHeader;
     strListHeader << "正在登录" << "历史登录";
@@ -451,7 +469,7 @@ void MainWindow::QueryLoginHistoryAction()
     strTableHeader.append("登录持续秒数");
     strTableHeader.append("登录持续天数");
 
-    this->SendUserHeader(CMD_QUERY_LOGIN_HISTORY, strListHeader, strTableHeader);
+    this->SendUserHeader(OPERATE_QUERY_LOGIN_HISTORY, strListHeader, strTableHeader);
 
     NotifyMsg notify;
     notify.nMsg = MSG_LOGINHISTORY;
@@ -480,7 +498,7 @@ void MainWindow::ModifyBookAction()
 void MainWindow::QueryAllBookAction()
 {
     qDebug() << "MainWindow::QueryAllBookAction";
-    SetCenterWidget(BOOK_CENTER_WIDGET, CMD_BOOK_NONE);
+    SetCenterWidget(BOOK_CENTER_WIDGET, OPERATE_BOOK_CONDITION);
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLBOOK;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
@@ -491,57 +509,67 @@ void MainWindow::QueryBookAction()
 
 }
 
-void MainWindow::DisplayAddUser(QString &str)
+void MainWindow::DisplayAddUser(QString &strRet)
 {
-    qDebug() << "DisplayAddUser:" << str;
+    qDebug() << "DisplayAddUser>>strRet:" << strRet;
 }
 
-void MainWindow::DisplayDeleteUser(QString &str)
+void MainWindow::DisplayDeleteUserByUserID(QString &strRet)
 {
-    qDebug() << "DisplayDeleteUser:" << str.toUtf8().data();
+    qDebug() << "DisplayDeleteUserByUserID>>strRet:" << strRet.toUtf8().data();
 }
 
 void MainWindow::DisplayModifyUser(QString &str)
 {
-    qDebug() << "DisplayModifyUser:" << str.toUtf8().data();
+    qDebug() << "DisplayModifyUser>>strRet:" << str.toUtf8().data();
 }
 
 void MainWindow::DisplayModifyPasswd(QString &strRet)
 {
-    qDebug() << "DisplayModifyPasswd:" << strRet.toUtf8().data();
+    qDebug() << "DisplayModifyPasswd>>strRet:" << strRet.toUtf8().data();
 }
 
 void MainWindow::DisplayQueryAllUser(set<UserModel> &setUserData, QString &strRet)
 {
-    qDebug() << "DisplayQueryUser:" << strRet.toUtf8().data();
-    emit this->SendUserData(setUserData);
+    qDebug() << "MainWindow::DisplayQueryAllUser>>strRet:" << strRet.toUtf8().data();
+    emit this->SendQueryUserData(setUserData);
+}
+
+void MainWindow::DisplayAddUserType(QString &strRet)
+{
+    qDebug() << "MainWindow::DisplayAddUserType>>strRet:" << strRet.toUtf8().data();
 }
 
 void MainWindow::DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet)
 {
-    qDebug() << "DisplayLoginHistory:" << strRet.toUtf8().data();
+    qDebug() << "DisplayLoginHistory:>>strRet" << strRet.toUtf8().data();
     emit this->SendLoginHistory(setLoginData);
+}
+
+void MainWindow::DisplayDeleteLoginHistory(QString &strRet)
+{
+    qDebug() << "DisplayDeleteLoginHistory>>strRet:" << strRet.toUtf8().data();
 }
 
 
 void MainWindow::DisplayAddBook(QString &str)
 {
-    qDebug() << "DisplayAddBook:" << str.toUtf8().data();
+    qDebug() << "DisplayAddBook>>strRet:" << str.toUtf8().data();
 }
 
 void MainWindow::DisplayDeleteBook(QString &str)
 {
-    qDebug() << "DisplayDeleteBook:" << str.toUtf8().data();
+    qDebug() << "DisplayDeleteBook>>strRet:" << str.toUtf8().data();
 }
 
 void MainWindow::DisplayModifyBook(QString &str)
 {
-    qDebug() << "DisplayModifyBook:" << str.toUtf8().data();
+    qDebug() << "DisplayModifyBook>>strRet:" << str.toUtf8().data();
 }
 
 void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRet)
 {
-    qDebug() << "DisplayQueryBook:" << strRet.toUtf8().data();
+    qDebug() << "DisplayQueryBook>>strRet:" << strRet.toUtf8().data();
     m_tableWidgetBook->setRowCount(setBookData.size());
     m_tableCacheBook.insert(setBookData.begin(), setBookData.end());
     UpdateBookCache();
@@ -609,6 +637,7 @@ void MainWindow::UpdateBookCache()
 
 void MainWindow::ReceiveAddUser(UserModel userModel)
 {
+    emit this->SendAddUserData(userModel);
     qDebug() << "MainWindow::ReceiveAddUser" << endl;
     NotifyMsg notify;
     notify.nMsg = MSG_ADDUSER;
@@ -662,13 +691,56 @@ void MainWindow::DoSearchBook(QString strText)
     }
 }
 
-void MainWindow::AddSearchBox()
+void MainWindow::ReceiveUserType(int userType, QString &strText)
 {
+    NotifyMsg notify;
+    notify.nMsg = MSG_ADDUSERTYPE;
+    PackageParamMainWin(notify.GetMapParam(), userType, strText);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::ReceiveDeleteUserData(int userid)
+{
+    NotifyMsg notify;
+    notify.nMsg = MSG_DELETEUSER;
+    PackageParamMainWin(notify.GetMapParam(), userid);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::ReceiveDeleteLoginHistory(QString &strAcount)
+{
+    NotifyMsg notify;
+    notify.nMsg = MSG_DELETELOGINHISTORY;
+    PackageParamMainWin(notify.GetMapParam(), strAcount);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::AddSearchCond()
+{
+
+
+}
+
+void MainWindow::AddSearchBox(int nOpType)
+{
+    //添加搜索框
     m_searchBox = new SearchBox(this);
     m_toolBarStatic->addWidget(m_searchBox);
+    m_toolBarStatic->addSeparator();
     //搜索框
     connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
     connect(this, &MainWindow::SendSearchText, m_queryUser, &UserManagerWidget::ReceiveSearchText);
+
+    if (nOpType == OPERATE_BOOK_CONDITION)
+    {
+        //添加其他搜索条件
+        m_searchCondPublish = new SearchCondition(this);
+        m_searchCondPublish->setLabelText("出版社:");
+        m_toolBarStatic->addWidget(m_searchCondPublish);
+        m_saveNeedDelStaticAction.push_back(m_searchCondPublish);
+    }
+
+
 }
 
 void MainWindow::ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd)
