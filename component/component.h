@@ -3,49 +3,60 @@
 
 #include "common.h"
 
+struct TypeValue
+{
+    string strType;
+    void *nValue;
+};
+
 struct NotifyMsg
 {
 public:
     int nMsg;
     string strClassName;
-    map<string, void*> &GetMapParam();
+    vector<TypeValue> &GetMsgParam();
 private:
-    map<string, void*> m_strMapVoid;
+    vector<TypeValue> m_strMapVoid;
 };
 
 #define PACKAGEPARAMETER(className)\
-void PackageParam##className(map<string, void*> &mapParam) \
+void PackageParam##className(vector<TypeValue> &vecParam) \
 { \
 } \
  \
 template <class T, class ...Args> \
-void PackageParam##className(map<string, void*> &mapParam, T head, Args... rest) \
+void PackageParam##className(vector<TypeValue> &vecParam, T head, Args... rest) \
 { \
-    T *t = new T; \
-    *t = head; \
-    mapParam.insert(map<string, void*>::value_type(typeid(head).name(), (void*)t)); \
-    PackageParam##className(mapParam, rest...); \
+    T *value = new T; \
+    *value = head; \
+    TypeValue typevalue; \
+    typevalue.strType = typeid(T).name(); \
+    typevalue.nValue = (void*)value; \
+    vecParam.push_back(typevalue); \
+    PackageParam##className(vecParam, rest...); \
 }
 
 #define PARSEPARAMETER(className)\
-void ParseParam##className(map<string, void*> &mapParam) \
+void ParseParam##className(vector<TypeValue> &vecParam) \
 { \
-    mapParam.clear(); \
+    vecParam.clear(); \
 } \
  \
 template <class T, class ...Args> \
-void ParseParam##className(map<string, void*> &mapParam, T &head, Args&... rest) \
+void ParseParam##className(vector<TypeValue> &vecParam, T &head, Args&... rest) \
 { \
-    map<string, void*>::iterator iter = mapParam.find(typeid(T).name()); \
-    if (iter != mapParam.end()) \
+    vector<TypeValue>::iterator iter = vecParam.begin(); \
+    for (; iter < vecParam.end();) \
     { \
-        head = *((T*)iter->second); \
+        if ((*iter).strType == typeid(int).name()) \
+        { \
+            head = *((T*)(*iter).nValue); \
+            T *value = (T*)iter->nValue; \
+            delete value; \
+        } \
     } \
  \
-    T *t = (T*)iter->second; \
-    delete t; \
- \
-    ParseParam##className(mapParam, rest...); \
+    ParseParam##className(vecParam, rest...); \
 }
 
 #endif

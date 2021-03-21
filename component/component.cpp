@@ -1,6 +1,6 @@
 #include "component.h"
 
-map<string, void*> &NotifyMsg::GetMapParam()
+vector<TypeValue> &NotifyMsg::GetMsgParam()
 {
     return m_strMapVoid;
 }

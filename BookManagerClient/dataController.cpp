@@ -10,7 +10,7 @@ PARSEPARAMETER(Controller)
 
 void DataController::handleEvent(NotifyMsg notifyIn)
 {
-    qDebug() << "DataController::handleEvent>>BEGIN>>notifyIn.nMsg:" << notifyIn.nMsg << "notifyIn>>size:" << QString::number(notifyIn.GetMapParam().size());
+    qDebug() << "DataController::handleEvent>>BEGIN>>notifyIn.nMsg:" << notifyIn.nMsg << "notifyIn>>size:" << QString::number(notifyIn.GetMsgParam().size());
 
     DataProxy *dataProxy = (DataProxy*)DataCommonFunc::Instance()->RetrieveProxy(notifyIn.strClassName);
 
@@ -23,29 +23,29 @@ void DataController::handleEvent(NotifyMsg notifyIn)
         case MSG_ADDUSER:
         {
             UserModel userModel;
-            ParseParamController(notifyIn.GetMapParam(), userModel);
+            ParseParamController(notifyIn.GetMsgParam(), userModel);
             int nRet = dataProxy->AddUser(userModel);
             notifyOut.nMsg = MSG_ADDUSER;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_DELETEUSER:
         {
             int userid = 0;
-            ParseParamController(notifyIn.GetMapParam(), userid);
+            ParseParamController(notifyIn.GetMsgParam(), userid);
             int nRet = dataProxy->DeleteUserByUserID(userid);
             notifyOut.nMsg = MSG_DELETEUSER;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_MODIFYUSER:
         {
             int userid = 0;
             string address;
-            ParseParamController(notifyIn.GetMapParam(), userid, address);
+            ParseParamController(notifyIn.GetMsgParam(), userid, address);
             int nRet = dataProxy->ModifyUser(userid, address);
             notifyOut.nMsg = MSG_MODIFYUSER;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_MODIFYPASSWD:
@@ -53,10 +53,10 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             QString strOldPasswd;
             QString strNewPasswd;
             QString strRepeatPasswd;
-            ParseParamController(notifyIn.GetMapParam(), strOldPasswd, strNewPasswd, strRepeatPasswd);
+            ParseParamController(notifyIn.GetMsgParam(), strOldPasswd, strNewPasswd, strRepeatPasswd);
             int nRet = dataProxy->ModifyPasswd(strOldPasswd.toUtf8().data(), strNewPasswd.toUtf8().data(), strRepeatPasswd.toUtf8().data());
             notifyOut.nMsg = MSG_MODIFYPASSWD;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_QUERYALLUSER:
@@ -64,17 +64,17 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             set<UserModel> setUserData;
             int nRet = dataProxy->QueryAllUser(setUserData);
             notifyOut.nMsg = MSG_QUERYALLUSER;
-            PackageParamController(notifyOut.GetMapParam(), setUserData, nRet);
+            PackageParamController(notifyOut.GetMsgParam(), setUserData, nRet);
             break;
         }
         case MSG_ADDUSERTYPE:
         {
             int userType = 0;
             QString strText;
-            ParseParamController(notifyIn.GetMapParam(), userType, strText);
+            ParseParamController(notifyIn.GetMsgParam(), userType, strText);
             int nRet = dataProxy->AddUserType(userType, strText.toUtf8().data());
             notifyOut.nMsg = MSG_ADDUSERTYPE;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_LOGINHISTORY:
@@ -82,16 +82,16 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             set<LoginHistoryModel> setLoginHistory;
             int nRet = dataProxy->QueryLoginHistory(setLoginHistory);
             notifyOut.nMsg = MSG_LOGINHISTORY;
-            PackageParamController(notifyOut.GetMapParam(), setLoginHistory, nRet);
+            PackageParamController(notifyOut.GetMsgParam(), setLoginHistory, nRet);
             break;
         }
         case MSG_DELETELOGINHISTORY:
         {
             QString strAccount;
-            ParseParamController(notifyIn.GetMapParam(), strAccount);
+            ParseParamController(notifyIn.GetMsgParam(), strAccount);
             int nRet = dataProxy->DeleteLoginHistory(strAccount.toUtf8().data());
             notifyOut.nMsg = MSG_DELETELOGINHISTORY;
-            PackageParamController(notifyOut.GetMapParam(), nRet);
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
             break;
         }
         case MSG_ADDBOOK:
@@ -101,8 +101,29 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             dataProxy->DeleteBook();
             break;
         case MSG_MODIFYBOOK:
-            dataProxy->ModifyBook();
+        {
+            int bookid = 0;
+            int nAttrType = 0;
+            //int nAttr = 0;
+            QString strText;
+            int nRet = 0;
+            ParseParamController(notifyIn.GetMsgParam(), bookid, nAttrType, strText);
+            qDebug() << "bookid:" << bookid << "nAttrType:" << nAttrType;
+            notifyOut.nMsg = MSG_MODIFYBOOK;
+            PackageParamController(notifyOut.GetMsgParam(), nRet);
+//            if (nAttrType == BOOK_ATTR_CLASS || nAttrType == BOOK_ATTR_NUMBER || nAttrType == BOOK_ATTR_PRICE)
+//            {
+//                //ParseParamController(notifyIn.GetMsgParam(), bookid, nAttrType, nAttr);
+//                //nRet = dataProxy->ModifyBook(bookid, nAttrType, nAttr);
+//            }
+//            else
+//            {
+
+                //nRet = dataProxy->ModifyBook(bookid, nAttrType, strText.toUtf8().data());
+            //}
+
             break;
+        }
         case MSG_QUERYBOOK:
             dataProxy->QueryBook();
             break;
@@ -111,13 +132,13 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             set<BookModel> setBookData;
             int nRet = dataProxy->QueryAllBook(setBookData);
             notifyOut.nMsg = MSG_QUERYALLBOOK;
-            PackageParamController(notifyOut.GetMapParam(), setBookData, nRet);
+            PackageParamController(notifyOut.GetMsgParam(), setBookData, nRet);
             break;
         }
         default:
             break;
     }
 
-    qDebug() << "DataController::handleEvent>>END>>notifyOut.nMsg:" << notifyOut.nMsg << "notifyOut>>size:" << QString::number(notifyOut.GetMapParam().size());
+    qDebug() << "DataController::handleEvent>>END>>notifyOut.nMsg:" << notifyOut.nMsg << "notifyOut>>size:" << QString::number(notifyOut.GetMsgParam().size());
     DataCommonFunc::Instance()->SendNotifyCationToView(notifyOut);
 }

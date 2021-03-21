@@ -14,6 +14,7 @@ public:
     ~DataProxy();
 
     void MakeUserData();
+    void MakeBookData();
 
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
@@ -25,7 +26,8 @@ public:
 
     void AddBook();
     void DeleteBook();
-    void ModifyBook();
+    int ModifyBook(int bookid, int strModifyType, string strText);
+    int ModifyBook(int bookid, int nModifyType, int nBookAttr);
     void QueryBook();
     int QueryAllBook(set<BookModel> &setBookModel);
 
@@ -33,6 +35,7 @@ public:
     int DeleteLoginHistory(string strAcount);
 private:
     vector<UserModel> m_vecUserModel;
+    vector<BookModel> m_vecBookModel;
 };
 
 #endif

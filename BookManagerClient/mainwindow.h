@@ -138,6 +138,8 @@ private:
     SearchCondition *m_searchCondClass;
 
     vector<QAction*> m_saveNeedDelAction;
+
+    bool m_bCellChanged;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
