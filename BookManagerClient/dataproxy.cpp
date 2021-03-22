@@ -15,6 +15,7 @@ DataProxy::DataProxy()
 {
     MakeBookData();
     MakeUserData();
+    MakeReaderCardData();
 }
 
 DataProxy::~DataProxy()

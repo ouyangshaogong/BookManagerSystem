@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     LoginDialog login;
     MainWindow w;
     QObject::connect(&login, &LoginDialog::SendLoginData, &w, &MainWindow::ReceiveLoginData);
+    QObject::connect(&w, &MainWindow::SendLoginSuccessData, &login, &LoginDialog::ReceiveLoginSuccessData);
 
     MyApplication myApplication;
     myApplication.StartApp(&w);

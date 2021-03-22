@@ -21,7 +21,7 @@ signals:
 public slots:
     void ReceiveLoginButton();
     void ReceiveQuitButton();
-
+    void ReceiveLoginSuccessData(int nRet);
 private:
     Ui::LoginDialog *ui;
 };

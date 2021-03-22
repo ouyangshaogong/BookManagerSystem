@@ -60,6 +60,7 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_LOGINHISTORY);
     m_listMsg.push_back(MSG_DELETELOGINHISTORY);
     m_listMsg.push_back(MSG_ADDUSERTYPE);
+    m_listMsg.push_back(MSG_LOGINSYSTEM);
 
     m_listMsg.push_back(MSG_ADDBOOK);
     m_listMsg.push_back(MSG_DELETEBOOK);
@@ -173,6 +174,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             int nCardType = 0;
             int nRet = 0;
             ParseParamMainWin(notify, nCardType, nRet);
+            DisplayLogin(nCardType, nRet);
             break;
         }
         default:
@@ -195,6 +197,7 @@ void MainWindow::showEvent(QShowEvent *evt)
 
 void MainWindow::InitializeMainWindow()
 {
+    setWindowTitle("图书管理系统");
     //重绘大小和位置
     ReSizeAndPos();
     //添加菜单栏
@@ -625,10 +628,11 @@ void MainWindow::DisplayLogin(int nCardType, int nRet)
     if (nRet == 0)
     {
         this->show();
+        emit this->SendLoginSuccessData(nRet);
     }
     else
     {
-        this->close();
+        QMessageBox::information(this,"info","登录失败");
     }
 }
 

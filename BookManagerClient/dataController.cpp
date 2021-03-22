@@ -136,11 +136,11 @@ void DataController::handleEvent(NotifyMsg notifyIn)
         }
         case MSG_LOGINSYSTEM:
         {
-            string strAccount;
-            string strPasswd;
+            QString strAccount;
+            QString strPasswd;
             int nCardType = 0;
             ParseParamController(notifyIn, strAccount, strPasswd);
-            int nRet = dataProxy->Login(strAccount, strPasswd, nCardType);
+            int nRet = dataProxy->Login(strAccount.toUtf8().data(), strPasswd.toUtf8().data(), nCardType);
             notifyOut.nMsg = MSG_LOGINSYSTEM;
             PackageParamController(notifyOut, nCardType, nRet);
             break;

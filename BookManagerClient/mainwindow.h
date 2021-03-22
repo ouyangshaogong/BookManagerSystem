@@ -19,11 +19,12 @@
 #include <QSplitter>
 #include <QListWidget>
 #include <QTableWidget>
-#include "adduserdialog.h"
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QAction>
+#include <QMessageBox>
 
+#include "adduserdialog.h"
 #include "UserManagerWidget.h"
 #include "usermodel.h"
 #include "bookmodel.h"
@@ -163,6 +164,8 @@ signals:
     void SendCondPublishData(QStringList &strTextList);
     void SendCondLanguageData(QStringList &strTextList);
     void SendCondClassData(QStringList &strTextList);
+
+    void SendLoginSuccessData(int nRet);
 public slots:
 
     void AddUserAction();
