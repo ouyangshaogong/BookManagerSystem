@@ -4,9 +4,11 @@
 
 #define INIT_USER_DATA 85
 #define INIT_BOOK_DATA 60
+#define INIT_READER_CARD 50
 
 vector<UserModel> g_vecUserModel(INIT_USER_DATA);
 vector<BookModel> g_vecBookModel(INIT_BOOK_DATA);
+vector<ReaderCardModel> g_vecReaderCard(INIT_READER_CARD);
 
 DataProxy::DataProxy()
 :Proxy("DataProxy")
@@ -18,6 +20,52 @@ DataProxy::DataProxy()
 DataProxy::~DataProxy()
 {
     qDebug() << "DataProxy析构了";
+}
+
+void DataProxy::MakeReaderCardData()
+{
+    //构造登录账户数据
+    int count = INIT_READER_CARD;
+    int nAccount = 1;
+    int i = 0;
+    for (; i < count; i++)
+    {
+        stringstream ss;
+        ss << setw(6) << setfill('0') << nAccount;
+        nAccount++;
+
+        string strTmp;
+        ss >> strTmp;
+
+        string strAccount("SX");
+        strAccount += strTmp;
+        g_vecReaderCard[i].SetAccount(strAccount);
+        g_vecReaderCard[i].SetReaderID(i + 1);
+
+        if (nAccount == 400000)
+        {
+            nAccount = 1;
+        }
+    }
+
+    i = 0;
+    for (; i < count; i++)
+    {
+        g_vecReaderCard[i].SetPasswd("123456");
+    }
+
+    i = 0;
+    for (; i < count; i++)
+    {
+        g_vecReaderCard[i].SetMoney(100);
+    }
+
+    i = 0;
+    for (; i < count; i++)
+    {
+        g_vecReaderCard[i].SetCardType(i % 3);
+    }
+
 }
 
 void DataProxy::MakeBookData()
@@ -334,6 +382,24 @@ int DataProxy::QueryAllBook(set<BookModel> &setBookModel)
     int nRet = 0;
 
     setBookModel.insert(g_vecBookModel.begin(), g_vecBookModel.end());
+
+    return nRet;
+}
+
+int DataProxy::Login(string strAccount, string strPasswd, int nCardType)
+{
+    int nRet = -1;
+
+    for (int i = 0; i < g_vecReaderCard.size(); ++i)
+    {
+        if (strAccount == g_vecReaderCard[i].GetAccount()
+            && strPasswd == g_vecReaderCard[i].GetPasswd())
+        {
+            nCardType = g_vecReaderCard[i].GetCardType();
+            nRet = 0;
+            break;
+        }
+    }
 
     return nRet;
 }

@@ -17,9 +17,6 @@ void DataController::handleEvent(NotifyMsg notifyIn)
     NotifyMsg notifyOut;
     switch(notifyIn.nMsg)
     {
-        case MSG_ADDLEVEL:
-            dataProxy->AddLevel(50);
-            break;
         case MSG_ADDUSER:
         {
             UserModel userModel;
@@ -135,6 +132,17 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             int nRet = dataProxy->QueryAllBook(setBookData);
             notifyOut.nMsg = MSG_QUERYALLBOOK;
             PackageParamController(notifyOut, setBookData, nRet);
+            break;
+        }
+        case MSG_LOGINSYSTEM:
+        {
+            string strAccount;
+            string strPasswd;
+            int nCardType = 0;
+            ParseParamController(notifyIn, strAccount, strPasswd);
+            int nRet = dataProxy->Login(strAccount, strPasswd, nCardType);
+            notifyOut.nMsg = MSG_LOGINSYSTEM;
+            PackageParamController(notifyOut, nCardType, nRet);
             break;
         }
         default:

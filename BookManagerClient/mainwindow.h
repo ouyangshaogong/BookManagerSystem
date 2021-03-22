@@ -33,6 +33,7 @@
 #include "modifypasswddialog.h"
 #include "SystemOperateCmd.h"
 #include "IDMaker.h"
+#include "logindialog.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -44,7 +45,6 @@ class MainWindow : public QMainWindow, public View
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
 
     virtual list<int> &ReceiveMsg();
     virtual void HandleNotifyCation(NotifyMsg notifydata);
@@ -91,6 +91,7 @@ public:
     void DisplayModifyPasswd(QString &strRet);
     void DisplayQueryBook(QString &str);
     void DisplayQueryAllBook(set<BookModel> &setUserData, QString &strRet);
+    void DisplayLogin(int nCardType, int nRet);
     void UpdateBookCache();
     void UpdateBookCache(QString strText);
 
@@ -123,7 +124,7 @@ private:
     QStatusBar *m_statusBar;
 
     //中心部件
-    UserManagerWidget *m_queryUser;
+    UserManagerWidget *m_userMgrWiget;
     QTableWidget *m_tableWidgetBook;
     map<QString, QWidget*> m_stringMapCenterWidget;
     QString m_strCenterWidget;
@@ -192,5 +193,7 @@ public slots:
     void ReceiveComboBoxData(const QString &strText);
 
     void ReceiveModifyUserData(int userid, int nAttrType, QString strText);
+
+    void ReceiveLoginData(QString &strAccount, QString &strPasswd);
 };
 #endif // MAINWINDOW_H

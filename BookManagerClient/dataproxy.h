@@ -4,10 +4,9 @@
 #include "proxy.h"
 #include "usermodel.h"
 #include "bookmodel.h"
+#include "readercardmodel.h"
 #include "loginhistorymodel.h"
 #include <QDateTime>
-
-
 
 class DataProxy: public Proxy
 {
@@ -17,6 +16,7 @@ public:
 
     void MakeUserData();
     void MakeBookData();
+    void MakeReaderCardData();
 
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
@@ -35,6 +35,8 @@ public:
 
     int QueryLoginHistory(set<LoginHistoryModel> & setLoginHisroty);
     int DeleteLoginHistory(string strAcount);
+
+    int Login(string strAccount, string strPasswd, int nCardType);
 private:
     vector<BookModel> m_vecBookModel;
 };

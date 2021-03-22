@@ -15,6 +15,8 @@ SOURCES += \
     dataController.cpp \
     datacommonfunc.cpp \
     dataproxy.cpp \
+    lendlistmodel.cpp \
+    logindialog.cpp \
     loginhistorymodel.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -22,6 +24,7 @@ SOURCES += \
     myapplication.cpp \
     mylistwidget.cpp \
     mytablewidget.cpp \
+    readercardmodel.cpp \
     searchbox.cpp \
     searchcondition.cpp \
     usermodel.cpp
@@ -35,12 +38,15 @@ HEADERS += \
     datacommonfunc.h \
     datacontroller.h \
     dataproxy.h \
+    lendlistmodel.h \
+    logindialog.h \
     loginhistorymodel.h \
     mainwindow.h \
     modifypasswddialog.h \
     myapplication.h \
     mylistwidget.h \
     mytablewidget.h \
+    readercardmodel.h \
     searchbox.h \
     searchcondition.h \
     usermodel.h
@@ -58,6 +64,7 @@ LIBS += -LD:/home/zhangfengli/vscode-projects/BookManagerSystem/lib/ -lcomponent
 FORMS += \
     UserManagerWidget.ui \
     adduserdialog.ui \
+    logindialog.ui \
     modifypasswddialog.ui \
     searchbox.ui \
     searchcondition.ui

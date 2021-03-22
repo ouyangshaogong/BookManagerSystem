@@ -5,11 +5,16 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    LoginDialog login;
     MainWindow w;
+    QObject::connect(&login, &LoginDialog::SendLoginData, &w, &MainWindow::ReceiveLoginData);
 
     MyApplication myApplication;
     myApplication.StartApp(&w);
 
-    w.show();
+    login.show();
+
+
     return a.exec();
 }

@@ -35,7 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_bookClass.append("艺术");
 
     InitializeMainWindow();
-    InitializeConnect(); 
+    InitializeConnect();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -164,6 +166,13 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             ParseParamMainWin(notify, setBookData, nRet);
             strRet = QString::number(nRet);
             DisplayQueryAllBook(setBookData, strRet);
+            break;
+        }
+        case MSG_LOGINSYSTEM:
+        {
+            int nCardType = 0;
+            int nRet = 0;
+            ParseParamMainWin(notify, nCardType, nRet);
             break;
         }
         default:
@@ -352,28 +361,28 @@ void MainWindow::SetBookCenterWidget()
 void MainWindow::SetUserCenterWidget()
 {
     m_addUserDlg = new AddUserDialog(this);
-    m_queryUser = new UserManagerWidget;
-    m_queryUser->resize(this->width(), this->height());
-    m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(USER_CENTER_WIDGET, m_queryUser));
+    m_userMgrWiget = new UserManagerWidget;
+    m_userMgrWiget->resize(this->width(), this->height());
+    m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(USER_CENTER_WIDGET, m_userMgrWiget));
 }
 
 void MainWindow::InitializeCenterWidget()
 {
     SetBookCenterWidget();
     SetUserCenterWidget();
-    connect(this, &MainWindow::SendUserHeader, m_queryUser, &UserManagerWidget::GetWidgetHeader);
-    connect(this, &MainWindow::SendQueryUserData, m_queryUser, &UserManagerWidget::ReceiveQueryUserData);
-    connect(this, &MainWindow::SendAddUserData, m_queryUser, &UserManagerWidget::ReceiveAddUserData);
-    connect(this, &MainWindow::SendLoginHistory, m_queryUser, &UserManagerWidget::ReceiveLoginHistory);
+    connect(this, &MainWindow::SendUserHeader, m_userMgrWiget, &UserManagerWidget::GetWidgetHeader);
+    connect(this, &MainWindow::SendQueryUserData, m_userMgrWiget, &UserManagerWidget::ReceiveQueryUserData);
+    connect(this, &MainWindow::SendAddUserData, m_userMgrWiget, &UserManagerWidget::ReceiveAddUserData);
+    connect(this, &MainWindow::SendLoginHistory, m_userMgrWiget, &UserManagerWidget::ReceiveLoginHistory);
 
     //删除登录历史
-    connect(m_queryUser, &UserManagerWidget::SendDeleteLoginHistory, this, &MainWindow::ReceiveDeleteLoginHistory);
+    connect(m_userMgrWiget, &UserManagerWidget::SendDeleteLoginHistory, this, &MainWindow::ReceiveDeleteLoginHistory);
     //删除用户数据
-    connect(m_queryUser, &UserManagerWidget::SendDeleteUserData, this, &MainWindow::ReceiveDeleteUserData);
+    connect(m_userMgrWiget, &UserManagerWidget::SendDeleteUserData, this, &MainWindow::ReceiveDeleteUserData);
     //发送用户缓存最大ID
-    connect(m_queryUser, &UserManagerWidget::SendUerCacheMaxUserID, this, &MainWindow::SetUserCacheMaxUserID);
+    connect(m_userMgrWiget, &UserManagerWidget::SendUerCacheMaxUserID, this, &MainWindow::SetUserCacheMaxUserID);
     //添加用户类型
-    connect(m_queryUser, &UserManagerWidget::SendUserType, this, &MainWindow::ReceiveUserType);
+    connect(m_userMgrWiget, &UserManagerWidget::SendUserType, this, &MainWindow::ReceiveUserType);
 }
 
 void MainWindow::SetCenterWidget(QString strCenterWidget, const int nCmdOp)
@@ -399,7 +408,7 @@ void MainWindow::InitializeConnect()
 {
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
-    connect(m_queryUser, &UserManagerWidget::SendModifyUserData, this, &MainWindow::ReceiveModifyUserData);
+    connect(m_userMgrWiget, &UserManagerWidget::SendModifyUserData, this, &MainWindow::ReceiveModifyUserData);
     connect(m_queryLoginAction, &QAction::triggered, this, &MainWindow::QueryLoginHistoryAction);
 
     connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
@@ -609,8 +618,18 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
         connect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
         m_bIsConnItemChanged = true;
     }
+}
 
-
+void MainWindow::DisplayLogin(int nCardType, int nRet)
+{
+    if (nRet == 0)
+    {
+        this->show();
+    }
+    else
+    {
+        this->close();
+    }
 }
 
 void MainWindow::UpdateBookCache(QString strText)
@@ -797,6 +816,14 @@ void MainWindow::ReceiveModifyUserData(int userid, int nAttrType, QString strTex
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
+void MainWindow::ReceiveLoginData(QString &strAccount, QString &strPasswd)
+{
+    NotifyMsg notify;
+    notify.nMsg = MSG_LOGINSYSTEM;
+    PackageParamMainWin(notify, strAccount, strPasswd);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
 void MainWindow::SetSearchCondVisible(int nOpType)
 {
     m_toolBarCondition->setVisible(true);
@@ -854,7 +881,7 @@ void MainWindow::AddSearchBox()
     m_toolBarStatic->addWidget(m_searchBox);
     //搜索框
     connect(m_searchBox, &SearchBox::SendLineEditText, this, &MainWindow::DoSearchBook);
-    connect(this, &MainWindow::SendSearchText, m_queryUser, &UserManagerWidget::ReceiveSearchText);
+    connect(this, &MainWindow::SendSearchText, m_userMgrWiget, &UserManagerWidget::ReceiveSearchText);
 
 }
 
