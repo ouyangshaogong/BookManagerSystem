@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_LOGINSYSTEM, "登录"));
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_ADDUSER, "添加用户"));
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_DELETEUSER, "删除用户"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_MODIFYUSER, "修改用户信息"));
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYUSER, "查看用户信息"));
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYALLUSER, "查询所有用户信息"));
     m_mapLastOp.insert(map<int, QString>::value_type(MSG_MODIFYPASSWD, "修改密码"));
