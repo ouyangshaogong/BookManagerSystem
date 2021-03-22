@@ -34,6 +34,26 @@ MainWindow::MainWindow(QWidget *parent)
     m_bookClass.append("文学");
     m_bookClass.append("艺术");
 
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_LOGINSYSTEM, "登录"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_ADDUSER, "添加用户"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_DELETEUSER, "删除用户"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYUSER, "查看用户信息"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYALLUSER, "查询所有用户信息"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_MODIFYPASSWD, "修改密码"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_LOGINHISTORY, "查看登录历史"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_ADDUSERTYPE, "添加用户类型"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_DELETELOGINHISTORY, "删除登录历史"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_ADDBOOK, "添加图书"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_DELETEBOOK, "删除图书"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_MODIFYBOOK, "修改图书信息"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYBOOK, "查看图书信息"));
+    m_mapLastOp.insert(map<int, QString>::value_type(MSG_QUERYALLBOOK, "查询所有图书信息"));
+
+    m_bIsFirstShowStatus = false;
+    m_bIsConnItemChanged = false;
+
+
+
     InitializeMainWindow();
     InitializeConnect();
 
@@ -180,6 +200,13 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         default:
             break;
     }
+
+    map<int, QString>::iterator iter = m_mapLastOp.find(notify.nMsg);
+    if (iter != m_mapLastOp.end())
+    {
+        UpdateStatusBar(m_strUser, iter->second);
+    }
+
 }
 
 void MainWindow::SendCmdMsg()
@@ -219,6 +246,10 @@ void MainWindow::InitializeMainWindow()
 
     AddSearchBox();
     AddSearchCond();
+
+    QTimer *timer = new QTimer(this);
+    timer->start(1000); //每隔1000ms发送timeout的信号
+    connect(timer, SIGNAL(timeout()),this, SLOT(UpdateStatusTime()));
 }
 
 void MainWindow::ReSizeAndPos()
@@ -324,14 +355,28 @@ void MainWindow::AddStatusBar()
 void MainWindow::AddStatusInfo()
 {
     //放标签控件
-    QLabel * labelTime = new QLabel("登录时间",this);
-    m_statusBar->addWidget(labelTime);
+    m_labelTime = new QLabel("", this);
+    m_labelUser = new QLabel("", this);
+    m_labelLastOp = new QLabel("", this);
 
-    QLabel * labelStatus = new QLabel("登录用户",this);
-    m_statusBar->addWidget(labelStatus);
+    m_statusBar->addWidget(m_labelTime);
+    m_statusBar->addWidget(m_labelUser);
+    m_statusBar->addPermanentWidget(m_labelLastOp);
+}
 
-    QLabel * labelLastOp = new QLabel("上一个操作",this);
-    m_statusBar->addPermanentWidget(labelLastOp);
+void MainWindow::UpdateStatusTime()
+{
+    QDateTime dtime = QDateTime::currentDateTime();
+    QString loginTime = dtime.toString("yyyy年MM月dd日 hh:mm:ss");
+
+    m_labelTime->setText(loginTime);
+}
+
+void MainWindow::UpdateStatusBar(QString &loginUser, QString &lastOp)
+{
+
+    m_labelUser->setText(loginUser);
+    m_labelLastOp->setText(lastOp);
 }
 
 void MainWindow::SetBookCenterWidget()
@@ -824,6 +869,7 @@ void MainWindow::ReceiveLoginData(QString &strAccount, QString &strPasswd)
 {
     NotifyMsg notify;
     notify.nMsg = MSG_LOGINSYSTEM;
+    m_strUser = strAccount;
     PackageParamMainWin(notify, strAccount, strPasswd);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }

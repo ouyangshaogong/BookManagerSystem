@@ -23,6 +23,8 @@
 #include <QPushButton>
 #include <QAction>
 #include <QMessageBox>
+#include <QDateTime>
+#include <QTimer>
 
 #include "adduserdialog.h"
 #include "UserManagerWidget.h"
@@ -68,6 +70,7 @@ public:
 
     void AddStatusBar();
     void AddStatusInfo();
+    void UpdateStatusBar(QString &loginUser, QString &lastOp);
 
     void InitializeCenterWidget();
     void SetBookCenterWidget();
@@ -142,6 +145,13 @@ private:
     vector<QAction*> m_saveNeedDelAction;
 
     bool m_bIsConnItemChanged;
+    bool m_bIsFirstShowStatus;
+    QLabel * m_labelTime;
+    QLabel * m_labelUser;
+    QLabel * m_labelLastOp;
+
+    QString m_strUser;
+    map<int, QString> m_mapLastOp;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -198,5 +208,7 @@ public slots:
     void ReceiveModifyUserData(int userid, int nAttrType, QString strText);
 
     void ReceiveLoginData(QString &strAccount, QString &strPasswd);
+
+    void UpdateStatusTime();
 };
 #endif // MAINWINDOW_H
