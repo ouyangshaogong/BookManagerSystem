@@ -12,14 +12,14 @@ public:
     void DestoryInstance();
 
     virtual void RegisterCommand(int nCmdMsg, void *control);
-    virtual void SendNotifyCationToController(int nCmdMsg, NotifyMsg notify);
+    virtual void SendNotifyCationToController(int nCmdMsg, NotifyMsg &notify);
 
 
     virtual void RegisterProxy(void *proxy);
     virtual void* RetrieveProxy(string strName);
 
     virtual void RegisterView(View *view);
-    virtual void SendNotifyCationToView(NotifyMsg notify);
+    virtual void SendNotifyCationToView(NotifyMsg &notify);
 
 private:
     CommonFunc(){}

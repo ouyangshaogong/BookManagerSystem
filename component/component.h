@@ -12,51 +12,55 @@ struct TypeValue
 struct NotifyMsg
 {
 public:
+    NotifyMsg():m_nIndex(0) {}
     int nMsg;
     string strClassName;
-    vector<TypeValue> &GetMsgParam();
+    void* pExtra;
+    list<TypeValue> &GetMsgParam();
+    int GetIndex();
 private:
-    vector<TypeValue> m_strMapVoid;
+    list<TypeValue> m_strMapVoid;
+    int m_nIndex;
 };
 
-#define PACKAGEPARAMETER(className)\
-void PackageParam##className(vector<TypeValue> &vecParam) \
+#define PACKAGEPARAMETER(ClassName)\
+void PackageParam##ClassName(NotifyMsg &notify) \
 { \
 } \
  \
 template <class T, class ...Args> \
-void PackageParam##className(vector<TypeValue> &vecParam, T head, Args... rest) \
+void PackageParam##ClassName(NotifyMsg &notify, T head, Args... rest) \
 { \
     T *value = new T; \
     *value = head; \
     TypeValue typevalue; \
     typevalue.strType = typeid(T).name(); \
     typevalue.nValue = (void*)value; \
-    vecParam.push_back(typevalue); \
-    PackageParam##className(vecParam, rest...); \
+    notify.GetMsgParam().push_back(typevalue); \
+    PackageParam##ClassName(notify, rest...); \
 }
 
-#define PARSEPARAMETER(className)\
-void ParseParam##className(vector<TypeValue> &vecParam) \
+#define PARSEPARAMETER(ClassName)\
+void ParseParam##ClassName(NotifyMsg &notify) \
 { \
-    vecParam.clear(); \
+    notify.GetMsgParam().clear(); \
 } \
  \
 template <class T, class ...Args> \
-void ParseParam##className(vector<TypeValue> &vecParam, T &head, Args&... rest) \
+void ParseParam##ClassName(NotifyMsg &notify, T &head, Args&... rest) \
 { \
-    vector<TypeValue>::iterator iter = vecParam.begin(); \
-    for (; iter < vecParam.end();) \
+    int index = notify.GetIndex(); \
+    if (index < notify.GetMsgParam().size()) \
     { \
-        if ((*iter).strType == typeid(int).name()) \
-        { \
-            head = *((T*)(*iter).nValue); \
-            T *value = (T*)iter->nValue; \
-            delete value; \
-        } \
+        list<TypeValue>::iterator iter = notify.GetMsgParam().begin(); \
+        int i = 0; \
+        for (; i < index && iter != notify.GetMsgParam().end(); ++iter, ++i) {} \
+        head = *((T*)iter->nValue); \
+        T *t = (T*)iter->nValue; \
+        delete t; \
     } \
  \
-    ParseParam##className(vecParam, rest...); \
+    ParseParam##ClassName(notify, rest...); \
 }
 
 #endif

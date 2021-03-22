@@ -7,7 +7,7 @@ void DataCommonFunc::RegisterView(MainWindow *mainWin)
     m_mainWinView->ReceiveMsg();
 }
 
-void DataCommonFunc::SendNotifyCationToView(NotifyMsg notify)
+void DataCommonFunc::SendNotifyCationToView(NotifyMsg &notify)
 {
 
     list<int>::iterator iter = m_mainWinView->ReceiveMsg().begin();

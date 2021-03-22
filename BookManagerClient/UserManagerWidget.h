@@ -53,6 +53,8 @@ signals:
 
     void SendUerCacheMaxUserID(int nMaxUserID);
 
+    void SendModifyUserData(int userid, int nAttrType, QString strText);
+
 public slots:
     void GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader);
     void ReceiveQueryUserData(set<UserModel> &setUserData);
@@ -67,6 +69,8 @@ public slots:
     void CopyRowItemAction();
     void QueryDetailAction();
     void AddUserTypeItemAction();
+
+    void ReceiveCellChanged(int row, int column);
 private:
     Ui::UserManagerWidget *ui;
     QHBoxLayout *m_layout;
@@ -88,6 +92,8 @@ private:
     int m_nListColumnCount;
     QAction *m_queryDetailItemAction;
     QStringList m_strTableHeader;
+
+    bool m_bIsConnCellChanged;
 };
 
 #endif // QUERYUSERFORM_H

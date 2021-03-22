@@ -3,7 +3,7 @@
 #include <QDebug>
 
 UserManagerWidget::UserManagerWidget(QWidget *parent) :
-    QWidget(parent),
+    QWidget(parent), m_bIsConnCellChanged(false),
     ui(new Ui::UserManagerWidget)
 {
     ui->setupUi(this);
@@ -36,6 +36,12 @@ UserManagerWidget::~UserManagerWidget()
 
 void UserManagerWidget::GetWidgetHeader(const int &nOpType, QStringList &strListHeader, QStringList &strTableHeader)
 {
+    //当查询所有图书信息完成后，触发单元格发生改变事件
+    if (m_bIsConnCellChanged)
+    {
+        disconnect(ui->tableWidget, &QTableWidget::cellChanged, this, &UserManagerWidget::ReceiveCellChanged);
+    }
+
     qDebug() << "UserManagerWidget::GetWidgetHeader";
     ui->listWidget->clear();
     ui->tableWidget->clear();
@@ -210,6 +216,7 @@ void UserManagerWidget::ReceiveAddUserData(UserModel userData)
 
 void UserManagerWidget::ReceiveQueryUserData(set<UserModel> &setUserData)
 {
+    m_tableUserCache.clear();
     static bool bSetMaxUserID = true;
     m_tableUserCache.insert(setUserData.begin(), setUserData.end());
     UpdateTableUserData(0);
@@ -221,6 +228,12 @@ void UserManagerWidget::ReceiveQueryUserData(set<UserModel> &setUserData)
     }
 
     qDebug() << "UserManagerWidget::ReceiveUserData>>m_tableCache.size" << m_tableUserCache.size();
+
+    if (!m_bIsConnCellChanged)
+    {
+        connect(ui->tableWidget, &QTableWidget::cellChanged, this, &UserManagerWidget::ReceiveCellChanged);
+        m_bIsConnCellChanged = true;
+    }
 }
 
 void UserManagerWidget::ReceiveLoginHistory(set<LoginHistoryModel> &setLoginHistory)
@@ -403,4 +416,11 @@ void UserManagerWidget::QueryDetailAction()
 
     dlg->show();
     dlg->setAttribute(Qt::WA_DeleteOnClose); //55号 属性
+}
+
+void UserManagerWidget::ReceiveCellChanged(int row, int column)
+{
+    QTableWidgetItem *item = ui->tableWidget->item(row, column);
+    emit this->SendModifyUserData(row, column, item->text());
+
 }

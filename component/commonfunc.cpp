@@ -44,7 +44,7 @@ void CommonFunc::RegisterCommand(int nCmdMsg, void *control)
     m_nMsgMapController.insert(map<int, void*>::value_type(nCmdMsg, control));
 }
 
-void CommonFunc::SendNotifyCationToController(int nCmdMsg, NotifyMsg notify)
+void CommonFunc::SendNotifyCationToController(int nCmdMsg, NotifyMsg &notify)
 {
     map<int, void*>::iterator iter = m_nMsgMapController.find(nCmdMsg);
     if (iter != m_nMsgMapController.end())
@@ -79,8 +79,9 @@ void CommonFunc::RegisterView(View *view)
 {
     m_nView = view;
 }
+
 //send data to view
-void CommonFunc::SendNotifyCationToView(NotifyMsg notify)
+void CommonFunc::SendNotifyCationToView(NotifyMsg &notify)
 {
     list<int>::iterator iter = m_nView->ReceiveMsg().begin();
     for (; iter != m_nView->ReceiveMsg().end(); ++iter)

@@ -3,6 +3,12 @@
 
 #include "common.h"
 
+#define USER_ATTR_USERNAME 0
+#define USER_ATTR_SEX 1
+#define USER_ATTR_BIRTH 2
+#define USER_ATTR_ADDRESS 3
+#define USER_ATTR_PHONE 4
+
 class UserModel
 {
 public:

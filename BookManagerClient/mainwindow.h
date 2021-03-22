@@ -139,7 +139,7 @@ private:
 
     vector<QAction*> m_saveNeedDelAction;
 
-    bool m_bCellChanged;
+    bool m_bIsConnItemChanged;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -190,5 +190,7 @@ public slots:
     void ReceiveDeleteLoginHistory(QString &strAcount);
 
     void ReceiveComboBoxData(const QString &strText);
+
+    void ReceiveModifyUserData(int userid, int nAttrType, QString strText);
 };
 #endif // MAINWINDOW_H

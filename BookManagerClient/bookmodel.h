@@ -4,15 +4,15 @@
 #include "common.h"
 
 #define BOOK_ATTR_NAME 0
-#define BOOK_ATTR_CLASS 1
-#define BOOK_ATTR_AUTHOR 2
-#define BOOK_ATTR_PUBLISH 3
-#define BOOK_ATTR_ISBN 4
-#define BOOK_ATTR_INTRODUCT 5
-#define BOOK_ATTR_LANGUAGE 6
-#define BOOK_ATTR_PRICE 7
-#define BOOK_ATTR_PUBDATE 8
-#define BOOK_ATTR_NUMBER 9
+#define BOOK_ATTR_CLASS 7
+#define BOOK_ATTR_AUTHOR 1
+#define BOOK_ATTR_PUBLISH 2
+#define BOOK_ATTR_ISBN 3
+#define BOOK_ATTR_INTRODUCT 9
+#define BOOK_ATTR_LANGUAGE 4
+#define BOOK_ATTR_PRICE 5
+#define BOOK_ATTR_PUBDATE 6
+#define BOOK_ATTR_NUMBER 8
 
 class BookModel
 {

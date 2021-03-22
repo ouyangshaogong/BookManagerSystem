@@ -9,7 +9,7 @@ class DataCommonFunc: public CommonFunc
 {
 public:
 
-    virtual void SendNotifyCationToView(NotifyMsg notify);
+    virtual void SendNotifyCationToView(NotifyMsg &notify);
     virtual void RegisterView(MainWindow *mainWin);
 private:
     MainWindow *m_mainWinView;

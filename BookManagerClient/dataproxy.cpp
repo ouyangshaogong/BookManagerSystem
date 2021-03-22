@@ -3,12 +3,13 @@
 #include <QDate>
 
 #define INIT_USER_DATA 85
-#define INIT_BOOK_DATA 85
+#define INIT_BOOK_DATA 60
+
+vector<UserModel> g_vecUserModel(INIT_USER_DATA);
+vector<BookModel> g_vecBookModel(INIT_BOOK_DATA);
 
 DataProxy::DataProxy()
-:Proxy("DataProxy"),
-m_vecUserModel(INIT_USER_DATA),
-m_vecBookModel(INIT_BOOK_DATA)
+:Proxy("DataProxy")
 {
     MakeBookData();
     MakeUserData();
@@ -31,48 +32,48 @@ void DataProxy::MakeBookData()
     int i = 0;
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetName(strBookName[i]);
-        m_vecBookModel[i].SetBookID(i);
-        m_vecBookModel[i].SetClassID(i % 10);
+        g_vecBookModel[i].SetName(strBookName[i]);
+        g_vecBookModel[i].SetBookID(i);
+        g_vecBookModel[i].SetClassID(i % 10);
     }
     string strAuthor[] = {"路遥", "陀思妥耶夫斯基", "村上春树", "托尔斯泰", "大仲马", "普鲁斯特", "马里奥·普佐", "荷马", "乔斯坦·贾德", "乔伊斯",
             "塞林格", "但丁", "陈忠实", "歌德", "莎士比亚", "福楼拜", "紫式部", "福克纳", "曹雪芹", "博尔赫斯"
             "马尔克斯", "三岛由纪夫", "卡夫卡", "艾略特", "菲茨杰拉德", "托马斯·曼", "穆齐尔", "胡适", "林语堂", "金庸"};
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetAuthor(strAuthor[i % 30]);
+        g_vecBookModel[i].SetAuthor(strAuthor[i % 30]);
     }
 
     string strPublish[] = {"培生", "新星出版社", "汤姆森路透", "里德爱斯维尔", "威科", "企鹅兰登书屋", "中国南方出版传媒集团", "阿歇特图书", "麦格希教育", "环球出版集团"};
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetPublish(strPublish[i % 10]);
+        g_vecBookModel[i].SetPublish(strPublish[i % 10]);
     }
     //ISBN从4开始生成十位数字
     string strISBN("41240317");
     for (i = 0; i < count; ++i)
     {
         string tmpstr = strISBN + to_string(i + 13);
-        m_vecBookModel[i].SetISBN(tmpstr);
+        g_vecBookModel[i].SetISBN(tmpstr);
     }
     //简介，统一生成一种介绍
     for (i = 0; i < count; ++i)
     {
         string str("牵出一生的纠缠。大学时代的赵默笙阳光灿烂，对法学系大才子何以琛一见倾心，开朗直率的她拔足倒追，终于使");
-        m_vecBookModel[i].SetIntroduction(str);
+        g_vecBookModel[i].SetIntroduction(str);
     }
 
     //语言
     string strLanguage[] = {"中文", "英文", "日文", "韩文", "法文", "俄语", "意大利语", "波斯文", "梵语", "土耳其文"};
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetLanguage(strLanguage[i % 10]);
+        g_vecBookModel[i].SetLanguage(strLanguage[i % 10]);
     }
 
     //价格　60 -> 200
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetPrice(i + 67);
+        g_vecBookModel[i].SetPrice(i + 67);
     }
 
     //出版日期　随机生成
@@ -82,14 +83,14 @@ void DataProxy::MakeBookData()
         for (int d = 1; d <= 30; ++d)
         {
             QDate date(2007, m, d);
-            m_vecBookModel[nD].SetPubDate(date.toString("yyyy-MM-dd").toUtf8().data());
+            g_vecBookModel[nD].SetPubDate(date.toString("yyyy-MM-dd").toUtf8().data());
             nD++;
         }
     }
     //剩余数量0 -> 20
     for (i = 0; i < count; ++i)
     {
-        m_vecBookModel[i].SetNumber(i % 20);
+        g_vecBookModel[i].SetNumber(i % 20);
     }
 }
 
@@ -107,20 +108,20 @@ void DataProxy::MakeUserData()
     int count = 85;
     for (int i = 0; i < count; ++i)
     {
-        m_vecUserModel[i].SetUserID(i + 1);
-        m_vecUserModel[i].SetReaderID(i + 1);
-        m_vecUserModel[i].SetUserName(strUserName[i]);
+        g_vecUserModel[i].SetUserID(i + 1);
+        g_vecUserModel[i].SetReaderID(i + 1);
+        g_vecUserModel[i].SetUserName(strUserName[i]);
     }
 
     for (int i = 0; i < count; ++i)
     {
         if (i % 2 == 0)
         {
-            m_vecUserModel[i].SetSex("男");
+            g_vecUserModel[i].SetSex("男");
         }
         else
         {
-            m_vecUserModel[i].SetSex("女");
+            g_vecUserModel[i].SetSex("女");
         }
     }
 
@@ -130,7 +131,7 @@ void DataProxy::MakeUserData()
         for (int d = 1; d <= 17; ++d)
         {
             QDate date(1990, m, d);
-            m_vecUserModel[i].SetBirth(date.toString("yyyy-MM-dd").toUtf8().data());
+            g_vecUserModel[i].SetBirth(date.toString("yyyy-MM-dd").toUtf8().data());
             //qDebug() << "m = " << QString::number(m) << "d = " << QString::number(d) << "i = " << QString::number(i);
             i++;
         }
@@ -147,7 +148,7 @@ void DataProxy::MakeUserData()
         int jCount = 17;
         for (int j = 0; j < jCount; ++j)
         {
-            m_vecUserModel[u].SetAddress(strAddress[j]);
+            g_vecUserModel[u].SetAddress(strAddress[j]);
             u++;
         }
     }
@@ -155,7 +156,7 @@ void DataProxy::MakeUserData()
     u = 0;
     for (i = 0; i < count; ++i)
     {
-        m_vecUserModel[i].SetUserType(i % 3);
+        g_vecUserModel[i].SetUserType(i % 3);
     }
 
     u = 0;
@@ -163,7 +164,7 @@ void DataProxy::MakeUserData()
     for (i = 0; i < count; ++i)
     {
         string tmpstr = strPhone + to_string(i + 10);
-        m_vecUserModel[i].SetPhone(tmpstr);
+        g_vecUserModel[i].SetPhone(tmpstr);
     }
 
 }
@@ -188,7 +189,7 @@ int DataProxy::AddUser(UserModel userModel)
     qDebug() << userModel.GetPhone().c_str();
     qDebug() << QString::number(userModel.GetUserType());
 
-    m_vecUserModel.push_back(userModel);
+    g_vecUserModel.push_back(userModel);
 
     return nRet;
 }
@@ -200,11 +201,29 @@ int DataProxy::DeleteUserByUserID(int userid)
     return nRet;
 }
 
-int DataProxy::ModifyUser(int userid, string address)
+int DataProxy::ModifyUser(int userid, int nAttrType, string strText)
 {
     int nRet = 0;
-    qDebug() << "DataProxy::ModifyUser>>userid:" << QString::number(userid);
-    qDebug() << "DataProxy::ModifyUser" << address.c_str();
+    switch (nAttrType)
+    {
+        case USER_ATTR_USERNAME:
+            g_vecUserModel[userid].SetUserName(strText);
+            break;
+        case USER_ATTR_SEX:
+            g_vecUserModel[userid].SetSex(strText);
+            break;
+        case USER_ATTR_BIRTH:
+            g_vecUserModel[userid].SetBirth(strText);
+            break;
+        case USER_ATTR_ADDRESS:
+            g_vecUserModel[userid].SetAddress(strText);
+            break;
+        case USER_ATTR_PHONE:
+            g_vecUserModel[userid].SetPhone(strText);
+            break;
+        default:
+            break;
+    }
 
     return nRet;
 }
@@ -224,7 +243,7 @@ int DataProxy::ModifyPasswd(string strOldPasswd, string strNewPasswd, string str
 int DataProxy::QueryAllUser(set<UserModel> &setUserData)
 {
     int nRet = 0;
-    setUserData.insert(m_vecUserModel.begin(), m_vecUserModel.end());
+    setUserData.insert(g_vecUserModel.begin(), g_vecUserModel.end());
 
     return nRet;
 }
@@ -254,13 +273,13 @@ int DataProxy::ModifyBook(int bookid, int nModifyType, int nBookAttr)
     switch (nModifyType)
     {
         case BOOK_ATTR_CLASS:
-            m_vecBookModel[bookid].SetClassID(nBookAttr);
+            g_vecBookModel[bookid].SetClassID(nBookAttr);
             break;
         case BOOK_ATTR_PRICE:
-            m_vecBookModel[bookid].SetPrice(nBookAttr);
+            g_vecBookModel[bookid].SetPrice(nBookAttr);
             break;
         case BOOK_ATTR_NUMBER:
-            m_vecBookModel[bookid].SetNumber(nBookAttr);
+            g_vecBookModel[bookid].SetNumber(nBookAttr);
             break;
         default:
             break;
@@ -275,25 +294,25 @@ int DataProxy::ModifyBook(int bookid, int nModifyType, string strText)
     switch (nModifyType)
     {
         case BOOK_ATTR_NAME:
-            m_vecBookModel[bookid].SetName(strText);
+            g_vecBookModel[bookid].SetName(strText);
             break;
         case BOOK_ATTR_AUTHOR:
-            m_vecBookModel[bookid].SetAuthor(strText);
+            g_vecBookModel[bookid].SetAuthor(strText);
             break;
         case BOOK_ATTR_ISBN:
-            m_vecBookModel[bookid].SetISBN(strText);
+            g_vecBookModel[bookid].SetISBN(strText);
             break;
         case BOOK_ATTR_INTRODUCT:
-            m_vecBookModel[bookid].SetIntroduction(strText);
+            g_vecBookModel[bookid].SetIntroduction(strText);
             break;
         case BOOK_ATTR_LANGUAGE:
-            m_vecBookModel[bookid].SetLanguage(strText);
+            g_vecBookModel[bookid].SetLanguage(strText);
             break;
         case BOOK_ATTR_PUBDATE:
-            m_vecBookModel[bookid].SetPubDate(strText);
+            g_vecBookModel[bookid].SetPubDate(strText);
             break;
         case BOOK_ATTR_PUBLISH:
-            m_vecBookModel[bookid].SetPublish(strText);
+            g_vecBookModel[bookid].SetPublish(strText);
             break;
 
         default:
@@ -314,7 +333,7 @@ int DataProxy::QueryAllBook(set<BookModel> &setBookModel)
 {
     int nRet = 0;
 
-    setBookModel.insert(m_vecBookModel.begin(), m_vecBookModel.end());
+    setBookModel.insert(g_vecBookModel.begin(), g_vecBookModel.end());
 
     return nRet;
 }

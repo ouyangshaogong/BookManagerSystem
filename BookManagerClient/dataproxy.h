@@ -7,6 +7,8 @@
 #include "loginhistorymodel.h"
 #include <QDateTime>
 
+
+
 class DataProxy: public Proxy
 {
 public:
@@ -19,7 +21,7 @@ public:
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
     int DeleteUserByUserID(int userid);
-    int ModifyUser(int userid, string address);
+    int ModifyUser(int userid, int nAttrType, string strText);
     int ModifyPasswd(string strOldPasswd, string strNewPasswd, string strRepeatPasswd);
     int QueryAllUser(set<UserModel> &userModel);
     int AddUserType(int userType, string strText);
@@ -34,7 +36,6 @@ public:
     int QueryLoginHistory(set<LoginHistoryModel> & setLoginHisroty);
     int DeleteLoginHistory(string strAcount);
 private:
-    vector<UserModel> m_vecUserModel;
     vector<BookModel> m_vecBookModel;
 };
 

@@ -71,7 +71,7 @@ list<int> &MainWindow::ReceiveMsg()
 void MainWindow::HandleNotifyCation(NotifyMsg notify)
 {
 
-    qDebug() << "MainWindow::HandleNotifyCation>>BEGIN>>notify.nMsg:>>" << notify.nMsg << "notify>>size:" << QString::number(notify.GetMsgParam().size());
+    qDebug() << "MainWindow::HandleNotifyCation>>BEGIN>>notify.nMsg:>>" << notify.nMsg << "notify>>size:";
 
     switch(notify.nMsg)
     {
@@ -82,7 +82,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_ADDUSER:
         {
             int nRet = 0;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             QString strRet = QString::number(nRet);
             DisplayAddUser(strRet);
             break;
@@ -90,7 +90,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_DELETEUSER:
         {
             int nRet = 0;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             QString strRet = QString::number(nRet);
             DisplayDeleteUserByUserID(strRet);
             break;
@@ -99,7 +99,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         {
             int nRet = 0;
             QString str;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             str = QString::number(nRet);
             DisplayModifyUser(str);
             break;
@@ -107,7 +107,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_MODIFYPASSWD:
         {
             int nRet = 0;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             QString strRet = QString::number(nRet);
             DisplayModifyUser(strRet);
             break;
@@ -117,7 +117,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             int nRet = 0;
             QString strRet;
             set<UserModel> setUserData;
-            ParseParamMainWin(notify.GetMsgParam(), setUserData, nRet);
+            ParseParamMainWin(notify, setUserData, nRet);
             strRet = QString::number(nRet);
             DisplayQueryAllUser(setUserData, strRet);
             break;
@@ -125,7 +125,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_ADDUSERTYPE:
         {
             int nRet = 0;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             QString strRet = QString::number(nRet);
             DisplayAddUserType(strRet);
             break;
@@ -134,7 +134,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         {
             int nRet = 0;
             set<LoginHistoryModel> setLoginHistory;
-            ParseParamMainWin(notify.GetMsgParam(), setLoginHistory, nRet);
+            ParseParamMainWin(notify, setLoginHistory, nRet);
             QString strRet = QString::number(nRet);
             DisplayLoginHistory(setLoginHistory, strRet);
             break;
@@ -142,7 +142,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
         case MSG_DELETELOGINHISTORY:
         {
             int nRet = 0;
-            ParseParamMainWin(notify.GetMsgParam(), nRet);
+            ParseParamMainWin(notify, nRet);
             QString strRet = QString::number(nRet);
             DisplayDeleteLoginHistory(strRet);
             break;
@@ -161,7 +161,7 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             int nRet = 0;
             QString strRet;
             set<BookModel> setBookData;
-            ParseParamMainWin(notify.GetMsgParam(), setBookData, nRet);
+            ParseParamMainWin(notify, setBookData, nRet);
             strRet = QString::number(nRet);
             DisplayQueryAllBook(setBookData, strRet);
             break;
@@ -399,6 +399,7 @@ void MainWindow::InitializeConnect()
 {
     connect(m_addUserAction, &QAction::triggered, this, &MainWindow::AddUserAction);
     connect(m_queryUserAction, &QAction::triggered, this, &MainWindow::QueryAllUserAction);
+    connect(m_queryUser, &UserManagerWidget::SendModifyUserData, this, &MainWindow::ReceiveModifyUserData);
     connect(m_queryLoginAction, &QAction::triggered, this, &MainWindow::QueryLoginHistoryAction);
 
     connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
@@ -469,7 +470,7 @@ void MainWindow::QueryAllUserAction()
 
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLUSER;
-    PackageParamMainWin(notify.GetMsgParam());
+    PackageParamMainWin(notify);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
@@ -494,7 +495,7 @@ void MainWindow::QueryLoginHistoryAction()
 
     NotifyMsg notify;
     notify.nMsg = MSG_LOGINHISTORY;
-    PackageParamMainWin(notify.GetMsgParam());
+    PackageParamMainWin(notify);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
@@ -519,6 +520,12 @@ void MainWindow::ModifyBookAction()
 void MainWindow::QueryAllBookAction()
 {
     qDebug() << "MainWindow::QueryAllBookAction";
+    //当查询所有图书信息完成后，触发单元格发生改变事件
+    if (m_bIsConnItemChanged)
+    {
+        disconnect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
+    }
+
     SetCenterWidget(BOOK_CENTER_WIDGET, OPERATE_BOOK_CONDITION);
     NotifyMsg notify;
     notify.nMsg = MSG_QUERYALLBOOK;
@@ -591,16 +598,18 @@ void MainWindow::DisplayModifyBook(QString &str)
 void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRet)
 {
     qDebug() << "DisplayQueryBook>>strRet:" << strRet.toUtf8().data();
-    m_tableWidgetBook->setRowCount(setBookData.size());
+    m_tableCacheBook.clear();
     m_tableCacheBook.insert(setBookData.begin(), setBookData.end());
+    m_tableWidgetBook->setRowCount(m_tableCacheBook.size());
     UpdateBookCache();
 
-    if (!m_bCellChanged)
+    //当查询所有图书信息完成后，触发单元格发生改变事件
+    if (!m_bIsConnItemChanged)
     {
-        //当查询所有图书信息完成后，触发单元格发生改变事件
         connect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
-        m_bCellChanged = true;
+        m_bIsConnItemChanged = true;
     }
+
 
 }
 
@@ -669,43 +678,39 @@ void MainWindow::ReceiveAddUser(UserModel userModel)
     qDebug() << "MainWindow::ReceiveAddUser" << endl;
     NotifyMsg notify;
     notify.nMsg = MSG_ADDUSER;
-    PackageParamMainWin(notify.GetMsgParam(), userModel);
-    qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMsgParam().size());
+    PackageParamMainWin(notify, userModel);
+    qDebug() << "DataController::handleEvent>>" << notify.nMsg;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::ReceiveCellChanged(int row, int column)
 {
-    QTableWidgetItem *item =  m_tableWidgetBook->item(row, column);
-//    bool IsIntAttr = false;
-//    int nAttr = 0;
-//    if (column == BOOK_ATTR_CLASS || column == BOOK_ATTR_PRICE || column == BOOK_ATTR_NUMBER)
-//    {
-//        nAttr = item->text().toInt();
-//        IsIntAttr = true;
-//    }
+    QTableWidgetItem *item = m_tableWidgetBook->item(row, column);
+
+    bool *IsIntAttr = new bool;
+    *IsIntAttr = false;
+    int nAttr = 0;
+    if (column == BOOK_ATTR_CLASS || column == BOOK_ATTR_PRICE || column == BOOK_ATTR_NUMBER)
+    {
+        nAttr = item->text().toInt();
+        *IsIntAttr = true;
+    }
 
     NotifyMsg notify;
     notify.nMsg = MSG_MODIFYBOOK;
-    int bookid = row;
-    int nAttrType = column;
-    QString str("nAttrType");
-    PackageParamMainWin(notify.GetMsgParam(), bookid, column, str);
+    notify.pExtra = (void*)IsIntAttr;
+    if (*IsIntAttr)
+    {
+        PackageParamMainWin(notify, row, column, nAttr);
+    }
+    else
+    {
+        //row相当于bookid column相当于属性类型
+        PackageParamMainWin(notify, row, column, item->text());
+    }
+
     qDebug() << "MainWindow::ReceiveCellChanged>>" << notify.nMsg;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
-
-//    if (IsIntAttr)
-//    {
-//        PackageParamMainWin(notify.GetMsgParam(), row, column, nAttr);
-//    }
-//    else
-//    {
-        // row相当于bookid column相当于属性类型
-        //QString strText = item->text();
-
-    //}
-
-
 }
 
 void MainWindow::ReceiveCellDouble(int row, int column)
@@ -720,6 +725,7 @@ void MainWindow::ReceiveCellDouble(int row, int column)
 
         QTextEdit *textEdit = new QTextEdit(dlg);
         textEdit->resize(300, 300);
+        //设置为只读
         textEdit->setReadOnly(true);
 
         //获取单元格的数据，并显示到textEdit
@@ -758,7 +764,7 @@ void MainWindow::ReceiveUserType(int userType, QString &strText)
     m_addUserDlg->GetUserType(strText);
     NotifyMsg notify;
     notify.nMsg = MSG_ADDUSERTYPE;
-    PackageParamMainWin(notify.GetMsgParam(), userType, strText);
+    PackageParamMainWin(notify, userType, strText);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
@@ -766,7 +772,7 @@ void MainWindow::ReceiveDeleteUserData(int userid)
 {
     NotifyMsg notify;
     notify.nMsg = MSG_DELETEUSER;
-    PackageParamMainWin(notify.GetMsgParam(), userid);
+    PackageParamMainWin(notify, userid);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
@@ -774,13 +780,21 @@ void MainWindow::ReceiveDeleteLoginHistory(QString &strAcount)
 {
     NotifyMsg notify;
     notify.nMsg = MSG_DELETELOGINHISTORY;
-    PackageParamMainWin(notify.GetMsgParam(), strAcount);
+    PackageParamMainWin(notify, strAcount);
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::ReceiveComboBoxData(const QString &strText)
 {
     DoSearchBook(strText);
+}
+
+void MainWindow::ReceiveModifyUserData(int userid, int nAttrType, QString strText)
+{
+    NotifyMsg notify;
+    notify.nMsg = MSG_MODIFYUSER;
+    PackageParamMainWin(notify, userid, nAttrType, strText);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::SetSearchCondVisible(int nOpType)
@@ -849,8 +863,8 @@ void MainWindow::ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, Q
     qDebug() << "MainWindow::ReceiveAddUser" << endl;
     NotifyMsg notify;
     notify.nMsg = MSG_MODIFYPASSWD;
-    PackageParamMainWin(notify.GetMsgParam(), strOldPasswd, strNewPasswd, strRepeatPasswd);
-    qDebug() << "DataController::handleEvent>>" << notify.nMsg << QString::number(notify.GetMsgParam().size());
+    PackageParamMainWin(notify, strOldPasswd, strNewPasswd, strRepeatPasswd);
+    qDebug() << "DataController::handleEvent>>" << notify.nMsg;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
