@@ -37,6 +37,7 @@
 #include "SystemOperateCmd.h"
 #include "IDMaker.h"
 #include "logindialog.h"
+#include "mytablewidget.h"
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
@@ -129,7 +130,7 @@ private:
 
     //中心部件
     UserManagerWidget *m_userMgrWiget;
-    QTableWidget *m_tableWidgetBook;
+    MyTableWidget *m_tableWidgetBook;
     map<QString, QWidget*> m_stringMapCenterWidget;
     QString m_strCenterWidget;
     int m_nCmdOperate;
@@ -152,6 +153,11 @@ private:
 
     QString m_strUser;
     map<int, QString> m_mapLastOp;
+
+    QMenu *m_rightButtonListMenu;
+    QAction *m_borrowBookAction;
+    QAction *m_precontractBookAction;
+    QAction *m_backBookAction;
 private:
     QString m_strLabelName;
     QString m_strLabelAuthor;
@@ -210,5 +216,7 @@ public slots:
     void ReceiveLoginData(QString &strAccount, QString &strPasswd);
 
     void UpdateStatusTime();
+
+    void ReceiveRightButton();
 };
 #endif // MAINWINDOW_H

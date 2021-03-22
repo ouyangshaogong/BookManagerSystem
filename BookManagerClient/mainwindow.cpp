@@ -383,7 +383,7 @@ void MainWindow::UpdateStatusBar(QString &loginUser, QString &lastOp)
 void MainWindow::SetBookCenterWidget()
 {
     //设置中心部件 只能一个
-    m_tableWidgetBook = new QTableWidget(this);
+    m_tableWidgetBook = new MyTableWidget(this);
     //设置列数
     m_tableWidgetBook->setColumnCount(10);
     //设置水平表头
@@ -464,7 +464,10 @@ void MainWindow::InitializeConnect()
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
 
     //双击单元格
-    connect(m_tableWidgetBook, &QTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
+    connect(m_tableWidgetBook, &MyTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
+
+    //右击单元格
+    connect(m_tableWidgetBook, &MyTableWidget::SendRightButton, this, &MainWindow::ReceiveRightButton);
 
 }
 
@@ -581,7 +584,7 @@ void MainWindow::QueryAllBookAction()
     //当查询所有图书信息完成后，触发单元格发生改变事件
     if (m_bIsConnItemChanged)
     {
-        disconnect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
+        disconnect(m_tableWidgetBook, &MyTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
     }
 
     SetCenterWidget(BOOK_CENTER_WIDGET, OPERATE_BOOK_CONDITION);
@@ -664,7 +667,7 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
     //当查询所有图书信息完成后，触发单元格发生改变事件
     if (!m_bIsConnItemChanged)
     {
-        connect(m_tableWidgetBook, &QTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
+        connect(m_tableWidgetBook, &MyTableWidget::cellChanged, this, &MainWindow::ReceiveCellChanged);
         m_bIsConnItemChanged = true;
     }
 }
@@ -780,6 +783,23 @@ void MainWindow::ReceiveCellChanged(int row, int column)
 
     qDebug() << "MainWindow::ReceiveCellChanged>>" << notify.nMsg;
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
+void MainWindow::ReceiveRightButton()
+{
+    m_rightButtonListMenu = new QMenu(this);
+    m_precontractBookAction = new QAction("预约", m_rightButtonListMenu);
+    m_rightButtonListMenu->addAction(m_precontractBookAction);
+    m_borrowBookAction = new QAction("借书", m_rightButtonListMenu);
+    m_rightButtonListMenu->addAction(m_borrowBookAction);
+    m_backBookAction = new QAction("还书", m_rightButtonListMenu);
+    m_rightButtonListMenu->addAction(m_backBookAction);
+    //触发复制该行操作
+    //connect(m_precontractBookAction, &QAction::triggered, this, &MainWindow::AddUserTypeItemAction);
+
+    //让菜单显示的位置在鼠标的坐标上
+    m_rightButtonListMenu->move(cursor().pos());
+    m_rightButtonListMenu->show();
 }
 
 void MainWindow::ReceiveCellDouble(int row, int column)
