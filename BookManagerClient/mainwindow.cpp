@@ -12,16 +12,27 @@ PARSEPARAMETER(MainWin)
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    m_strLabelName.append("书名");
-    m_strLabelAuthor.append("作者");
-    m_strLabelPublish.append("出版社");
-    m_strLabelISBN.append("ISBN");
-    m_strLabelLanguage.append("语言");
-    m_strLabelPrice.append("价格");
-    m_strLabelPubDate.append("出版日期");
-    m_strLabelClass.append("分类");
-    m_strLabelNumber.append("剩余数量");
-    m_strLabelIntro.append("简介");
+
+    m_strListBookLabels.append("书名");
+    m_strListBookLabels.append("作者");
+    m_strListBookLabels.append("出版社");
+    m_strListBookLabels.append("ISBN");
+    m_strListBookLabels.append("语言");
+    m_strListBookLabels.append("价格");
+    m_strListBookLabels.append("出版日期");
+    m_strListBookLabels.append("分类");
+    m_strListBookLabels.append("剩余数量");
+    m_strListBookLabels.append("简介");
+
+
+    m_strLendUser.append("借阅用户");
+    m_strLendBook.append("借阅图书");
+    m_strLendDate.append("借阅日期");
+    m_strBackDate.append("归还日期");
+    m_strLendState.append("借阅状态");
+    m_strDeleteLend.append("删除借阅");
+
+    m_strLendStateList << "预约" << "借阅" << "归还" << "续借" << "催还";
 
     m_bookClass.append("马克思主义");
     m_bookClass.append("哲学");
@@ -82,6 +93,7 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_DELETELOGINHISTORY);
     m_listMsg.push_back(MSG_ADDUSERTYPE);
     m_listMsg.push_back(MSG_LOGINSYSTEM);
+    m_listMsg.push_back(MSG_QUERYLENDLIST);
 
     m_listMsg.push_back(MSG_ADDBOOK);
     m_listMsg.push_back(MSG_DELETEBOOK);
@@ -198,6 +210,14 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             DisplayLogin(nCardType, nRet);
             break;
         }
+        case MSG_QUERYLENDLIST:
+        {
+            set<LendListModel> setLendList;
+            int nRet = 0;
+            ParseParamMainWin(notify, setLendList, nRet);
+            DisplayLendList(setLendList, nRet);
+            break;
+        }
         default:
             break;
     }
@@ -270,6 +290,7 @@ void MainWindow::AddMenu()
 {
     m_userMgrMenu = m_menuBar->addMenu("用户管理");
     m_bookMgrMenu = m_menuBar->addMenu("图书管理");
+    m_LendMgrMenu = m_menuBar->addMenu("借阅管理");
 }
 
 void MainWindow::AddMenuAction()
@@ -283,6 +304,8 @@ void MainWindow::AddMenuAction()
     m_addBookAction = m_bookMgrMenu->addAction("添加图书");
     m_bookMgrMenu->addSeparator();
     m_queryBookAction = m_bookMgrMenu->addAction("查询图书");
+
+    m_lendListAction = m_LendMgrMenu->addAction("查询借阅日志");
 }
 
 void MainWindow::AddToolBar()
@@ -387,24 +410,35 @@ void MainWindow::SetBookCenterWidget()
     //设置列数
     m_tableWidgetBook->setColumnCount(10);
     //设置水平表头
-    QStringList strListLabels;
-    strListLabels.append(m_strLabelName);
-    strListLabels.append(m_strLabelAuthor);
-    strListLabels.append(m_strLabelPublish);
-    strListLabels.append(m_strLabelISBN);
-    strListLabels.append(m_strLabelLanguage);
-    strListLabels.append(m_strLabelPrice);
-    strListLabels.append(m_strLabelPubDate);
-    strListLabels.append(m_strLabelClass);
-    strListLabels.append(m_strLabelNumber);
-    strListLabels.append(m_strLabelIntro);
-
-    m_tableWidgetBook->setHorizontalHeaderLabels(strListLabels);
+    m_tableWidgetBook->setHorizontalHeaderLabels(m_strListBookLabels);
 
     //自适应列宽和设置自动等宽
     m_tableWidgetBook->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(BOOK_CENTER_WIDGET, m_tableWidgetBook));
+}
+
+void MainWindow::SetLendListCenterWidget()
+{
+    //设置中心部件 只能一个
+    m_tableWidgetLendList = new MyTableWidget;
+    //设置列数
+    m_tableWidgetLendList->setColumnCount(6);
+    //设置水平表头
+    QStringList strListLabels;
+    strListLabels.append(m_strLendUser);
+    strListLabels.append(m_strLendBook);
+    strListLabels.append(m_strLendDate);
+    strListLabels.append(m_strBackDate);
+    strListLabels.append(m_strLendState);
+    strListLabels.append(m_strDeleteLend);
+
+    m_tableWidgetLendList->setHorizontalHeaderLabels(strListLabels);
+
+    //自适应列宽和设置自动等宽
+    m_tableWidgetLendList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    m_stringMapCenterWidget.insert(map<QString, QWidget*>::value_type(LEND_CENTER_WIDGET, m_tableWidgetLendList));
 }
 
 void MainWindow::SetUserCenterWidget()
@@ -419,6 +453,7 @@ void MainWindow::InitializeCenterWidget()
 {
     SetBookCenterWidget();
     SetUserCenterWidget();
+    SetLendListCenterWidget();
     connect(this, &MainWindow::SendUserHeader, m_userMgrWiget, &UserManagerWidget::GetWidgetHeader);
     connect(this, &MainWindow::SendQueryUserData, m_userMgrWiget, &UserManagerWidget::ReceiveQueryUserData);
     connect(this, &MainWindow::SendAddUserData, m_userMgrWiget, &UserManagerWidget::ReceiveAddUserData);
@@ -462,6 +497,9 @@ void MainWindow::InitializeConnect()
 
     connect(m_modifyPasswdAction, &QAction::triggered, this, &MainWindow::ModifyPasswdAction);
     connect(m_queryBookAction, &QAction::triggered, this, &MainWindow::QueryAllBookAction);
+
+    //查询借阅日志
+    connect(m_lendListAction, &QAction::triggered, this, &MainWindow::QueryLendListAction);
 
     //双击单元格
     connect(m_tableWidgetBook, &MyTableWidget::cellDoubleClicked, this, &MainWindow::ReceiveCellDouble);
@@ -578,6 +616,14 @@ void MainWindow::ModifyBookAction()
 {
 }
 
+void MainWindow::QueryLendListAction()
+{
+    SetCenterWidget(LEND_CENTER_WIDGET, OPERATE_LEND_NONE);
+    NotifyMsg notify;
+    notify.nMsg = MSG_QUERYLENDLIST;
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
+}
+
 void MainWindow::QueryAllBookAction()
 {
     qDebug() << "MainWindow::QueryAllBookAction";
@@ -672,6 +718,23 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
     }
 }
 
+void MainWindow::DisplayLendList(set<LendListModel> &setLendList, int nRet)
+{
+    qDebug() << "MainWindow::DisplayLendList>>setLendList.size:" << setLendList.size();
+
+    for (int i = 0; i < m_tableCacheLend.size(); i++)
+    {
+        m_tableWidgetLendList->removeCellWidget(i, 5);
+        delete m_savedeleteButton[i];
+    }
+    m_savedeleteButton.clear();
+    m_tableCacheLend.clear();
+
+    m_tableCacheLend.insert(setLendList.begin(), setLendList.end());
+    m_tableWidgetLendList->setRowCount(m_tableCacheLend.size());
+    UpdateLendCache();
+}
+
 void MainWindow::DisplayLogin(int nCardType, int nRet)
 {
     if (nRet == 0)
@@ -683,6 +746,33 @@ void MainWindow::DisplayLogin(int nCardType, int nRet)
     {
         QMessageBox::information(this,"info","登录失败");
     }
+}
+
+void MainWindow::UpdateLendCache()
+{
+    m_tableWidgetLendList->clearContents();
+    set<LendListModel>::iterator iter = m_tableCacheLend.begin();
+
+    int nRow = 0;
+    for (; iter != m_tableCacheLend.end(); ++iter)
+    {
+        LendListModel lendata = *iter;
+
+        m_tableWidgetLendList->setItem(nRow, 0, new QTableWidgetItem(QString::number(lendata.GetUserID())));
+        m_tableWidgetLendList->setItem(nRow, 1, new QTableWidgetItem(QString::number(lendata.GetBookID())));
+        m_tableWidgetLendList->setItem(nRow, 2, new QTableWidgetItem(QString(lendata.GetLendDate().c_str())));
+        m_tableWidgetLendList->setItem(nRow, 3, new QTableWidgetItem(QString(lendata.GetBackDate().c_str())));
+        m_tableWidgetLendList->setItem(nRow, 4, new QTableWidgetItem(m_strLendStateList[lendata.GetLendState()]));
+        QPushButton *deleteBtn = new QPushButton();
+        //设置ｂｕｔｔｏｎ透明
+        deleteBtn->setFlat(true);
+        m_savedeleteButton.push_back(deleteBtn);
+        deleteBtn->setText("删除");
+        m_tableWidgetLendList->setCellWidget(nRow, 5, deleteBtn);
+        nRow++;
+    }
+
+
 }
 
 void MainWindow::UpdateBookCache(QString strText)
@@ -785,6 +875,66 @@ void MainWindow::ReceiveCellChanged(int row, int column)
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
+void MainWindow::AddLendBook(int lendType, LendListModel &lendList)
+{
+    m_tableCacheLend.insert(lendList);
+    //中心部件设置为借阅部件
+    SetCenterWidget(LEND_CENTER_WIDGET, OPERATE_LEND_NONE);
+}
+
+void MainWindow::ReceiveBorrowBook()
+{
+
+}
+
+void MainWindow::ReceivePrecontractBook()
+{
+    //添加一条预约借阅数据
+    //获取userid,获取bookid,生成开始时间
+    QString strText;
+    int currentRow = m_tableWidgetBook->currentRow();
+    //获取书名项
+    QTableWidgetItem *item = m_tableWidgetBook->item(currentRow, 0);
+    strText += item->text() + " ";
+    //查找bookid
+    int bookid = 0;
+    set<BookModel>::iterator iter = m_tableCacheBook.begin();
+    for (; iter != m_tableCacheBook.end(); ++iter)
+    {
+        BookModel bookdata = *iter;
+        if (bookdata.GetName().c_str() == strText)
+        {
+            bookid = bookdata.GetBookID();
+            break;
+        }
+    }
+
+    //查找readerid
+    int readerid = 0;
+//    set<>::iterator iter = m_tableCacheBook.begin();
+//    for (; iter != m_tableCacheBook.end(); ++iter)
+//    {
+//        BookModel bookdata = *iter;
+//        if (bookdata.GetName().c_str() == strText)
+//        {
+//            bookid = bookdata.GetBookID();
+//            break;
+//        }
+//    }
+
+    LendListModel lendList;
+    lendList.SetBookID(bookid);
+    lendList.SetUserID(readerid);
+
+    QDateTime dtime = QDateTime::currentDateTime();
+    QString loginTime = dtime.toString("yyyy-MM-dd");
+    lendList.SetLendDate(loginTime.toUtf8().data());
+
+    lendList.SetLendState(LendPreContract);
+    AddLendBook(LendPreContract, lendList);
+
+}
+
 void MainWindow::ReceiveRightButton()
 {
     m_rightButtonListMenu = new QMenu(this);
@@ -792,10 +942,10 @@ void MainWindow::ReceiveRightButton()
     m_rightButtonListMenu->addAction(m_precontractBookAction);
     m_borrowBookAction = new QAction("借书", m_rightButtonListMenu);
     m_rightButtonListMenu->addAction(m_borrowBookAction);
-    m_backBookAction = new QAction("还书", m_rightButtonListMenu);
-    m_rightButtonListMenu->addAction(m_backBookAction);
+    m_deleteBookAction = new QAction("删除", m_rightButtonListMenu);
+    m_rightButtonListMenu->addAction(m_deleteBookAction);
     //触发复制该行操作
-    //connect(m_precontractBookAction, &QAction::triggered, this, &MainWindow::AddUserTypeItemAction);
+    connect(m_precontractBookAction, &QAction::triggered, this, &MainWindow::ReceivePrecontractBook);
 
     //让菜单显示的位置在鼠标的坐标上
     m_rightButtonListMenu->move(cursor().pos());
@@ -909,7 +1059,7 @@ void MainWindow::AddSearchCond()
 {
     //添加其他搜索条件
     m_searchCondPublish = new SearchCondition(this);
-    m_searchCondPublish->setLabelText(m_strLabelPublish + ":");
+    m_searchCondPublish->setLabelText(m_strListBookLabels[2] + ":");
     m_searchCondPublish->setDefaultComboText(5);
     m_toolBarCondition->addWidget(m_searchCondPublish);
     connect(this, &MainWindow::SendCondPublishData, m_searchCondPublish, &SearchCondition::GetComboBoxText);
@@ -923,7 +1073,7 @@ void MainWindow::AddSearchCond()
 
 
     m_searchCondLanguage = new SearchCondition(this);
-    m_searchCondLanguage->setLabelText(m_strLabelLanguage + ":");
+    m_searchCondLanguage->setLabelText(m_strListBookLabels[4] + ":");
     m_searchCondLanguage->setDefaultComboText(8);
     m_toolBarCondition->addWidget(m_searchCondLanguage);
     connect(this, &MainWindow::SendCondLanguageData, m_searchCondLanguage, &SearchCondition::GetComboBoxText);
@@ -936,7 +1086,7 @@ void MainWindow::AddSearchCond()
 
 
     m_searchCondClass = new SearchCondition(this);
-    m_searchCondClass->setLabelText(m_strLabelClass + ":");
+    m_searchCondClass->setLabelText(m_strListBookLabels[7] + ":");
     m_searchCondLanguage->setDefaultComboText(3);
     m_toolBarCondition->addWidget(m_searchCondClass);
     connect(this, &MainWindow::SendCondClassData, m_searchCondClass, &SearchCondition::GetComboBoxText);

@@ -145,6 +145,14 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut, nCardType, nRet);
             break;
         }
+        case MSG_QUERYLENDLIST:
+        {
+            set<LendListModel> setLendList;
+            int nRet = dataProxy->QueryLendList(setLendList);
+            notifyOut.nMsg = MSG_QUERYLENDLIST;
+            PackageParamController(notifyOut, setLendList, nRet);
+            break;
+        }
         default:
             break;
     }

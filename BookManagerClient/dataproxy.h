@@ -4,6 +4,7 @@
 #include "proxy.h"
 #include "usermodel.h"
 #include "bookmodel.h"
+#include "lendlistmodel.h"
 #include "readercardmodel.h"
 #include "loginhistorymodel.h"
 #include <QDateTime>
@@ -17,6 +18,7 @@ public:
     void MakeUserData();
     void MakeBookData();
     void MakeReaderCardData();
+    void MakeLendList();
 
     void AddLevel(int nLevel);
     int AddUser(UserModel userModel);
@@ -37,6 +39,8 @@ public:
     int DeleteLoginHistory(string strAcount);
 
     int Login(string strAccount, string strPasswd, int nCardType);
+
+    int QueryLendList(set<LendListModel> &setLendList);
 private:
     vector<BookModel> m_vecBookModel;
 };

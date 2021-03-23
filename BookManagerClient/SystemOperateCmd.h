@@ -6,4 +6,6 @@ const int OPERATE_QUERY_LOGIN_HISTORY = 2;
 
 const int OPERATE_BOOK_CONDITION = 10;
 
+const int OPERATE_LEND_NONE = 20;
+
 #endif // SYSTEMOPERATECMD_H

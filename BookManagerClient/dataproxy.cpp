@@ -9,6 +9,7 @@
 vector<UserModel> g_vecUserModel(INIT_USER_DATA);
 vector<BookModel> g_vecBookModel(INIT_BOOK_DATA);
 vector<ReaderCardModel> g_vecReaderCard(INIT_READER_CARD);
+vector<LendListModel> g_vecLendList(INIT_READER_CARD);
 
 DataProxy::DataProxy()
 :Proxy("DataProxy")
@@ -16,11 +17,54 @@ DataProxy::DataProxy()
     MakeBookData();
     MakeUserData();
     MakeReaderCardData();
+    MakeLendList();
 }
 
 DataProxy::~DataProxy()
 {
     qDebug() << "DataProxy析构了";
+}
+
+void DataProxy::MakeLendList()
+{
+    int count = INIT_READER_CARD;
+    int i = 0;
+    for (; i < count; i++)
+    {
+        g_vecLendList[i].SetSerNum(i + 1);
+        g_vecLendList[i].SetUserID(i + 3);
+        g_vecLendList[i].SetBookID(i + 3);
+    }
+
+    //借书开始日期
+    int nD = 0;
+    for(int m = 7; m <= 8; ++m)
+    {
+        for (int d = 1; d <= 25; ++d)
+        {
+            QDate date(2001, m, d);
+            g_vecLendList[nD].SetLendDate(date.toString("yyyy-MM-dd").toUtf8().data());
+            nD++;
+        }
+    }
+
+    //借书结束日期
+    nD = 0;
+    for(int m = 9; m <= 10; ++m)
+    {
+        for (int d = 1; d <= 25; ++d)
+        {
+            QDate date(2001, m, d);
+            g_vecLendList[nD].SetBackDate(date.toString("yyyy-MM-dd").toUtf8().data());
+            nD++;
+        }
+    }
+
+    i = 0;
+    for (; i < count; i++)
+    {
+        g_vecLendList[i].SetLendState(i % 5);
+    }
 }
 
 void DataProxy::MakeReaderCardData()
@@ -403,6 +447,11 @@ int DataProxy::Login(string strAccount, string strPasswd, int nCardType)
     }
 
     return nRet;
+}
+
+int DataProxy::QueryLendList(set<LendListModel> &setLendList)
+{
+    setLendList.insert(g_vecLendList.begin(), g_vecLendList.end());
 }
 
 int DataProxy::DeleteLoginHistory(string strAcount)

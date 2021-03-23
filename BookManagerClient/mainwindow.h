@@ -30,6 +30,7 @@
 #include "UserManagerWidget.h"
 #include "usermodel.h"
 #include "bookmodel.h"
+#include "lendlistmodel.h"
 #include "loginhistorymodel.h"
 #include "searchbox.h"
 #include "searchcondition.h"
@@ -41,6 +42,7 @@
 
 #define BOOK_CENTER_WIDGET "BookCenterWidget"
 #define USER_CENTER_WIDGET "UserCenterWidget"
+#define LEND_CENTER_WIDGET "LendCenterWidget"
 
 class MainWindow : public QMainWindow, public View
 {
@@ -76,6 +78,7 @@ public:
     void InitializeCenterWidget();
     void SetBookCenterWidget();
     void SetUserCenterWidget();
+    void SetLendListCenterWidget();
     void SetCenterWidget(QString strCenterWidget, const int nCmdOp);
 
     void InitializeConnect();
@@ -89,6 +92,7 @@ public:
     void DisplayAddUserType(QString &strRet);
     void DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet);
     void DisplayDeleteLoginHistory(QString &strRet);
+    void DisplayLendList(set<LendListModel> &setLendList, int nRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
@@ -100,13 +104,19 @@ public:
     void UpdateBookCache();
     void UpdateBookCache(QString strText);
 
+    void UpdateLendCache();
+    void UpdateLendCache(QString strText);
+
     void AddSearchBox();
     void AddSearchCond();
     void SetSearchCondVisible(int nOpType);
+
+    void AddLendBook(int lendType, LendListModel &lendList);
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
     QMenu *m_bookMgrMenu;
+    QMenu *m_LendMgrMenu;
 
 
     QAction *m_addUserAction;
@@ -119,9 +129,15 @@ private:
     QAction *m_queryLoginAction;
 
     QAction *m_addBookAction;
-    QAction *m_deleteBookAction;
     QAction *m_modifyBookAction;
     QAction *m_queryBookAction;
+
+    QAction *m_lendListAction;
+
+    QMenu *m_rightButtonListMenu;
+    QAction *m_borrowBookAction;
+    QAction *m_precontractBookAction;
+    QAction *m_deleteBookAction;
 
     QToolBar *m_toolBarDynamic;
     QToolBar *m_toolBarStatic;
@@ -131,6 +147,7 @@ private:
     //中心部件
     UserManagerWidget *m_userMgrWiget;
     MyTableWidget *m_tableWidgetBook;
+    MyTableWidget *m_tableWidgetLendList;
     map<QString, QWidget*> m_stringMapCenterWidget;
     QString m_strCenterWidget;
     int m_nCmdOperate;
@@ -143,6 +160,10 @@ private:
     SearchCondition *m_searchCondLanguage;
     SearchCondition *m_searchCondClass;
 
+    set<LendListModel> m_tableCacheLend;
+    QStringList m_strLendStateList;
+    vector<QPushButton*> m_savedeleteButton;
+
     vector<QAction*> m_saveNeedDelAction;
 
     bool m_bIsConnItemChanged;
@@ -154,21 +175,16 @@ private:
     QString m_strUser;
     map<int, QString> m_mapLastOp;
 
-    QMenu *m_rightButtonListMenu;
-    QAction *m_borrowBookAction;
-    QAction *m_precontractBookAction;
-    QAction *m_backBookAction;
+
 private:
-    QString m_strLabelName;
-    QString m_strLabelAuthor;
-    QString m_strLabelPublish;
-    QString m_strLabelISBN;
-    QString m_strLabelLanguage;
-    QString m_strLabelPrice;
-    QString m_strLabelPubDate;
-    QString m_strLabelClass;
-    QString m_strLabelNumber;
-    QString m_strLabelIntro;
+    QStringList m_strListBookLabels;
+
+    QString m_strLendUser;
+    QString m_strLendBook;
+    QString m_strLendDate;
+    QString m_strBackDate;
+    QString m_strLendState;
+    QString m_strDeleteLend;
 
 signals:
     void SendQueryUserData(set<UserModel> &setUserData);
@@ -199,6 +215,8 @@ public slots:
     void QueryBookAction();
     void QueryAllBookAction();
 
+    void QueryLendListAction();
+
     void ReceiveAddUser(UserModel userModel);
     void ReceivePasswdData(QString strOldPasswd, QString strNewPasswd, QString strRepeatPasswd);
     void ReceiveCellDouble(int row, int column);
@@ -218,5 +236,7 @@ public slots:
     void UpdateStatusTime();
 
     void ReceiveRightButton();
+    void ReceivePrecontractBook();
+    void ReceiveBorrowBook();
 };
 #endif // MAINWINDOW_H
