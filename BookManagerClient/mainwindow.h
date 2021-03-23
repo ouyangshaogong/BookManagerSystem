@@ -93,6 +93,7 @@ public:
     void DisplayLoginHistory(set<LoginHistoryModel> &setLoginData, QString &strRet);
     void DisplayDeleteLoginHistory(QString &strRet);
     void DisplayLendList(set<LendListModel> &setLendList, int nRet);
+    void DisplayAddLendList(int nRet);
 
     void DisplayAddBook(QString &str);
     void DisplayDeleteBook(QString &str);
@@ -104,14 +105,14 @@ public:
     void UpdateBookCache();
     void UpdateBookCache(QString strText);
 
-    void UpdateLendCache();
-    void UpdateLendCache(QString strText);
+    void UpdateLendWidgetCache();
+    //void UpdateLendCache(QString strText);
 
     void AddSearchBox();
     void AddSearchCond();
     void SetSearchCondVisible(int nOpType);
 
-    void AddLendBook(int lendType, LendListModel &lendList);
+    void AddLendBook(int lendType);
 private:
     QMenuBar *m_menuBar;
     QMenu *m_userMgrMenu;
@@ -138,6 +139,7 @@ private:
     QAction *m_borrowBookAction;
     QAction *m_precontractBookAction;
     QAction *m_deleteBookAction;
+    LendListModel m_newAddLend;
 
     QToolBar *m_toolBarDynamic;
     QToolBar *m_toolBarStatic;

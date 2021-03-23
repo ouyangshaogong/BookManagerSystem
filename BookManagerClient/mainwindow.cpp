@@ -64,8 +64,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_bIsFirstShowStatus = false;
     m_bIsConnItemChanged = false;
 
-
-
     InitializeMainWindow();
     InitializeConnect();
 
@@ -94,6 +92,8 @@ list<int> &MainWindow::ReceiveMsg()
     m_listMsg.push_back(MSG_ADDUSERTYPE);
     m_listMsg.push_back(MSG_LOGINSYSTEM);
     m_listMsg.push_back(MSG_QUERYLENDLIST);
+    m_listMsg.push_back(MSG_ADDLENDLIST);
+
 
     m_listMsg.push_back(MSG_ADDBOOK);
     m_listMsg.push_back(MSG_DELETEBOOK);
@@ -216,6 +216,13 @@ void MainWindow::HandleNotifyCation(NotifyMsg notify)
             int nRet = 0;
             ParseParamMainWin(notify, setLendList, nRet);
             DisplayLendList(setLendList, nRet);
+            break;
+        }
+        case MSG_ADDLENDLIST:
+        {
+            int nRet = 0;
+            ParseParamMainWin(notify, nRet);
+            DisplayAddLendList(nRet);
             break;
         }
         default:
@@ -718,6 +725,19 @@ void MainWindow::DisplayQueryAllBook(set<BookModel> &setBookData, QString &strRe
     }
 }
 
+void MainWindow::DisplayAddLendList(int nRet)
+{
+    if (nRet == 0)
+    {
+        QueryLendListAction();
+
+    }
+    else
+    {
+        QMessageBox::information(this,"info","预约失败");
+    }
+}
+
 void MainWindow::DisplayLendList(set<LendListModel> &setLendList, int nRet)
 {
     qDebug() << "MainWindow::DisplayLendList>>setLendList.size:" << setLendList.size();
@@ -731,8 +751,9 @@ void MainWindow::DisplayLendList(set<LendListModel> &setLendList, int nRet)
     m_tableCacheLend.clear();
 
     m_tableCacheLend.insert(setLendList.begin(), setLendList.end());
+
     m_tableWidgetLendList->setRowCount(m_tableCacheLend.size());
-    UpdateLendCache();
+    UpdateLendWidgetCache();
 }
 
 void MainWindow::DisplayLogin(int nCardType, int nRet)
@@ -748,27 +769,37 @@ void MainWindow::DisplayLogin(int nCardType, int nRet)
     }
 }
 
-void MainWindow::UpdateLendCache()
+void MainWindow::UpdateLendWidgetCache()
 {
     m_tableWidgetLendList->clearContents();
-    set<LendListModel>::iterator iter = m_tableCacheLend.begin();
+
+    //根据userid查找username，根据bookid查找bookname
 
     int nRow = 0;
+    set<LendListModel>::iterator iter = m_tableCacheLend.begin();
     for (; iter != m_tableCacheLend.end(); ++iter)
     {
         LendListModel lendata = *iter;
+
+        QPushButton *deleteBtn = new QPushButton();
+        //设置ｂｕｔｔｏｎ透明
+        deleteBtn->setFlat(true);
+        if (lendata.GetLendState() == LendPreContract
+            || lendata.GetLendState() == LendBorrow)
+        {
+            deleteBtn->setEnabled(false);
+        }
+
+        m_savedeleteButton.push_back(deleteBtn);
+        deleteBtn->setText("删除");
+        m_tableWidgetLendList->setCellWidget(nRow, 5, deleteBtn);
 
         m_tableWidgetLendList->setItem(nRow, 0, new QTableWidgetItem(QString::number(lendata.GetUserID())));
         m_tableWidgetLendList->setItem(nRow, 1, new QTableWidgetItem(QString::number(lendata.GetBookID())));
         m_tableWidgetLendList->setItem(nRow, 2, new QTableWidgetItem(QString(lendata.GetLendDate().c_str())));
         m_tableWidgetLendList->setItem(nRow, 3, new QTableWidgetItem(QString(lendata.GetBackDate().c_str())));
         m_tableWidgetLendList->setItem(nRow, 4, new QTableWidgetItem(m_strLendStateList[lendata.GetLendState()]));
-        QPushButton *deleteBtn = new QPushButton();
-        //设置ｂｕｔｔｏｎ透明
-        deleteBtn->setFlat(true);
-        m_savedeleteButton.push_back(deleteBtn);
-        deleteBtn->setText("删除");
-        m_tableWidgetLendList->setCellWidget(nRow, 5, deleteBtn);
+
         nRow++;
     }
 
@@ -875,13 +906,6 @@ void MainWindow::ReceiveCellChanged(int row, int column)
     DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
-void MainWindow::AddLendBook(int lendType, LendListModel &lendList)
-{
-    m_tableCacheLend.insert(lendList);
-    //中心部件设置为借阅部件
-    SetCenterWidget(LEND_CENTER_WIDGET, OPERATE_LEND_NONE);
-}
-
 void MainWindow::ReceiveBorrowBook()
 {
 
@@ -895,14 +919,15 @@ void MainWindow::ReceivePrecontractBook()
     int currentRow = m_tableWidgetBook->currentRow();
     //获取书名项
     QTableWidgetItem *item = m_tableWidgetBook->item(currentRow, 0);
-    strText += item->text() + " ";
+    strText += item->text();
     //查找bookid
     int bookid = 0;
     set<BookModel>::iterator iter = m_tableCacheBook.begin();
     for (; iter != m_tableCacheBook.end(); ++iter)
     {
         BookModel bookdata = *iter;
-        if (bookdata.GetName().c_str() == strText)
+        QString strName = bookdata.GetName().c_str();
+        if (strName == strText)
         {
             bookid = bookdata.GetBookID();
             break;
@@ -929,10 +954,12 @@ void MainWindow::ReceivePrecontractBook()
     QDateTime dtime = QDateTime::currentDateTime();
     QString loginTime = dtime.toString("yyyy-MM-dd");
     lendList.SetLendDate(loginTime.toUtf8().data());
-
     lendList.SetLendState(LendPreContract);
-    AddLendBook(LendPreContract, lendList);
 
+    NotifyMsg notify;
+    notify.nMsg = MSG_ADDLENDLIST;
+    PackageParamMainWin(notify, lendList);
+    DataCommonFunc::Instance()->SendNotifyCationToController(CMD_MSG_DATA_COMMAND, notify);
 }
 
 void MainWindow::ReceiveRightButton()

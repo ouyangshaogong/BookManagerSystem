@@ -41,6 +41,7 @@ public:
     int Login(string strAccount, string strPasswd, int nCardType);
 
     int QueryLendList(set<LendListModel> &setLendList);
+    int AddLendList(LendListModel &lendList);
 private:
     vector<BookModel> m_vecBookModel;
 };

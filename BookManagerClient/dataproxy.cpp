@@ -449,6 +449,14 @@ int DataProxy::Login(string strAccount, string strPasswd, int nCardType)
     return nRet;
 }
 
+int DataProxy::AddLendList(LendListModel &lendList)
+{
+    int nSerNum = g_vecLendList[g_vecLendList.size() - 1].GetSerNum() + 1;
+    lendList.SetSerNum(nSerNum);
+    g_vecLendList.push_back(lendList);
+    return 0;
+}
+
 int DataProxy::QueryLendList(set<LendListModel> &setLendList)
 {
     setLendList.insert(g_vecLendList.begin(), g_vecLendList.end());

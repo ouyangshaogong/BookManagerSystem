@@ -153,6 +153,15 @@ void DataController::handleEvent(NotifyMsg notifyIn)
             PackageParamController(notifyOut, setLendList, nRet);
             break;
         }
+        case MSG_ADDLENDLIST:
+        {
+            LendListModel lendList;
+            ParseParamController(notifyIn, lendList);
+            int nRet = dataProxy->AddLendList(lendList);
+            notifyOut.nMsg = MSG_ADDLENDLIST;
+            PackageParamController(notifyOut, nRet);
+            break;
+        }
         default:
             break;
     }
