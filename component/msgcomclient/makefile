@@ -5,25 +5,23 @@ Sources := $(foreach n,$(AllDirs) , $(wildcard $(n)/*.cpp))
 Objs := $(patsubst %.cpp,%.o, $(Sources))
 Deps := $(patsubst %.cpp,%.d, $(Sources))
 
-
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
-Bin := client
+bin := client
 
-AllLibs : $(Bin)
+AllLibs : $(bin)
 CC = g++
 CXXFLAGS = -g -O2 -fPIC -Wall
-CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component/mvcframe
-LDFLAGS = -lstdc++ -lmvcframe
+CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/utils -I$(INCDIR)/model -I$(INCDIR)/dao
+LDFLAGS = -lstdc++ -lbookmgrdao -lmysqlclient
 
-$(Bin) : $(Objs)
-	g++ $(Objs) -o $@ $(LDFLAGS) 
+$(bin) : $(Objs)
+	g++ -o $@ $^ $(LDFLAGS) 
 
 %.d : %.cpp
 	$(CC) -MT"$(<:.cpp=.o) $@" -MM $(CXXFLAGS) $(CPPFLAGS) $< > $@
 
 .PHONY : clean
 clean: 
-	@rm -f $(Objs) $(Deps) $(Bin)
-	@rm -rf core.*
+	rm -f $(Objs) $(Deps) $(DynamicLib)

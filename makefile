@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE COMPONENT TESTCLIENT TEST ECHO
+ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -29,12 +29,12 @@ USERMGRSERVICE: UTILS MODEL DAO
 	${MAKE} -C $(HOMEDIR)/business/usermgrservice
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
 
-COMPONENT:
-	@cp -rf $(HOMEDIR)/component/*.h $(HOMEDIR)/include/component
-	${MAKE} -C $(HOMEDIR)/component
-	@cp $(HOMEDIR)/component/libcomponent.so $(HOMEDIR)/lib
+MVCFRAME:
+	@cp -rf $(HOMEDIR)/component/mvcframe/*.h $(HOMEDIR)/include/component/mvcframe
+	${MAKE} -C $(HOMEDIR)/component/mvcframe
+	@cp $(HOMEDIR)/component/mvcframe/libmvcframe.so $(HOMEDIR)/lib
 
-TESTCLIENT: COMPONENT
+TESTCLIENT: MVCFRAME
 	${MAKE} -C $(HOMEDIR)/test/client
 
 TEST: BOOKMGRSERVICE UTILS MODEL DAO
@@ -54,6 +54,6 @@ clean:
 	@${MAKE} clean -C $(HOMEDIR)/test/bookmanagertest
 	@${MAKE} clean -C $(HOMEDIR)/test/usermanagertest
 	@${MAKE} clean -C $(HOMEDIR)/test/client
-	@${MAKE} clean -C $(HOMEDIR)/component
+	@${MAKE} clean -C $(HOMEDIR)/component/mvcframe
 	@rm -rf $(HOMEDIR)/lib/*.so
 	@rm -rf $(HOMEDIR)/build-BookManagerClient-Desktop_Qt_5_12_10_GCC_64bit-Debug

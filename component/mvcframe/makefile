@@ -8,7 +8,7 @@ Deps := $(patsubst %.cpp,%.d, $(Sources))
 HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
-DynamicLib := libcomponent.so
+DynamicLib := libmvcframe.so
 
 AllLibs : $(DynamicLib)
 CC = g++
