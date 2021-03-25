@@ -50,32 +50,24 @@ int iMapCmdMsg::GetMsgType()
 
 }
 
-void iMapCmdMsg::SetMsgLength(int nLength)
+void iMapCmdMsg::SetMsgHeaderLength(int nLength)
 {
 
 }
 
-int iMapCmdMsg::GetMsgLength()
+int iMapCmdMsg::GetMsgHeaderLength()
 {
 
 }
 
-void iMapCmdMsg::SetAttachMents(string strAttachments)
-{
 
-}
-
-string iMapCmdMsg::GetAttachMents()
-{
-
-}
 
 void iMapCmdMsg::SetBody(string strBody)
 {
 
 }
 
-void iMapCmdMsg::GetBody()
+string iMapCmdMsg::GetBody()
 {
 
 }

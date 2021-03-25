@@ -12,11 +12,7 @@ using namespace std;
 
 int ACE_TMAIN(int argc, char* argv[])
 {
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("Hello World!ACE.......\n")));
-
-    cout << "cout test!" << endl;
-    
-    //启动一个消息通信客户端消息循环
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("Message Communicate Client.......\n")));
 
     ACE_INET_Addr addr(PORT_NO, HOSTNAME);
     iMapMsgHandle *pCmdHandle = iMapMsgHandle::Instance();
@@ -24,7 +20,7 @@ int ACE_TMAIN(int argc, char* argv[])
 
     pAcceptHandle->open(addr);
     ACE_Reactor::instance()->register_handler(pAcceptHandle, ACE_Event_Handler::ACCEPT_MASK);
-
+    //启动一个消息通信客户端消息循环
     pCmdHandle->StartMsgLoop();
 
     return 0;

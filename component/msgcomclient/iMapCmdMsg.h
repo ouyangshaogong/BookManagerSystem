@@ -30,26 +30,23 @@ public:
     void SetMsgType(int nMsgType);
     int GetMsgType();
 
-    void SetMsgLength(int nLength);
-    int GetMsgLength();
-
-    void SetAttachMents(string strAttachments);
-    string GetAttachMents();
+    void SetMsgHeaderLength(int nLength);
+    int GetMsgHeaderLength();
 
     void SetBody(string strBody);
-    void GetBody();
+    string GetBody();
 
     virtual std::string serialize()
     {
         OutStream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgLength << m_strAttachments << m_strBody;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength << m_strBody;
         return os.str();
     }
 
     virtual int deserialize(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgLength >> m_strAttachments >> m_strBody;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength >> m_strBody;
         return is.size();
     }
 
@@ -59,8 +56,7 @@ private:
     int m_nMsgID;
     int m_nMrbCmdMsg;
     int m_nMsgType;
-    int m_nMsgLength;
-    string m_strAttachments;
+    int m_nMsgBodyLength;
     string m_strBody;
 };
 

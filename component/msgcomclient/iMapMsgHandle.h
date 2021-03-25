@@ -15,13 +15,17 @@
 #include "ace/Svc_Handler.h"
 #include "ace/Condition_T.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
+#include "ace/Task.h"
+#include "ace/OS_NS_time.h"
+#include "ace/OS_NS_unistd.h"
 
 #include "iMapCmdMsg.h"
 #include <list>
 
 using namespace std;
 
-class iMapMsgHandle: public ACE_Event_Handler
+class iMapMsgHandle: public ACE_Task<ACE_MT_SYNCH>
 {
    
 public:
@@ -29,6 +33,10 @@ public:
     virtual ~iMapMsgHandle();
 
     virtual int open(void * = 0);
+
+    int close(u_long);
+
+    int svc(void);
 
     virtual int handle_input(ACE_HANDLE fd = ACE_INVALID_HANDLE);
 
@@ -44,7 +52,7 @@ public:
 
     void SendExternalCmdMsg(iMapCmdMsg *pCmdMsg);
 
-    void SendInternalCmdMsg(iMapCmdMsg *pCmdMsg);
+    void SendInternalCmdMsg(iMapCmdMsg *pCmdMsg, int nlength);
 
     void RecvExternalCmdMsg(iMapCmdMsg *pCmdMsg);
 
@@ -63,6 +71,8 @@ private:
 
     ACE_Thread_Mutex m_MsgMutex;
     ACE_Condition<ACE_Thread_Mutex> m_MsgCond;
+
+    ACE_Message_Queue<ACE_MT_SYNCH> m_mqCmdMsg;
 };
 
 #endif // __MAP_MSG_HANDLE__

@@ -33,7 +33,34 @@ int iMapMsgHandle::open(void *p)
     //注册输入事件为读数据
     ACE_Reactor::instance()->register_handler(m_instance, ACE_Event_Handler::READ_MASK);
     ACE_Reactor::instance()->register_handler(m_instance, ACE_Event_Handler::WRITE_MASK);
+    activate();
 
+    return 0;
+}
+
+int iMapMsgHandle::close(u_long)
+{
+    ACE_DEBUG((LM_DEBUG, "(%t) Active Object being closed down \n"));
+    return 0;
+}
+
+int iMapMsgHandle::svc(void)
+{
+    ACE_DEBUG((LM_DEBUG, "(%t) This is being done in a separate thread \n"));
+    while (true)
+    {
+        ACE_Message_Block * mb = NULL;
+        m_mqCmdMsg.dequeue(mb);
+        if (NULL != mb)
+        {
+            iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)mb->base();
+            delete mb;
+            mb = NULL;
+
+            ACE_DEBUG((LM_DEBUG, "(%t) This is being done in a separate thread \n"));
+
+        }
+    }
     return 0;
 }
 
@@ -59,9 +86,8 @@ int iMapMsgHandle::handle_input(ACE_HANDLE fd)
 
     iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
 
-    string strCmsMsg = buf;
-    pCmdMsg->deserialize(strCmsMsg);
-
+    string strMsg = buf;
+    pCmdMsg->deserialize(strMsg);
     RecvExternalCmdMsg(pCmdMsg);
 
     return 0;
@@ -90,10 +116,12 @@ int iMapMsgHandle::handle_output(ACE_HANDLE)
             else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE)
             {
                 //发送消息到应用程序内部
-                SendInternalCmdMsg(pCmdMsg);
+                int nlength = pCmdMsg->GetMsgHeaderLength() + sizeof(pCmdMsg->GetBody().length());
+                SendInternalCmdMsg(pCmdMsg, nlength);
             }
             else if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
             {
+                //结束消息循环
                 bIsQuitLoop = true;
                 break;
             }
@@ -119,12 +147,19 @@ void iMapMsgHandle::StartMsgLoop()
 
 void iMapMsgHandle::SendExternalCmdMsg(iMapCmdMsg *pCmdMsg)
 {
-
+    string strMsg = pCmdMsg->serialize();
+    int recv_cnt = this->m_socketPeer.send_n(strMsg.c_str(), strMsg.size());
 }
 
-void iMapMsgHandle::SendInternalCmdMsg(iMapCmdMsg *pCmdMsg)
+void iMapMsgHandle::SendInternalCmdMsg(iMapCmdMsg *pCmdMsg, int nlength)
 {
 
+    ACE_Message_Block*  mb1 = new ACE_Message_Block(nlength, ACE_Message_Block::MB_DATA);
+
+    mb1->copy((char*)pCmdMsg, sizeof(nlength));
+
+    int result1 = m_mqCmdMsg.enqueue(mb1);
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendInternalCmdMsg\n"));
 }
 
 void iMapMsgHandle::RecvExternalCmdMsg(iMapCmdMsg *pCmdMsg)
