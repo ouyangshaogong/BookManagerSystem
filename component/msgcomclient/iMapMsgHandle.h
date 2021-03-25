@@ -44,9 +44,7 @@ public:
 
     virtual int handle_output(ACE_HANDLE fd = ACE_INVALID_HANDLE);
 
-    ACE_HANDLE get_handle() const;
-
-    ACE_SOCK_Stream& Peer();
+    ACE_HANDLE get_handle(void) const;
 
     void StartMsgLoop();
 
@@ -62,12 +60,12 @@ private:
     iMapMsgHandle(); 
 
 private:
-    ACE_SOCK_Stream m_socketPeer;
-
-private:
     static iMapMsgHandle *m_instance;
     static ACE_Thread_Mutex m_mutex;
     list<iMapCmdMsg*> m_iMapCmdMsg;
+
+    ACE_SOCK_Connector m_connector;
+    ACE_SOCK_Stream m_socketPeer;
 
     ACE_Thread_Mutex m_MsgMutex;
     ACE_Condition<ACE_Thread_Mutex> m_MsgCond;

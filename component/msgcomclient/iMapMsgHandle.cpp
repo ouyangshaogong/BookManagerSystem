@@ -1,5 +1,8 @@
 #include "iMapMsgHandle.h"
 
+#define PORT_NO 5000
+#define HOSTNAME "127.0.0.1"
+
 iMapMsgHandle *iMapMsgHandle::m_instance = NULL;
 ACE_Thread_Mutex iMapMsgHandle::m_mutex;
 
@@ -30,12 +33,28 @@ iMapMsgHandle* iMapMsgHandle::Instance()
 
 int iMapMsgHandle::open(void *p)
 {
-    //注册输入事件为读数据
-    ACE_Reactor::instance()->register_handler(m_instance, ACE_Event_Handler::READ_MASK);
-    ACE_Reactor::instance()->register_handler(m_instance, ACE_Event_Handler::WRITE_MASK);
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::open>>register_handler:READ_MASK,WRITE_MASK\n"));
+
+    
+    ACE_INET_Addr addr(PORT_NO, HOSTNAME);
+    ACE_Time_Value timeout(5, 0);
+    if (m_connector.connect(m_socketPeer, addr, &timeout) != 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::open>>connecetd fail"));
+        return false;
+    }
+    ACE_Reactor::instance()->register_handler(this, ACE_Event_Handler::READ_MASK);
+    ACE_Reactor::instance()->register_handler(this, ACE_Event_Handler::WRITE_MASK);
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::open>>connecetd entablish!"));
+
     activate();
 
     return 0;
+}
+
+ACE_HANDLE iMapMsgHandle::get_handle(void) const
+{
+    return m_socketPeer.get_handle();
 }
 
 int iMapMsgHandle::close(u_long)
@@ -46,7 +65,7 @@ int iMapMsgHandle::close(u_long)
 
 int iMapMsgHandle::svc(void)
 {
-    ACE_DEBUG((LM_DEBUG, "(%t) This is being done in a separate thread \n"));
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::svc>>begin\n"));
     while (true)
     {
         ACE_Message_Block * mb = NULL;
@@ -57,25 +76,16 @@ int iMapMsgHandle::svc(void)
             delete mb;
             mb = NULL;
 
-            ACE_DEBUG((LM_DEBUG, "(%t) This is being done in a separate thread \n"));
+            ACE_DEBUG((LM_DEBUG, "(%t) iMapMsgHandle::svc>>cmdmsg is reach to server\n"));
 
         }
     }
     return 0;
 }
 
-ACE_SOCK_Stream& iMapMsgHandle::Peer()
-{
-    return m_socketPeer;
-}
-
-ACE_HANDLE iMapMsgHandle::get_handle() const
-{
-    return this->m_socketPeer.get_handle();
-}
-
 int iMapMsgHandle::handle_input(ACE_HANDLE fd)
 {
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::handle_input>>begin\n"));
     char buf[2048] = { 0 };
     int recv_cnt = this->m_socketPeer.recv_n(buf, sizeof(buf) - 1);
     if (recv_cnt > 0)
@@ -90,6 +100,7 @@ int iMapMsgHandle::handle_input(ACE_HANDLE fd)
     pCmdMsg->deserialize(strMsg);
     RecvExternalCmdMsg(pCmdMsg);
 
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::handle_input>>end\n"));
     return 0;
 }
 
@@ -100,9 +111,11 @@ int iMapMsgHandle::handle_timeout(const ACE_Time_Value &current_time, const void
 
 int iMapMsgHandle::handle_output(ACE_HANDLE)
 {
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::handle_output>>begin\n"));
     bool bIsQuitLoop = true;
     while (true)
     {
+        ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::handle_output>>while begin\n"));
         m_MsgCond.wait(m_MsgMutex);
         while (m_iMapCmdMsg.empty())
         {
@@ -133,6 +146,8 @@ int iMapMsgHandle::handle_output(ACE_HANDLE)
             break;
         }
     }
+
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::handle_output>>end\n"));
 }
 
 
@@ -147,29 +162,34 @@ void iMapMsgHandle::StartMsgLoop()
 
 void iMapMsgHandle::SendExternalCmdMsg(iMapCmdMsg *pCmdMsg)
 {
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendExternalCmdMsg>>begin\n"));
     string strMsg = pCmdMsg->serialize();
     int recv_cnt = this->m_socketPeer.send_n(strMsg.c_str(), strMsg.size());
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendExternalCmdMsg>>end\n"));
 }
 
 void iMapMsgHandle::SendInternalCmdMsg(iMapCmdMsg *pCmdMsg, int nlength)
 {
-
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendInternalCmdMsg>>begin\n"));
     ACE_Message_Block*  mb1 = new ACE_Message_Block(nlength, ACE_Message_Block::MB_DATA);
-
     mb1->copy((char*)pCmdMsg, sizeof(nlength));
 
     int result1 = m_mqCmdMsg.enqueue(mb1);
-    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendInternalCmdMsg\n"));
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::SendInternalCmdMsg>>end\n"));
 }
 
 void iMapMsgHandle::RecvExternalCmdMsg(iMapCmdMsg *pCmdMsg)
 {
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::RecvExternalCmdMsg>>begin\n"));
     m_iMapCmdMsg.push_front(pCmdMsg);
     m_MsgCond.signal();
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::RecvExternalCmdMsg>>end\n"));
 }
 
 void iMapMsgHandle::RecvInternalCmdMsg(iMapCmdMsg *pCmdMsg)
 {
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::RecvInternalCmdMsg>>begin\n"));
     m_iMapCmdMsg.push_front(pCmdMsg);
     m_MsgCond.signal();
+    ACE_DEBUG((LM_DEBUG, "iMapMsgHandle::RecvInternalCmdMsg>>end\n"));
 }
