@@ -11,21 +11,9 @@
 #include <string.h>  //memcpy
 
 using namespace std;
-////////////////////////////////////////////////////
-// define normal template function
-////////////////////////////////////////////////////
 
-template<typename SerializableType>
-std::string serialize(SerializableType& a)
-{
-    return a.serialize();
-}
 
-template<typename SerializableType>
-int deserialize(std::string &str, SerializableType& a)
-{
-    return a.deserialize(str);
-}
+
 
 /////////////////////////////////////////////////
 //define special template function
@@ -33,7 +21,6 @@ int deserialize(std::string &str, SerializableType& a)
 //examples: short,int,float,long long,double
 /////////////////////////////////////////////////
 #define DEF_BASIC_TYPE_SERIALIZE(Type) \
- template<> \
 std::string serialize(Type& b) \
 { \
         std::string ret; \
@@ -42,7 +29,6 @@ std::string serialize(Type& b) \
 }
 
 #define DEF_BASIC_TYPE_DESERIALIZE(Type)  \
- template<> \
 int deserialize(std::string& str,Type& b)\
 { \
         memcpy(&b,str.data(),sizeof(Type)); \
@@ -53,42 +39,40 @@ int deserialize(std::string& str,Type& b)\
         DEF_BASIC_TYPE_SERIALIZE(Type) \
         DEF_BASIC_TYPE_DESERIALIZE(Type)
 
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(char)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned char)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(short int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned short int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(long int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned long int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(float)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(long long int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned long long int)
-DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(double)
+
+#define EXTERN_DEF_BASIC_TYPE_SERIALIZE(Type) \
+extern std::string serialize(Type& b); \
+
+#define EXTERN_DEF_BASIC_TYPE_DESERIALIZE(Type)  \
+extern int deserialize(std::string& str,Type& b);
+
+#define EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(Type) \
+        EXTERN_DEF_BASIC_TYPE_SERIALIZE(Type) \
+        EXTERN_DEF_BASIC_TYPE_DESERIALIZE(Type)
+
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(char)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned char)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(short int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned short int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(long int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned long int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(float)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(long long int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(unsigned long long int)
+EXTERN_DEF_BASIC_TYPE_SERIALIZE_AND_DESERIALIZE(double)
+
 
 //////////////////////////////////////
 //Serialize for type string
 /////////////////////////////////////
+#define EXTERN_STRING_TYPE_SERIALIZE extern std::string serialize(std::string& s);
+#define EXTERN_STRING_TYPE_DESERIALIZE extern int deserialize(std::string &str, std::string& s);
 
-// for c++ type std::string
-template<>
-std::string serialize(std::string& s)
-{
-    int len = s.size();
-    std::string ret;
-    ret.append(::serialize(len));
-    ret.append(s.data(), len);
-    return ret;
-}
+EXTERN_STRING_TYPE_SERIALIZE
+EXTERN_STRING_TYPE_DESERIALIZE
 
-template<>
-int deserialize(std::string &str, std::string& s)
-{
-    int len;
-    ::deserialize(str, len);
-    s = str.substr(sizeof(len), len);
-    return sizeof(int) + len;
-}
 
 ////////////////////////////////////////////
 //define input and output stream
@@ -245,7 +229,7 @@ public:
         {
             for (size_t i = 0; i < tempKey.size(); ++i)
             {
-                a.insert(std::map<BasicTypeA, BasicTypeB>::value_type(tempKey[i], tempVal[i]));
+                a.insert(std::make_pair<BasicTypeA, BasicTypeB>(tempKey[i], tempVal[i]));
             }
         }
 
@@ -286,4 +270,3 @@ public:
 ///////////////////////////////////////////
 
 #endif
-
