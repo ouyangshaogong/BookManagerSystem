@@ -60,12 +60,13 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
 
         //原样发送回去
         string strMsg = strMsgHeader + strMsgBody;
-        int nSend = peer().send(strMsg.c_str(), strMsg.size());
+        int nSend = peer().send_n(strMsg.c_str(), strMsg.size());
         if (nSend < 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>send fail!\n"));
             return -1;
         }
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>nSend:%d\n", nSend));
     }
 
     
