@@ -17,6 +17,7 @@ class iMapCmdMsg //: public Serializable
 {
 public:
     iMapCmdMsg();
+    ~iMapCmdMsg();
 
     void SetMagicNum(int nMagicNum);
     int GetMagicNum();
@@ -45,7 +46,6 @@ public:
     {
         OutStream os;
         os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength;
-        m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
 

@@ -19,9 +19,10 @@
 #include "ace/Task.h"
 #include "ace/OS_NS_time.h"
 #include "ace/OS_NS_unistd.h"
-
+#include <iostream>
 #include "iMapCmdMsg.h"
 #include <list>
+#include <cstring>
 
 using namespace std;
 
@@ -50,11 +51,9 @@ public:
 
     void SendExternalCmdMsg(iMapCmdMsg *pCmdMsg);
 
-    void SendInternalCmdMsg(iMapCmdMsg *pCmdMsg, int nlength);
+    void SendInternalCmdMsg(iMapCmdMsg *pCmdMsg);
 
-    void RecvExternalCmdMsg(iMapCmdMsg *pCmdMsg);
-
-    void RecvInternalCmdMsg(iMapCmdMsg *pCmdMsg);
+    void RecvCmdMsg(iMapCmdMsg *pCmdMsg);
 
 private:
     iMapMsgHandle(); 

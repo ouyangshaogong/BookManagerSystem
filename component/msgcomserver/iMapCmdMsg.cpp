@@ -10,7 +10,13 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
     m_strBody = "";
-    serializeHeader();
+    string str = serializeHeader();
+    m_nMsgHeaderLength = str.size();
+}
+
+iMapCmdMsg::~iMapCmdMsg()
+{
+
 }
 
 void iMapCmdMsg::SetMagicNum(int nMagicNum)
