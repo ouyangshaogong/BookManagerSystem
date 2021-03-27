@@ -7,6 +7,8 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgID = 0;
     m_nMrbCmdMsg = 0;
     m_nMsgType = 0;
+    m_nRecvProc = 0;
+    m_nSendProc = 0;
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
     m_strBody = NULL;
@@ -109,7 +111,7 @@ void iMapCmdMsg::SetBody(string &strBody)
     {
         m_strBody = new string(strBody);
     }
-   
+
 }
 
 string iMapCmdMsg::GetBody()
@@ -120,4 +122,24 @@ string iMapCmdMsg::GetBody()
     }
 
     return *m_strBody;
+}
+
+void iMapCmdMsg::SetSendProc(int nSendProc)
+{
+    m_nSendProc = nSendProc;
+}
+
+int iMapCmdMsg::GetSendProc()
+{
+    return m_nSendProc;
+}
+
+void iMapCmdMsg::SetRecvProc(int nRecvProc)
+{
+    m_nRecvProc = nRecvProc;
+}
+
+int iMapCmdMsg::GetRecvProc()
+{
+    return m_nRecvProc;
 }

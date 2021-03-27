@@ -10,27 +10,34 @@
 #include "commonace.h"
 #include "iMapCmdMsg.h"
 
-class iMapMsgService : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
+const int CMD_MSG_SERVICE_REGISTER = 1;
+
+class iMapMsgService : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
 {
 public:
-    ACE_SOCK_Stream &peer(void);
 
-    int open(void*);
+    iMapMsgService();
+    virtual ~iMapMsgService();
 
-    int close(u_long);
-
-    int svc(void);
-
-    virtual ACE_HANDLE get_handle(void) const;
+    int open(void *p);
 
     virtual int handle_input(ACE_HANDLE fd);
+
+    virtual int handle_output(ACE_HANDLE fd);
 
     // 释放相应资源
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask mask);
 
-protected:
-    
+    int SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
+
+    int SendCmdMsgToProc(iMapCmdMsg *pCmdMsg);
+
+private:
     ACE_SOCK_Stream m_sockStream;
+    bool m_bRunning;
+
+    static ACE_Thread_Mutex m_mapMutex;
+    static map<int, ACE_SOCK_Stream> m_nProcMapSocket;
 };
 
 typedef ACE_Acceptor<iMapMsgService, ACE_SOCK_ACCEPTOR> iMapMsgAcceptor;

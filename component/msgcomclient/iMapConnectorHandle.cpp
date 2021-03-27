@@ -57,11 +57,10 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
         //从内核缓存区读取消息头
         char buf[2048] = { 0 };
         int revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>revLength:%d\n", revLength));
         if (revLength <= 0)
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!\n"));
-            return 0;
+            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+            return 1;
         }
 
         //序列化消息头
@@ -72,11 +71,10 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
         ACE_OS::memset(buf, 0, 2048);
         revLength = 0;
         revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgBodyLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>revLength:%d\n", revLength));
         if (revLength <= 0)
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!\n"));
-            return 0;
+            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+            return 1;
         }
 
         //序列化消息体
@@ -114,14 +112,10 @@ void iMapConnectorHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
     //序列化消息体
     string strMsgBody = pCmdMsg->serializeBody();
     pCmdMsg->SetMsgBodyLength(strMsgBody.size());
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendCmdMsgToServer>>strMsgBody.size:%d\n", strMsgBody.size()));
-
     //序列化消息头
     string strMsgHeader = pCmdMsg->serializeHeader();
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendExternalCmdMsg>>strMsgHeader.size:%d\n", strMsgHeader.size()));
 
     string strMsg = strMsgHeader + strMsgBody;
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendExternalCmdMsg>>strMsg.size:%d\n", strMsg.size()));
     int recv_cnt = this->m_socketPeer.send_n(strMsg.c_str(), strMsg.size());
 
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendExternalCmdMsg>>end.errno:%d\n", errno));

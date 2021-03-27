@@ -1,98 +1,188 @@
-#include "iMapMsgService.h"
+Ôªø#include "iMapMsgService.h"
 
-int iMapMsgService::open(void*)
+map<int, ACE_SOCK_Stream> iMapMsgService::m_nProcMapSocket;
+ACE_Thread_Mutex iMapMsgService::m_mapMutex;
+
+iMapMsgService::iMapMsgService()
 {
-    //◊¢≤·∂¡æÕ–˜ªÿµ˜∫Ø ˝
-    activate();
-    return this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK);
+
 }
 
-int iMapMsgService::close(u_long)
+iMapMsgService::~iMapMsgService()
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::svc>>\n"));
+
+}
+
+int iMapMsgService::open(void *p)
+{
+    
+    if (ACE_Svc_Handler::open(p) == -1)
+    {
+        return -1;
+    }
+
+    ACE_TCHAR peer_name[512];
+    ACE_INET_Addr peer_addr;
+    if (this->peer().get_remote_addr(peer_addr) == 0
+        && peer_addr.addr_to_string(peer_name, 512) == 0)
+    {
+        cout << "connection¬†from:" << peer_name << endl;
+    }
+
     return 0;
-}
-
-int iMapMsgService::svc(void)
-{
-    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::svc>>\n"));
-    return 0;
-}
-
-ACE_SOCK_Stream& iMapMsgService::peer()
-{
-    return this->m_sockStream;
-}
-
-ACE_HANDLE iMapMsgService::get_handle(void) const
-{ 
-    return this->m_sockStream.get_handle();
 }
 
 int iMapMsgService::handle_input(ACE_HANDLE fd)
 {
-    while (true)
+    //ÂÆö‰πâ‰∏Ä‰∏™Ê∂àÊÅØ
+    iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
+
+    //‰ªéÂÜÖÊ†∏ÁºìÂ≠òÂå∫ËØªÂèñÊ∂àÊÅØÂ§¥
+    char buf[2048] = { 0 };
+    int revLength = peer().recv(buf, pCmdMsg->GetMsgHeaderLength());
+    if (revLength <= 0)
     {
-        //∂®“Â“ª∏ˆœ˚œ¢
-        iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
-
-        //¥”ƒ⁄∫Àª∫¥Ê«¯∂¡»°œ˚œ¢Õ∑
-        char buf[2048] = { 0 };
-        int revLength = peer().recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-        if (revLength <= 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
-            return -1;
-        }
-
-        //–Ú¡–ªØœ˚œ¢Õ∑
-        string strMsgHeader(buf, revLength);
-        pCmdMsg->deserializeHeader(strMsgHeader);
-
-        //¥”ƒ⁄∫Àª∫¥Ê«¯∂¡»°œ˚œ¢ÃÂ
-        ACE_OS::memset(buf, 0, 2048);
-        revLength = 0;
-        revLength = peer().recv_n(buf, pCmdMsg->GetMsgBodyLength());
-        if (revLength <= 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
-            return -1;
-        }
-
-        //–Ú¡–ªØœ˚œ¢ÃÂ
-        string strMsgBody(buf, revLength);
-        pCmdMsg->deserializeBody(strMsgBody);
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>nMsgID:%d, nMsgType:%d\n", pCmdMsg->GetMsgID(), pCmdMsg->GetMsgType()));
-
-        delete pCmdMsg;
-        pCmdMsg = NULL;
-
-        //‘≠—˘∑¢ÀÕªÿ»•
-        /*string strMsg = strMsgHeader + strMsgBody;
-        int nSend = peer().send_n(strMsg.c_str(), strMsg.size());
-        if (nSend < 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>send fail!\n"));
-            return -1;
-        }*/
-        
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        return -1;
     }
 
-    
+    //Â∫èÂàóÂåñÊ∂àÊÅØÂ§¥
+    string strMsgHeader(buf, revLength);
+    pCmdMsg->deserializeHeader(strMsgHeader);
 
-    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>send success!\n"));
+    //‰ªéÂÜÖÊ†∏ÁºìÂ≠òÂå∫ËØªÂèñÊ∂àÊÅØ‰Ωì
+    ACE_OS::memset(buf, 0, 2048);
+    revLength = 0;
+    revLength = peer().recv(buf, pCmdMsg->GetMsgBodyLength());
+    if (revLength <= 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!revLength:%d\n", revLength));
+        return -1;
+    }
+
+    //Â∫èÂàóÂåñÊ∂àÊÅØ‰Ωì
+    string strMsgBody(buf, revLength);
+    pCmdMsg->deserializeBody(strMsgBody);
+    
+    int nLength = pCmdMsg->GetMsgLength();
+    ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
+    mb->copy((char*)pCmdMsg, nLength);
+
+    int IsQueueEmpty = this->msg_queue()->is_empty();
+    ACE_Time_Value nowait(ACE_OS::gettimeofday());
+    if (this->putq(mb, &nowait) == -1)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::SendCmdMsgToQueue>>enqueue failed"));
+        mb->release();
+        return 0;
+    }
+
+    if (IsQueueEmpty)
+    {
+        return this->reactor()->register_handler(this, ACE_Event_Handler::WRITE_MASK);
+    }
 
     return 0;
 }
 
-//  Õ∑≈œ‡”¶◊ ‘¥
-int iMapMsgService::handle_close(ACE_HANDLE, ACE_Reactor_Mask mask)
+int iMapMsgService::handle_output(ACE_HANDLE fd)
+{
+    ACE_Guard<ACE_Thread_Mutex> guard(m_mapMutex);
+    ACE_Message_Block* pMsgBlock = NULL;
+    ACE_Time_Value nowait(ACE_OS::gettimeofday());
+    while (this->getq(pMsgBlock, &nowait) != -1)
+    {
+        if (pMsgBlock->msg_type() == ACE_Message_Block::MB_STOP)
+        {
+            pMsgBlock->release();
+            break;
+        }
+
+        iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)pMsgBlock->base();
+        int nLength = pMsgBlock->length();
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgService::handle_output>>nMrbCmdMsg:%d, this->msg_queue.size:%d\n", pCmdMsg->GetMrbCmdMsg(), this->msg_queue()->message_count()));
+        if (pCmdMsg->GetMrbCmdMsg() == CMD_MSG_SERVICE_REGISTER)
+        {
+            m_nProcMapSocket.insert(map<int, ACE_SOCK_Stream>::value_type(pCmdMsg->GetSendProc(), peer()));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgService::handle_output>>m_nProcMapSocket.size:%d\n", m_nProcMapSocket.size()));
+        }
+        else
+        {
+            //ËΩ¨ÂèëÂà∞ÂÖ∂‰ªñËøõÁ®ã
+            SendCmdMsgToProc(pCmdMsg);
+        }
+
+        //ÈáäÊîæblock
+        pMsgBlock->release();
+        pMsgBlock = NULL;
+
+    }
+
+    return (this->msg_queue()->is_empty()) ? -1 : 0;
+}
+
+// ÈáäÊîæÁõ∏Â∫îËµÑÊ∫ê
+int iMapMsgService::handle_close(ACE_HANDLE handle, ACE_Reactor_Mask mask)
 {
     if (mask == ACE_Event_Handler::WRITE_MASK)
         return 0;
-    mask = ACE_Event_Handler::ALL_EVENTS_MASK | ACE_Event_Handler::DONT_CALL;
-    this->reactor()->remove_handler(this, mask);
-    this->m_sockStream.close();
-    delete this;    //socket≥ˆ¥Ì ±£¨Ω´◊‘∂Ø…æ≥˝∏√øÕªß∂À£¨ Õ∑≈œ‡”¶◊ ‘¥
+    return ACE_Svc_Handler::handle_close(handle, mask);
+}
+
+int iMapMsgService::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
+{
+    int nLength = pCmdMsg->GetMsgLength();
+    ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
+    mb->copy((char*)pCmdMsg, nLength);
+
+    int IsQueueEmpty = this->msg_queue()->is_empty();
+    ACE_Time_Value nowait(ACE_OS::gettimeofday());
+    if (this->putq(mb, &nowait) == -1)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::SendCmdMsgToQueue>>enqueue failed"));
+        mb->release();
+        return 0;
+    }
+
+    if (IsQueueEmpty)
+    {
+        return this->reactor()->register_handler(this, ACE_Event_Handler::WRITE_MASK);
+    }
+
+    return 0;
+}
+
+int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg)
+{
+    map<int, ACE_SOCK_Stream>::iterator iter = m_nProcMapSocket.find(pCmdMsg->GetRecvProc());
+    pCmdMsg->display("iMapMsgService::SendCmdMsgToProc");
+    if (iter != m_nProcMapSocket.end())
+    {
+        //Â∫èÂàóÂåñÊ∂àÊÅØ‰Ωì
+        string strMsgBody = pCmdMsg->serializeBody();
+        pCmdMsg->SetMsgBodyLength(strMsgBody.size());
+        
+        //Â∫èÂàóÂåñÊ∂àÊÅØÂ§¥
+        string strMsgHeader = pCmdMsg->serializeHeader();
+
+        string strMsg = strMsgHeader + strMsgBody;
+        int recv_cnt = iter->second.send(strMsg.c_str(), strMsg.size());
+        if (recv_cnt <= 0)
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>recv_cnt:%d, strMsg.size:%d, errno:%d\n", recv_cnt, strMsg.size(), errno));
+            return -1;
+        }
+
+        ACE_TCHAR peer_name[512];
+        ACE_INET_Addr peer_addr;
+        if (iter->second.get_remote_addr(peer_addr) == 0
+            && peer_addr.addr_to_string(peer_name, 512) == 0)
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>peer_name:%s\n", peer_name));
+        }
+
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>recv_cnt:%d, strMsg.size:%d, errno:%d\n", recv_cnt, strMsg.size(), errno));
+    }
+
     return 0;
 }

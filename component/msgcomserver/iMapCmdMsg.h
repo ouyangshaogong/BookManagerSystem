@@ -32,6 +32,12 @@ public:
     void SetMsgType(int nMsgType);
     int GetMsgType();
 
+    void SetSendProc(int nSendProc);
+    int GetSendProc();
+
+    void SetRecvProc(int nRecvProc);
+    int GetRecvProc();
+
     void SetMsgBodyLength(int nLength);
     int GetMsgBodyLength();
 
@@ -47,7 +53,7 @@ public:
     std::string serializeHeader()
     {
         OutStream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength << m_nMsgLength;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgBodyLength << m_nMsgLength;
         m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
@@ -55,7 +61,7 @@ public:
     int deserializeHeader(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength >> m_nMsgLength;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgBodyLength >> m_nMsgLength;
         return is.size();
     }
 
@@ -82,7 +88,8 @@ public:
 
     void display(string strFunc)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", strFunc.c_str(), m_nMsgType, m_nMsgBodyLength, m_strBody->c_str()));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_nMrbCmdMsg:%d, m_nSendProc:%d, m_nRecvProc:%d, m_strBody:%s\n",
+            strFunc.c_str(), m_nMsgID, m_nMsgType, m_nMsgBodyLength, m_nMrbCmdMsg, m_nSendProc, m_nRecvProc, m_strBody->c_str()));
     }
 
 private:
@@ -91,6 +98,8 @@ private:
     int m_nMsgID;
     int m_nMrbCmdMsg;
     int m_nMsgType;
+    int m_nSendProc;
+    int m_nRecvProc;
     //字符长度
     int m_nMsgLength;
     //序列化后的长度
