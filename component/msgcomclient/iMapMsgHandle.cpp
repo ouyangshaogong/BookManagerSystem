@@ -109,7 +109,6 @@ void iMapMsgHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
 
 void iMapMsgHandle::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
 {
-    
     int nLength = pCmdMsg->GetMsgLength();
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToQueue>>nLength:%d\n", nLength));
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);

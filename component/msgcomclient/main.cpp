@@ -9,7 +9,8 @@ ACE_THR_FUNC_RETURN Work(void *arg)
 {
     ACE_OS::sleep(3);
     iMapMsgHandle *pCmdHandle = (iMapMsgHandle*)arg;
-    for (int i = 0; i < 10; i++)
+    int i = 0;
+    for (; i < 10; i++)
     {
         iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
         

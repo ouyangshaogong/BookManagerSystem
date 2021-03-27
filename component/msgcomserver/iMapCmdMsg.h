@@ -11,7 +11,7 @@ using namespace std;
 #define END_MSG_TYPE 300
 
 
-class iMapCmdMsg  //:
+class iMapCmdMsg
 {
 public:
     iMapCmdMsg();
@@ -41,41 +41,48 @@ public:
     void SetMsgLength(int nMsgLength);
     int GetMsgLength();
 
-    void SetBody(string strBody);
+    void SetBody(string &strBody);
     string GetBody();
 
-    virtual std::string serializeHeader()
+    std::string serializeHeader()
     {
         OutStream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength << m_nMsgLength;
         m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
 
-    virtual int deserializeHeader(std::string &str)
+    int deserializeHeader(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength >> m_nMsgLength;
         return is.size();
     }
 
-    virtual std::string serializeBody()
+    std::string serializeBody()
     {
         OutStream os;
-        os << m_strBody;
+        os << *m_strBody;
         return os.str();
     }
 
-    virtual int deserializeBody(std::string &str)
+    int deserializeBody(std::string &str)
     {
         InStream is(str);
-        is >> m_strBody;
+
+        string strBody;
+        is >> strBody;
+        if (m_strBody == NULL)
+        {
+            m_strBody = new string(strBody);
+        }
+
         return is.size();
     }
 
     void display(string strFunc)
     {
-        //ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", strFunc.c_str(), m_nMsgType, m_nMsgBodyLength, m_strBody.c_str()));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", strFunc.c_str(), m_nMsgType, m_nMsgBodyLength, m_strBody->c_str()));
     }
 
 private:
@@ -89,7 +96,7 @@ private:
     //序列化后的长度
     int m_nMsgHeaderLength;
     int m_nMsgBodyLength;
-    string m_strBody;
+    string *m_strBody;
 };
 
 #endif

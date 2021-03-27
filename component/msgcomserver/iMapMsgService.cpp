@@ -50,7 +50,7 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         }
 
         //序列化消息体
-        string strMsgBody(buf, revLength + 1);
+        string strMsgBody(buf, revLength);
         pCmdMsg->deserializeBody(strMsgBody);
 
         delete pCmdMsg;

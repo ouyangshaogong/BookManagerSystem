@@ -66,7 +66,7 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
 
         //序列化消息头
         string strMsgHeader(buf, revLength);
-        //pCmdMsg->deserializeHeader(strMsgHeader);
+        pCmdMsg->deserializeHeader(strMsgHeader);
 
         //从内核缓存区读取消息体
         ACE_OS::memset(buf, 0, 2048);
@@ -80,8 +80,13 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
         }
 
         //序列化消息体
-        string strMsgBody(buf, revLength + 1);
-        //pCmdMsg->deserializeBody(strMsgBody);
+        string strMsgBody(buf, revLength);
+        pCmdMsg->deserializeBody(strMsgBody);
+
+        if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
+        {
+            return -1;
+        }
 
         this->SendCmdMsgToQueue(pCmdMsg);
         pCmdMsg->display("iMapConnectorHandle::handle_input");

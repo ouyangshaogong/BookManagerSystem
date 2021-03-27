@@ -47,7 +47,7 @@ public:
     std::string serializeHeader()
     {
         OutStream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength << m_nMsgLength;
         m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
@@ -55,7 +55,7 @@ public:
     int deserializeHeader(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength >> m_nMsgLength;
         return is.size();
     }
 
@@ -69,7 +69,14 @@ public:
     int deserializeBody(std::string &str)
     {
         InStream is(str);
-        is >> *m_strBody;
+
+        string strBody;
+        is >> strBody;
+        if (m_strBody == NULL)
+        {
+            m_strBody = new string(strBody);
+        }
+
         return is.size();
     }
 

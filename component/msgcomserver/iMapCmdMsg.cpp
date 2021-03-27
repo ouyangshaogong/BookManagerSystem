@@ -9,13 +9,18 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgType = 0;
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
-    m_strBody = "";
+    m_strBody = NULL;
 
     serializeHeader();
 }
 
 iMapCmdMsg::~iMapCmdMsg()
 {
+    if (m_strBody != NULL)
+    {
+        delete m_strBody;
+        m_strBody = NULL;
+    }
 }
 
 void iMapCmdMsg::SetMagicNum(int nMagicNum)
@@ -98,12 +103,21 @@ int iMapCmdMsg::GetMsgLength()
     return m_nMsgLength;
 }
 
-void iMapCmdMsg::SetBody(string strBody)
+void iMapCmdMsg::SetBody(string &strBody)
 {
-    m_strBody = strBody;
+    if (m_strBody == NULL)
+    {
+        m_strBody = new string(strBody);
+    }
+
 }
 
 string iMapCmdMsg::GetBody()
 {
-    return m_strBody;
+    if (m_strBody == NULL)
+    {
+        return "";
+    }
+
+    return *m_strBody;
 }
