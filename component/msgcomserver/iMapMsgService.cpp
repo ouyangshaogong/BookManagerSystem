@@ -1,9 +1,22 @@
 #include "iMapMsgService.h"
 
-int iMapMsgService::open(void)
+int iMapMsgService::open(void*)
 {
     //注册读就绪回调函数
+    activate();
     return this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK);
+}
+
+int iMapMsgService::close(u_long)
+{
+    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::svc>>\n"));
+    return 0;
+}
+
+int iMapMsgService::svc(void)
+{
+    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::svc>>\n"));
+    return 0;
 }
 
 ACE_SOCK_Stream& iMapMsgService::peer()
@@ -26,7 +39,6 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         //从内核缓存区读取消息头
         char buf[2048] = { 0 };
         int revLength = peer().recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>HeaderLength:%d\n", revLength));
         if (revLength <= 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
@@ -36,13 +48,11 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         //序列化消息头
         string strMsgHeader(buf, revLength);
         pCmdMsg->deserializeHeader(strMsgHeader);
-        pCmdMsg->SetMsgType(RESPONSE_MSG_TYPE);
 
         //从内核缓存区读取消息体
         ACE_OS::memset(buf, 0, 2048);
         revLength = 0;
         revLength = peer().recv_n(buf, pCmdMsg->GetMsgBodyLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>BodyLength:%d\n", revLength));
         if (revLength <= 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
@@ -52,19 +62,20 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         //序列化消息体
         string strMsgBody(buf, revLength);
         pCmdMsg->deserializeBody(strMsgBody);
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>nMsgID:%d, nMsgType:%d\n", pCmdMsg->GetMsgID(), pCmdMsg->GetMsgType()));
 
         delete pCmdMsg;
         pCmdMsg = NULL;
 
         //原样发送回去
-        string strMsg = strMsgHeader + strMsgBody;
+        /*string strMsg = strMsgHeader + strMsgBody;
         int nSend = peer().send_n(strMsg.c_str(), strMsg.size());
         if (nSend < 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>send fail!\n"));
             return -1;
-        }
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>nSend:%d\n", nSend));
+        }*/
+        
     }
 
     
