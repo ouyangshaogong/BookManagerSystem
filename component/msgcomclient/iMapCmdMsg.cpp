@@ -9,13 +9,18 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgType = 0;
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
-    m_strBody = "";
-    string str = serializeHeader();
-    m_nMsgHeaderLength = str.size();
+    m_strBody = NULL;
+
+    serializeHeader();
 }
 
 iMapCmdMsg::~iMapCmdMsg()
 {
+    if (m_strBody != NULL)
+    {
+        delete m_strBody;
+        m_strBody = NULL;
+    }
 }
 
 void iMapCmdMsg::SetMagicNum(int nMagicNum)
@@ -83,12 +88,36 @@ int iMapCmdMsg::GetMsgHeaderLength()
     return m_nMsgHeaderLength;
 }
 
-void iMapCmdMsg::SetBody(string strBody)
+void iMapCmdMsg::SetMsgHeaderLength(int nMsgHeaderLength)
 {
-    m_strBody = strBody;
+    m_nMsgHeaderLength = nMsgHeaderLength;
+}
+
+void iMapCmdMsg::SetMsgLength(int nMsgLength)
+{
+    m_nMsgLength = nMsgLength;
+}
+
+int iMapCmdMsg::GetMsgLength()
+{
+    return m_nMsgLength;
+}
+
+void iMapCmdMsg::SetBody(string &strBody)
+{
+    if (m_strBody == NULL)
+    {
+        m_strBody = new string(strBody);
+    }
+   
 }
 
 string iMapCmdMsg::GetBody()
 {
-    return m_strBody;
+    if (m_strBody == NULL)
+    {
+        return "";
+    }
+
+    return *m_strBody;
 }

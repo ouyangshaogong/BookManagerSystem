@@ -26,7 +26,7 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         //从内核缓存区读取消息头
         char buf[2048] = { 0 };
         int revLength = peer().recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>revLength:%d\n", revLength));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>HeaderLength:%d\n", revLength));
         if (revLength <= 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
@@ -37,13 +37,12 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         string strMsgHeader(buf, revLength);
         pCmdMsg->deserializeHeader(strMsgHeader);
         pCmdMsg->SetMsgType(RESPONSE_MSG_TYPE);
-        pCmdMsg->display();
 
         //从内核缓存区读取消息体
         ACE_OS::memset(buf, 0, 2048);
         revLength = 0;
         revLength = peer().recv_n(buf, pCmdMsg->GetMsgBodyLength());
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>revLength:%d\n", revLength));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>BodyLength:%d\n", revLength));
         if (revLength <= 0)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!\n"));
@@ -53,7 +52,6 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
         //序列化消息体
         string strMsgBody(buf, revLength + 1);
         pCmdMsg->deserializeBody(strMsgBody);
-        //pCmdMsg->display();
 
         delete pCmdMsg;
         pCmdMsg = NULL;

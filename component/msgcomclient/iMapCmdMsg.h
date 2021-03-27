@@ -11,7 +11,7 @@ using namespace std;
 #define END_MSG_TYPE 300
 
 
-class iMapCmdMsg  //:
+class iMapCmdMsg
 {
 public:
     iMapCmdMsg();
@@ -35,12 +35,16 @@ public:
     void SetMsgBodyLength(int nLength);
     int GetMsgBodyLength();
 
+    void SetMsgHeaderLength(int nMsgHeaderLength);
     int GetMsgHeaderLength();
 
-    void SetBody(string strBody);
+    void SetMsgLength(int nMsgLength);
+    int GetMsgLength();
+
+    void SetBody(string &strBody);
     string GetBody();
 
-    virtual std::string serializeHeader()
+    std::string serializeHeader()
     {
         OutStream os;
         os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength;
@@ -48,24 +52,24 @@ public:
         return os.str();
     }
 
-    virtual int deserializeHeader(std::string &str)
+    int deserializeHeader(std::string &str)
     {
         InStream is(str);
         is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nMsgBodyLength;
         return is.size();
     }
 
-    virtual std::string serializeBody()
+    std::string serializeBody()
     {
         OutStream os;
-        os << m_strBody;
+        os << *m_strBody;
         return os.str();
     }
 
-    virtual int deserializeBody(std::string &str)
+    int deserializeBody(std::string &str)
     {
         InStream is(str);
-        is >> m_strBody;
+        is >> *m_strBody;
         return is.size();
     }
 
@@ -80,11 +84,12 @@ private:
     int m_nMsgID;
     int m_nMrbCmdMsg;
     int m_nMsgType;
+    //字符长度
+    int m_nMsgLength;
+    //序列化后的长度
     int m_nMsgHeaderLength;
     int m_nMsgBodyLength;
-
-    int m_nSize;
-    string m_strBody;
+    string *m_strBody;
 };
 
 #endif

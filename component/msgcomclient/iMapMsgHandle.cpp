@@ -4,10 +4,9 @@
 iMapMsgHandle *iMapMsgHandle::m_instance = NULL;
 ACE_Thread_Mutex iMapMsgHandle::m_mutex;
 
-extern ACE_Thread_Mutex g_mqMutex;
-extern iMapMsgQueue g_MQ;
+#define MAX_HIGHT_WATER 10000
 
-iMapMsgHandle::iMapMsgHandle()
+iMapMsgHandle::iMapMsgHandle():m_bRunning(true)
 {
 }
 
@@ -34,12 +33,14 @@ iMapMsgHandle* iMapMsgHandle::Instance()
     return m_instance;
 }
 
-int iMapMsgHandle::open()
+int iMapMsgHandle::open(iMapConnectorHandle *pConnectorHandle)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::open>>\n"));
-    m_connectorHandle.open();
+    m_pConnectorHandle = pConnectorHandle;
+    //启动线程
     activate();
-
+    //设置消息队列的最大索引
+    msg_queue_->high_water_mark(MAX_HIGHT_WATER);
     return 0;
 }
 
@@ -54,37 +55,12 @@ int iMapMsgHandle::close(u_long)
 int iMapMsgHandle::svc(void)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>begin\n"));
-    ACE_Message_Block *mb = 0;
-    while (this->getq(mb) != -1)
+
+    //ACE_Guard<ACE_Thread_Mutex> guard(m_mqMutex);
+    ACE_Message_Block* pMsgBlock = NULL;
+    while (true)
     {
-        if (mb->msg_type() == ACE_Message_Block::MB_HANGUP)
-        {
-            mb->release();
-            break;
-        }
-
-        iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)mb->base();
-        int nlength = mb->length();
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>nlength:%d, MsgType:%d, MsgID:%d\n", nlength, pCmdMsg->GetMsgType(), pCmdMsg->GetMsgID()));
-
-        delete pCmdMsg;
-        pCmdMsg = NULL;
-
-        mb->release();
-    }
-
-    return 0;
-}
-
-
-ACE_THR_FUNC_RETURN iMapMsgHandle::StartMsgLoop()
-{
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::StartMsgLoop>>begin\n"));
-    while (m_bRunning)
-    {
-        ACE_Guard<ACE_Thread_Mutex> guard(g_mqMutex);
-        ACE_Message_Block* pMsgBlock = NULL;
-        if (-1 == g_MQ.dequeue(pMsgBlock))
+        if (this->getq(pMsgBlock) == -1)
         {
             continue;
         }
@@ -94,49 +70,57 @@ ACE_THR_FUNC_RETURN iMapMsgHandle::StartMsgLoop()
             continue;
         }
 
+        if (pMsgBlock->msg_type() == ACE_Message_Block::MB_STOP)
+        {
+            pMsgBlock->release();
+            m_bRunning = false;
+            break;
+        }
+
         iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)pMsgBlock->base();
-        cout << "iMapMsgHandle::StartMsgLoop>>pCmdMsg:" << pCmdMsg << endl;
         int nLength = pMsgBlock->length();
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>nLength:%d, MsgType:%d\n", nLength, pCmdMsg->GetMsgID()));
         if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE)
         {
-            SendExternalCmdMsg(pCmdMsg);
+            SendCmdMsgToServer(pCmdMsg);
         }
         else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE)
         {
-            SendInternalCmdMsg(pCmdMsg);
-        }
-        else if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
-        {
-            m_bRunning = false;
+            SendCmdMsgToQueue(pCmdMsg);
         }
         else
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::StartMsgLoop>>MsgType Is Error!\n"));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>MsgType Is Error!\n"));
         }
 
         //释放block
-        delete pMsgBlock;
+        pMsgBlock->release();
         pMsgBlock = NULL;
 
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::StartMsgLoop>>message_bytes:%d\n", g_MQ.message_bytes()));
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::StartMsgLoop>>message_length:%d\n", g_MQ.message_length()));
-
-        ACE_OS::sleep(2);
     }
 
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::StartMsgLoop>>end\n"));
+    return 0;
 }
 
-void iMapMsgHandle::SendExternalCmdMsg(iMapCmdMsg *pCmdMsg)
+void iMapMsgHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
 {
-    m_connectorHandle.SendExternalCmdMsg(pCmdMsg);
+    m_pConnectorHandle->SendCmdMsgToServer(pCmdMsg);
 }
 
-void iMapMsgHandle::SendInternalCmdMsg(iMapCmdMsg *pCmdMsg)
+void iMapMsgHandle::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendInternalCmdMsg>>begin\n"));
-    int nLength = pCmdMsg->GetMsgHeaderLength() + pCmdMsg->GetBody().size();
+    
+    int nLength = pCmdMsg->GetMsgLength();
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToQueue>>nLength:%d\n", nLength));
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
-    this->putq(mb);
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendInternalCmdMsg>>end\n"));
+    mb->copy((char*)pCmdMsg, nLength);
+    if (!msg_queue_->is_full())
+    {
+        this->putq(mb);
+    }
+    else
+    {
+        mb->release();
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToQueue>>msg_queue is full!\n"));
+    }
 }

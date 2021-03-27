@@ -1,19 +1,17 @@
 #ifndef __MAP_CMD_MSG__
 #define __MAP_CMD_MSG__
 
-
-#include <string>
 #include "serialize.h"
-#include "ace/Log_Msg.h"
+#include "commonace.h"
 
 using namespace std;
 
-#define REQUEST_MSG_TYPE 0
-#define RESPONSE_MSG_TYPE 1
-#define END_MSG_TYPE 100
+#define REQUEST_MSG_TYPE 200
+#define RESPONSE_MSG_TYPE 201
+#define END_MSG_TYPE 300
 
 
-class iMapCmdMsg //: public Serializable
+class iMapCmdMsg  //:
 {
 public:
     iMapCmdMsg();
@@ -37,7 +35,11 @@ public:
     void SetMsgBodyLength(int nLength);
     int GetMsgBodyLength();
 
+    void SetMsgHeaderLength(int nMsgHeaderLength);
     int GetMsgHeaderLength();
+
+    void SetMsgLength(int nMsgLength);
+    int GetMsgLength();
 
     void SetBody(string strBody);
     string GetBody();
@@ -46,6 +48,7 @@ public:
     {
         OutStream os;
         os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nMsgBodyLength;
+        m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
 
@@ -70,9 +73,9 @@ public:
         return is.size();
     }
 
-    void display()
+    void display(string strFunc)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapCmdMsg::display>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", m_nMsgID, m_nMsgType, m_nMsgBodyLength, m_strBody.c_str()));
+        //ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", strFunc.c_str(), m_nMsgType, m_nMsgBodyLength, m_strBody.c_str()));
     }
 
 private:
@@ -81,6 +84,9 @@ private:
     int m_nMsgID;
     int m_nMrbCmdMsg;
     int m_nMsgType;
+    //字符长度
+    int m_nMsgLength;
+    //序列化后的长度
     int m_nMsgHeaderLength;
     int m_nMsgBodyLength;
     string m_strBody;

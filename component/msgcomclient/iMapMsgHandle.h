@@ -3,7 +3,6 @@
 
 #include "commonace.h"
 #include "iMapCmdMsg.h"
-#include "iMapMsgQueue.h"
 #include "iMapConnectorHandle.h"
 
 using namespace std;
@@ -15,17 +14,15 @@ public:
     static iMapMsgHandle *Instance();
     virtual ~iMapMsgHandle();
 
-    virtual int open();
+    virtual int open(iMapConnectorHandle *pConnectorHandle);
 
     int close(u_long);
 
     int svc(void);
 
-    void SendInternalCmdMsg(iMapCmdMsg *pCmdMsg);
+    void SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
 
-    void SendExternalCmdMsg(iMapCmdMsg *pCmdMsg);
-
-     ACE_THR_FUNC_RETURN StartMsgLoop();
+    void SendCmdMsgToServer(iMapCmdMsg *pCmdMsg);
 
 private:
     iMapMsgHandle();
@@ -33,7 +30,9 @@ private:
 private:
     static iMapMsgHandle *m_instance;
     static ACE_Thread_Mutex m_mutex;
-    iMapConnectorHandle m_connectorHandle;
+    iMapConnectorHandle *m_pConnectorHandle;
+
+    ACE_Thread_Mutex m_mqMutex;
     bool m_bRunning;
 };
 

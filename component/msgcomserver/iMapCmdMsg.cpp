@@ -10,13 +10,12 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
     m_strBody = "";
-    string str = serializeHeader();
-    m_nMsgHeaderLength = str.size();
+
+    serializeHeader();
 }
 
 iMapCmdMsg::~iMapCmdMsg()
 {
-
 }
 
 void iMapCmdMsg::SetMagicNum(int nMagicNum)
@@ -82,6 +81,21 @@ int iMapCmdMsg::GetMsgBodyLength()
 int iMapCmdMsg::GetMsgHeaderLength()
 {
     return m_nMsgHeaderLength;
+}
+
+void iMapCmdMsg::SetMsgHeaderLength(int nMsgHeaderLength)
+{
+    m_nMsgHeaderLength = nMsgHeaderLength;
+}
+
+void iMapCmdMsg::SetMsgLength(int nMsgLength)
+{
+    m_nMsgLength = nMsgLength;
+}
+
+int iMapCmdMsg::GetMsgLength()
+{
+    return m_nMsgLength;
 }
 
 void iMapCmdMsg::SetBody(string strBody)
