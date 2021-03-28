@@ -10,6 +10,9 @@ using namespace std;
 #define RESPONSE_MSG_TYPE 201
 #define END_MSG_TYPE 300
 
+const int SEND_PROC_ID = 50;
+const int RECV_PROC_ID = 51;
+
 
 class iMapCmdMsg
 {
@@ -88,7 +91,8 @@ public:
 
     void display(string strFunc)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_strBody:%s\n", strFunc.c_str(), m_nMsgType, m_nMsgBodyLength, m_strBody->c_str()));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)%s>>m_nMsgID:%d, m_nMsgType:%d, m_nMsgBodyLength:%d, m_nMrbCmdMsg:%d, m_nSendProc:%d, m_nRecvProc:%d, m_strBody:%s\n",
+            strFunc.c_str(), m_nMsgID, m_nMsgType, m_nMsgBodyLength, m_nMrbCmdMsg, m_nSendProc, m_nRecvProc, m_strBody->c_str()));
     }
 
 private:

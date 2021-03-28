@@ -26,7 +26,7 @@ int iMapMsgService::open(void *p)
     if (this->peer().get_remote_addr(peer_addr) == 0
         && peer_addr.addr_to_string(peer_name, 512) == 0)
     {
-        cout << "connection from:" << peer_name << endl;
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::open>>connection success.peer_name:%s\n", peer_name));
     }
 
     return 0;
@@ -56,7 +56,7 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
     revLength = peer().recv(buf, pCmdMsg->GetMsgBodyLength());
     if (revLength <= 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!revLength:%d\n", revLength));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
         return -1;
     }
 
@@ -68,21 +68,7 @@ int iMapMsgService::handle_input(ACE_HANDLE fd)
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
     mb->copy((char*)pCmdMsg, nLength);
 
-    int IsQueueEmpty = this->msg_queue()->is_empty();
-    ACE_Time_Value nowait(ACE_OS::gettimeofday());
-    if (this->putq(mb, &nowait) == -1)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::SendCmdMsgToQueue>>enqueue failed"));
-        mb->release();
-        return 0;
-    }
-
-    if (IsQueueEmpty)
-    {
-        return this->reactor()->register_handler(this, ACE_Event_Handler::WRITE_MASK);
-    }
-
-    return 0;
+    return SendCmdMsgToQueue(pCmdMsg);
 }
 
 int iMapMsgService::handle_output(ACE_HANDLE fd)
@@ -100,7 +86,7 @@ int iMapMsgService::handle_output(ACE_HANDLE fd)
 
         iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)pMsgBlock->base();
         int nLength = pMsgBlock->length();
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgService::handle_output>>nMrbCmdMsg:%d, this->msg_queue.size:%d\n", pCmdMsg->GetMrbCmdMsg(), this->msg_queue()->message_count()));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_output>>nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pCmdMsg->GetSendProc(), pCmdMsg->GetRecvProc(), pCmdMsg->GetMrbCmdMsg()));
         if (pCmdMsg->GetMrbCmdMsg() == CMD_MSG_SERVICE_REGISTER)
         {
             m_nProcMapSocket.insert(map<int, ACE_SOCK_Stream>::value_type(pCmdMsg->GetSendProc(), peer()));
@@ -109,7 +95,18 @@ int iMapMsgService::handle_output(ACE_HANDLE fd)
         else
         {
             //转发到其他进程
-            SendCmdMsgToProc(pCmdMsg);
+            if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE)
+            {
+                SendCmdMsgToProc(pCmdMsg);
+            }
+            else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE)
+            {
+                int nProcID = pCmdMsg->GetRecvProc();
+                pCmdMsg->SetRecvProc(pCmdMsg->GetSendProc());
+                pCmdMsg->SetSendProc(nProcID);
+                SendCmdMsgToProc(pCmdMsg);
+            }
+            
         }
 
         //释放block
@@ -155,7 +152,6 @@ int iMapMsgService::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
 int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg)
 {
     map<int, ACE_SOCK_Stream>::iterator iter = m_nProcMapSocket.find(pCmdMsg->GetRecvProc());
-    pCmdMsg->display("iMapMsgService::SendCmdMsgToProc");
     if (iter != m_nProcMapSocket.end())
     {
         //序列化消息体
@@ -171,14 +167,6 @@ int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg)
         {
             ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>recv_cnt:%d, strMsg.size:%d, errno:%d\n", recv_cnt, strMsg.size(), errno));
             return -1;
-        }
-
-        ACE_TCHAR peer_name[512];
-        ACE_INET_Addr peer_addr;
-        if (iter->second.get_remote_addr(peer_addr) == 0
-            && peer_addr.addr_to_string(peer_name, 512) == 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>peer_name:%s\n", peer_name));
         }
 
         ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>recv_cnt:%d, strMsg.size:%d, errno:%d\n", recv_cnt, strMsg.size(), errno));

@@ -52,6 +52,8 @@ int iMapMsgHandle::close(u_long)
     return 0;
 }
 
+
+
 int iMapMsgHandle::svc(void)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>begin\n"));
@@ -79,18 +81,29 @@ int iMapMsgHandle::svc(void)
 
         iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)pMsgBlock->base();
         int nLength = pMsgBlock->length();
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>nLength:%d, MsgType:%d\n", nLength, pCmdMsg->GetMsgID()));
-        if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE)
+        if (pCmdMsg->GetSendProc() == SEND_PROC_ID) //如果是我自己的进程
         {
-            SendCmdMsgToServer(pCmdMsg);
-        }
-        else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE)
-        {
-            SendCmdMsgToQueue(pCmdMsg);
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pCmdMsg->GetSendProc(), pCmdMsg->GetRecvProc(), pCmdMsg->GetMrbCmdMsg()));
+            if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE) //如果是我自己的请求
+            {
+                SendCmdMsgToServer(pCmdMsg);
+            }
+            else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE) //别人对我的响应
+            {
+                pCmdMsg->display("display");
+            }
         }
         else
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>MsgType Is Error!\n"));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pCmdMsg->GetSendProc(), pCmdMsg->GetRecvProc(), pCmdMsg->GetMrbCmdMsg()));
+            iMapCmdMsg *pInCmdMsg = pCmdMsg;
+            iMapCmdMsg *pOutCmdMsg = pCmdMsg;
+            if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE) //如果别人的请求
+            {
+                process(pInCmdMsg, pOutCmdMsg);
+                //处理完以后，会产生一个消息响应，发送到网络
+                SendCmdMsgToServer(pOutCmdMsg);
+            }
         }
 
         //释放block
@@ -100,6 +113,15 @@ int iMapMsgHandle::svc(void)
     }
 
     return 0;
+}
+
+
+void iMapMsgHandle::process(iMapCmdMsg *pInCmdMsg, iMapCmdMsg *pOutCmdMsg)
+{
+    string strOutParam;
+    //service->process(pInCmdMsg->GetMrbCmdMsg(), pInCmdMsg->GetBody(), strOutParam);
+    //设置一系列出参
+    pOutCmdMsg->SetMsgType(RESPONSE_MSG_TYPE);
 }
 
 void iMapMsgHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)

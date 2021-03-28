@@ -7,9 +7,6 @@ using namespace std;
 
 const int CMD_MSG_SERVICE_REGISTER = 1;
 
-const int SEND_PROC_ID = 50;
-const int RECV_PROC_ID = 51;
-
 ACE_THR_FUNC_RETURN Work(void *arg)
 {
     ACE_OS::sleep(5);
@@ -25,13 +22,9 @@ ACE_THR_FUNC_RETURN Work(void *arg)
             pCmdMsg->SetSendProc(SEND_PROC_ID);
             pCmdMsg->SetRecvProc(0);
         }
-        else if (i == 3)
-        {
-            ACE_OS::sleep(6);
-        }
         else
         {
-            pCmdMsg->SetMrbCmdMsg(i + 2);
+            pCmdMsg->SetMrbCmdMsg(i + 1);
             pCmdMsg->SetSendProc(SEND_PROC_ID);
             pCmdMsg->SetRecvProc(RECV_PROC_ID);
         }
@@ -42,6 +35,7 @@ ACE_THR_FUNC_RETURN Work(void *arg)
         string str("test");
         pCmdMsg->SetBody(str);
         pCmdMsg->SetMsgLength(sizeof(iMapCmdMsg) + pCmdMsg->GetBody().length());
+        pCmdMsg->display("display");
         pCmdHandle->SendCmdMsgToQueue(pCmdMsg);
         ACE_OS::sleep(1);
     }
@@ -53,13 +47,13 @@ int ACE_TMAIN(int argc, char* argv[])
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t|)Message Communicate Client Start.......\n"));
     //清除原来的标志，如果不清除在输出到文件到同时也会在console上输出。
-    ACE_LOG_MSG->clr_flags(ACE_Log_Msg::STDERR);
-    ACE_LOG_MSG->set_flags(ACE_Log_Msg::OSTREAM);
+    //ACE_LOG_MSG->clr_flags(ACE_Log_Msg::STDERR);
+    //ACE_LOG_MSG->set_flags(ACE_Log_Msg::OSTREAM);
     //定义文件名，并设置文件句柄
     const char * filename = "iMapMsgClient.log";
     ofstream out(filename, ios::out | ios::trunc);
     //ios::out以写的方式打开，ios::trunc清空文件;
-    ACE_LOG_MSG->msg_ostream(&out);
+    //ACE_LOG_MSG->msg_ostream(&out);
     
     iMapMsgHandle *pCmdHandle = iMapMsgHandle::Instance();
     iMapConnectorHandle m_connectorHandle(pCmdHandle);

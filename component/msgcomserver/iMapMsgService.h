@@ -33,9 +33,6 @@ public:
     int SendCmdMsgToProc(iMapCmdMsg *pCmdMsg);
 
 private:
-    ACE_SOCK_Stream m_sockStream;
-    bool m_bRunning;
-
     static ACE_Thread_Mutex m_mapMutex;
     static map<int, ACE_SOCK_Stream> m_nProcMapSocket;
 };

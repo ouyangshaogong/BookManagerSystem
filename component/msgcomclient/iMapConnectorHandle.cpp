@@ -48,7 +48,6 @@ int iMapConnectorHandle::handle_timeout(const ACE_Time_Value &current_time, cons
 
 int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::handle_input>>begin\n"));
     while (true)
     {
         //定义一个消息
@@ -80,17 +79,14 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
         //序列化消息体
         string strMsgBody(buf, revLength);
         pCmdMsg->deserializeBody(strMsgBody);
-
         if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
         {
             return -1;
         }
 
         this->SendCmdMsgToQueue(pCmdMsg);
-        pCmdMsg->display("iMapConnectorHandle::handle_input");
     }
 
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::handle_input>>end\n"));
     return 0;
 }
 
@@ -117,8 +113,7 @@ void iMapConnectorHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
 
     string strMsg = strMsgHeader + strMsgBody;
     int recv_cnt = this->m_socketPeer.send_n(strMsg.c_str(), strMsg.size());
-
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendExternalCmdMsg>>end.errno:%d\n", errno));
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendCmdMsgToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
 }
 
 

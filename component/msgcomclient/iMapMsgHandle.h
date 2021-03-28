@@ -24,6 +24,8 @@ public:
 
     void SendCmdMsgToServer(iMapCmdMsg *pCmdMsg);
 
+    virtual void process(iMapCmdMsg *pInCmdMsg, iMapCmdMsg *pOutCmdMsg);
+
 private:
     iMapMsgHandle();
 
