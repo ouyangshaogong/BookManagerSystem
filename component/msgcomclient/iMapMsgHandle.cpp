@@ -90,7 +90,7 @@ int iMapMsgHandle::svc(void)
             }
             else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE) //别人对我的响应
             {
-                pCmdMsg->display("display");
+                pCmdMsg->display("display>>recv");
             }
         }
         else

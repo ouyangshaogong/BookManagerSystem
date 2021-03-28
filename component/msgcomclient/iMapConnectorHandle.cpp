@@ -48,44 +48,43 @@ int iMapConnectorHandle::handle_timeout(const ACE_Time_Value &current_time, cons
 
 int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
 {
-    while (true)
+    //定义一个消息
+    iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
+
+    //从内核缓存区读取消息头
+    char buf[2048] = { 0 };
+    int revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgHeaderLength());
+    if (revLength <= 0)
     {
-        //定义一个消息
-        iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
-
-        //从内核缓存区读取消息头
-        char buf[2048] = { 0 };
-        int revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-        if (revLength <= 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-            return 1;
-        }
-
-        //序列化消息头
-        string strMsgHeader(buf, revLength);
-        pCmdMsg->deserializeHeader(strMsgHeader);
-
-        //从内核缓存区读取消息体
-        ACE_OS::memset(buf, 0, 2048);
-        revLength = 0;
-        revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgBodyLength());
-        if (revLength <= 0)
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-            return 1;
-        }
-
-        //序列化消息体
-        string strMsgBody(buf, revLength);
-        pCmdMsg->deserializeBody(strMsgBody);
-        if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
-        {
-            return -1;
-        }
-
-        this->SendCmdMsgToQueue(pCmdMsg);
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        return 1;
     }
+
+    //序列化消息头
+    string strMsgHeader(buf, revLength);
+    pCmdMsg->deserializeHeader(strMsgHeader);
+   
+
+    //从内核缓存区读取消息体
+    ACE_OS::memset(buf, 0, 2048);
+    revLength = 0;
+    revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgBodyLength());
+    if (revLength <= 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        return 1;
+    }
+
+    //序列化消息体
+    string strMsgBody(buf, revLength);
+    pCmdMsg->deserializeBody(strMsgBody);
+    if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
+    {
+        return -1;
+    }
+
+    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>nMsgType:%d\n", pCmdMsg->GetMsgType()));
+    this->SendCmdMsgToQueue(pCmdMsg);
 
     return 0;
 }

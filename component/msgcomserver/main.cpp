@@ -20,7 +20,7 @@ int ACE_TMAIN(int, ACE_TCHAR *[])
 
     ACE_INET_Addr addr(5000, "127.0.0.1");
     iMapMsgAcceptor acceptor;
-    
+
     if (acceptor.open(addr, ACE_Reactor::instance()) == -1)
     {
         return 1;

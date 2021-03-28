@@ -30,7 +30,7 @@ public:
 
     int SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
 
-    int SendCmdMsgToProc(iMapCmdMsg *pCmdMsg);
+    int SendCmdMsgToProc(iMapCmdMsg *pCmdMsg, int nProcID);
 
 private:
     static ACE_Thread_Mutex m_mapMutex;

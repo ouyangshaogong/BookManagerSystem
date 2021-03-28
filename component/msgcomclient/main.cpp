@@ -35,7 +35,6 @@ ACE_THR_FUNC_RETURN Work(void *arg)
         string str("test");
         pCmdMsg->SetBody(str);
         pCmdMsg->SetMsgLength(sizeof(iMapCmdMsg) + pCmdMsg->GetBody().length());
-        pCmdMsg->display("display");
         pCmdHandle->SendCmdMsgToQueue(pCmdMsg);
         ACE_OS::sleep(1);
     }

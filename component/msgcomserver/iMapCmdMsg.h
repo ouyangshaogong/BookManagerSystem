@@ -10,6 +10,9 @@ using namespace std;
 #define RESPONSE_MSG_TYPE 201
 #define END_MSG_TYPE 300
 
+const int SEND_PROC_ID = 51;
+const int RECV_PROC_ID = 50;
+
 
 class iMapCmdMsg
 {
@@ -49,6 +52,21 @@ public:
 
     void SetBody(string &strBody);
     string GetBody();
+
+    std::string serializeHeaderFormat()
+    {
+        std::ostringstream os;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgBodyLength << m_nMsgLength;
+        m_nMsgHeaderLength = os.str().size();
+        return os.str();
+    }
+
+    int deserializeHeaderFormat(std::string &str)
+    {
+        InStream is(str);
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgBodyLength >> m_nMsgLength;
+        return is.size();
+    }
 
     std::string serializeHeader()
     {
