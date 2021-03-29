@@ -5,37 +5,37 @@
 
 using namespace std;
 
-const int CMD_MSG_SERVICE_REGISTER = 1;
 
 ACE_THR_FUNC_RETURN Work(void *arg)
 {
     ACE_OS::sleep(5);
     iMapMsgHandle *pCmdHandle = (iMapMsgHandle*)arg;
+    MyProtoEncode protoEncode;
     int i = 0;
-    for (; i < 5; i++)
+    for (; i < 2; i++)
     {
-        iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
+        uint32_t length = 0;
+        uint8_t* pData = NULL;
+        MyProtoMsg *pMsg = new MyProtoMsg;
 
         if (i == 0)
         {
-            pCmdMsg->SetMrbCmdMsg(CMD_MSG_SERVICE_REGISTER);
-            pCmdMsg->SetSendProc(SEND_PROC_ID);
-            pCmdMsg->SetRecvProc(0);
+            pMsg->Header.nCmdMsg = CMD_MSG_SERVICE_REGISTER;
+            pMsg->Header.nSendProc = SEND_PROC_ID;
+            pMsg->Header.nRecvProc = 0;
         }
         else
         {
-            pCmdMsg->SetMrbCmdMsg(i + 1);
-            pCmdMsg->SetSendProc(SEND_PROC_ID);
-            pCmdMsg->SetRecvProc(RECV_PROC_ID);
+            pMsg->Header.nCmdMsg = i + 1;
+            pMsg->Header.nSendProc = SEND_PROC_ID;
+            pMsg->Header.nRecvProc = RECV_PROC_ID;
         }
 
-        pCmdMsg->SetMsgID(i + 1);
-        pCmdMsg->SetMsgType(REQUEST_MSG_TYPE);
-
-        string str("test");
-        pCmdMsg->SetBody(str);
-        pCmdMsg->SetMsgLength(sizeof(iMapCmdMsg) + pCmdMsg->GetBody().length());
-        pCmdHandle->SendCmdMsgToQueue(pCmdMsg);
+        pMsg->Header.nMsgID = i + 1;
+        pMsg->Header.nMsgType = REQUEST_MSG_TYPE;
+        pMsg->Body["string"] = "string";
+        pData = protoEncode.encode(pMsg, length);
+        pCmdHandle->SendCmdMsgToQueue(pData, length);
         ACE_OS::sleep(1);
     }
 }

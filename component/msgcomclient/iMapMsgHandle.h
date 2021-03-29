@@ -2,10 +2,19 @@
 #define __MAP_MSG_HANDLE__
 
 #include "commonace.h"
-#include "iMapCmdMsg.h"
+#include "MyProtoMsg.h"
 #include "iMapConnectorHandle.h"
 
 using namespace std;
+
+#define REQUEST_MSG_TYPE 200
+#define RESPONSE_MSG_TYPE 201
+#define END_MSG_TYPE 300
+
+const int CMD_MSG_SERVICE_REGISTER = 1;
+
+const int SEND_PROC_ID = 51;
+const int RECV_PROC_ID = 50;
 
 class iMapMsgHandle: public ACE_Task<ACE_MT_SYNCH>
 {
@@ -20,11 +29,12 @@ public:
 
     int svc(void);
 
-    void SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
+    void SendCmdMsgToQueue(uint8_t* pData, int nLength);
 
-    void SendCmdMsgToServer(iMapCmdMsg *pCmdMsg);
+    void SendCmdMsgToServer(uint8_t* pData, int nLength);
+    void SendCmdMsgToServer(MyProtoMsg *pMsg);
 
-    virtual void process(iMapCmdMsg *pInCmdMsg, iMapCmdMsg *pOutCmdMsg);
+    virtual void process(MyProtoMsg *pInMsg, MyProtoMsg *pOutMsg);
 
 private:
     iMapMsgHandle();
@@ -36,6 +46,9 @@ private:
 
     ACE_Thread_Mutex m_mqMutex;
     bool m_bRunning;
+
+    MyProtoDecode m_protoDecode;
+    MyProtoEncode m_protoEncode;
 };
 
 #endif // __MAP_MSG_HANDLE__

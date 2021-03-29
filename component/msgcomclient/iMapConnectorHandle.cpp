@@ -48,56 +48,24 @@ int iMapConnectorHandle::handle_timeout(const ACE_Time_Value &current_time, cons
 
 int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
 {
-    //定义一个消息
-    iMapCmdMsg *pCmdMsg = new iMapCmdMsg;
-
+    const int BUFFER_MAX_LENGTH = 2048;
     //从内核缓存区读取消息头
-    char buf[2048] = { 0 };
-    int revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-    if (revLength == 0)
+    uint8_t buf[BUFFER_MAX_LENGTH] = { 0 };
+    int recv_cnt = m_socketPeer.recv(buf, BUFFER_MAX_LENGTH);
+    if (recv_cnt == 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         return -1;
     }
 
-    if (revLength < 0)
+    if (recv_cnt < 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         return 0;
     }
 
-    //序列化消息头
-    string strMsgHeader(buf, revLength);
-    pCmdMsg->deserializeHeader(strMsgHeader);
-   
-
-    //从内核缓存区读取消息体
-    ACE_OS::memset(buf, 0, 2048);
-    revLength = 0;
-    revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgBodyLength());
-
-    if (revLength == 0)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-        return -1;
-    }
-
-    if (revLength < 0)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-        return 0;
-    }
-
-    //序列化消息体
-    string strMsgBody(buf, revLength);
-    pCmdMsg->deserializeBody(strMsgBody);
-    if (pCmdMsg->GetMsgType() == END_MSG_TYPE)
-    {
-        return -1;
-    }
-
-    ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>nMsgType:%d\n", pCmdMsg->GetMsgType()));
-    this->SendCmdMsgToQueue(pCmdMsg);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+    SendCmdMsgToQueue(buf, recv_cnt);
 
     return 0;
 }
@@ -115,22 +83,15 @@ ACE_HANDLE iMapConnectorHandle::get_handle(void) const
     return m_socketPeer.get_handle();
 }
 
-void iMapConnectorHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
+void iMapConnectorHandle::SendCmdMsgToServer(uint8_t* pData, int nLength)
 {
-    //序列化消息体
-    string strMsgBody = pCmdMsg->serializeBody();
-    pCmdMsg->SetMsgBodyLength(strMsgBody.size());
-    //序列化消息头
-    string strMsgHeader = pCmdMsg->serializeHeader();
-
-    string strMsg = strMsgHeader + strMsgBody;
-    int recv_cnt = this->m_socketPeer.send_n(strMsg.c_str(), strMsg.size());
+    int recv_cnt = this->m_socketPeer.send(pData, nLength);
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendCmdMsgToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
 }
 
 
-void iMapConnectorHandle::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
+void iMapConnectorHandle::SendCmdMsgToQueue(uint8_t* pData, int nLength)
 {
-    m_pCmdHandle->SendCmdMsgToQueue(pCmdMsg);
+    m_pCmdHandle->SendCmdMsgToQueue(pData, nLength);
     
 }

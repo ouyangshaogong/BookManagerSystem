@@ -8,9 +8,15 @@
 #include <ace/Auto_Ptr.h>
 #include "ace/Log_Msg.h"
 #include "commonace.h"
-#include "iMapCmdMsg.h"
+#include "MyProtoMsg.h"
 
+//nCmdMsg
 const int CMD_MSG_SERVICE_REGISTER = 1;
+
+//nMsgType
+#define REQUEST_MSG_TYPE 200
+#define RESPONSE_MSG_TYPE 201
+#define END_MSG_TYPE 300
 
 class iMapMsgService : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
 {
@@ -28,13 +34,16 @@ public:
     // 释放相应资源
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask mask);
 
-    int SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
+    int SendCmdMsgToQueue(MyProtoMsg *pMsg);
 
-    int SendCmdMsgToProc(iMapCmdMsg *pCmdMsg, int nProcID);
+    int SendCmdMsgToProc(MyProtoMsg *pMsg, int nProcID);
 
 private:
     static ACE_Thread_Mutex m_mapMutex;
     static map<int, ACE_SOCK_Stream> m_nProcMapSocket;
+
+    MyProtoEncode m_protoEncode;
+    MyProtoDecode m_protoDecode;
 };
 
 typedef ACE_Acceptor<iMapMsgService, ACE_SOCK_ACCEPTOR> iMapMsgAcceptor;

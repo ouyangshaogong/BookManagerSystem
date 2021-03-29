@@ -2,7 +2,7 @@
 #define __MAP_CONNECTOR_HANDLE__
 
 #include "commonace.h"
-#include "iMapCmdMsg.h"
+#include "MyProtoMsg.h"
 
 using namespace std;
 
@@ -25,15 +25,17 @@ public:
 
     ACE_HANDLE get_handle(void) const;
 
-    void SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg);
+    void SendCmdMsgToQueue(uint8_t* pData, int length);
 
-    void SendCmdMsgToServer(iMapCmdMsg *pCmdMsg);
+    void SendCmdMsgToServer(uint8_t* pData, int nLength);
 
 private:
     ACE_SOCK_Connector m_connector;
     ACE_SOCK_Stream m_socketPeer;
 
     iMapMsgHandle *m_pCmdHandle;
+
+    
 };
 
 

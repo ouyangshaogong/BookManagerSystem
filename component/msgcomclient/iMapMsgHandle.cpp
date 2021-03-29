@@ -8,6 +8,7 @@ ACE_Thread_Mutex iMapMsgHandle::m_mutex;
 
 iMapMsgHandle::iMapMsgHandle():m_bRunning(true)
 {
+    m_protoDecode.init();
 }
 
 iMapMsgHandle::~iMapMsgHandle()
@@ -79,32 +80,54 @@ int iMapMsgHandle::svc(void)
             break;
         }
 
-        iMapCmdMsg *pCmdMsg = (iMapCmdMsg*)pMsgBlock->base();
+        uint8_t *pData = (uint8_t*)pMsgBlock->base();
         int nLength = pMsgBlock->length();
-        if (pCmdMsg->GetSendProc() == SEND_PROC_ID) //如果是我自己的进程
+
+        if (!m_protoDecode.parser(pData, nLength))
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pCmdMsg->GetSendProc(), pCmdMsg->GetRecvProc(), pCmdMsg->GetMrbCmdMsg()));
-            if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE) //如果是我自己的请求
-            {
-                SendCmdMsgToServer(pCmdMsg);
-            }
-            else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE) //别人对我的响应
-            {
-                pCmdMsg->display("display>>recv");
-            }
+            cout << "parser msg failed!" << endl;
         }
         else
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pCmdMsg->GetSendProc(), pCmdMsg->GetRecvProc(), pCmdMsg->GetMrbCmdMsg()));
-            iMapCmdMsg *pInCmdMsg = pCmdMsg;
-            iMapCmdMsg *pOutCmdMsg = pCmdMsg;
-            if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE) //如果别人的请求
-            {
-                process(pInCmdMsg, pOutCmdMsg);
-                //处理完以后，会产生一个消息响应，发送到网络
-                SendCmdMsgToServer(pOutCmdMsg);
-            }
+            cout << "parser msg successful!" << endl;
         }
+
+        MyProtoMsg* pMsg = NULL;
+        while (!m_protoDecode.empty())
+        {
+            pMsg = m_protoDecode.front();
+            
+            if (pMsg->Header.nSendProc == SEND_PROC_ID) //如果是我自己的进程
+            {
+                ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+                if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE) //如果是我自己的请求
+                {
+                    SendCmdMsgToServer(pMsg);
+                }
+                else if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE) //别人对我的响应
+                {
+                    pMsg->Header.display();
+                    static int i = 1;
+                    ACE_DEBUG((LM_DEBUG, "(%P|%t)receive response success.%d\n", i++));
+                }
+            }
+            else
+            {
+                ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+                MyProtoMsg *pInMsg = pMsg;
+                MyProtoMsg *pOutMsg = pMsg;
+                if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE) //如果别人的请求
+                {
+                    process(pInMsg, pOutMsg);
+                    //处理完以后，会产生一个消息响应，发送到网络
+                    SendCmdMsgToServer(pOutMsg);
+                }
+            }
+
+            m_protoDecode.pop();
+        }
+
+        
 
         //释放block
         pMsgBlock->release();
@@ -116,24 +139,31 @@ int iMapMsgHandle::svc(void)
 }
 
 
-void iMapMsgHandle::process(iMapCmdMsg *pInCmdMsg, iMapCmdMsg *pOutCmdMsg)
+void iMapMsgHandle::process(MyProtoMsg *pInMsg, MyProtoMsg *pOutMsg)
 {
     string strOutParam;
     //service->process(pInCmdMsg->GetMrbCmdMsg(), pInCmdMsg->GetBody(), strOutParam);
     //设置一系列出参
-    pOutCmdMsg->SetMsgType(RESPONSE_MSG_TYPE);
+    pOutMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
 }
 
-void iMapMsgHandle::SendCmdMsgToServer(iMapCmdMsg *pCmdMsg)
+void iMapMsgHandle::SendCmdMsgToServer(uint8_t* pData, int nLength)
 {
-    m_pConnectorHandle->SendCmdMsgToServer(pCmdMsg);
+    m_pConnectorHandle->SendCmdMsgToServer(pData, nLength);
 }
 
-void iMapMsgHandle::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
+void iMapMsgHandle::SendCmdMsgToServer(MyProtoMsg *pMsg)
 {
-    int nLength = pCmdMsg->GetMsgLength();
+    uint32_t nLength = 0;
+    uint8_t* pData = NULL;
+    pData = m_protoEncode.encode(pMsg, nLength);
+    m_pConnectorHandle->SendCmdMsgToServer(pData, nLength);
+}
+
+void iMapMsgHandle::SendCmdMsgToQueue(uint8_t* pData, int nLength)
+{
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
-    mb->copy((char*)pCmdMsg, nLength);
+    mb->copy((char*)pData, nLength);
     if (!msg_queue_->is_full())
     {
         this->putq(mb);

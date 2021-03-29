@@ -21,6 +21,9 @@
 #include "ace/OS_NS_unistd.h"
 #include "ace/Thread_Manager.h"
 
+//添加json头文件
+#include "json/json.h"
+
 #include <algorithm>//STL 通用算法
 #include <bitset>//STL 位集容器
 #include <cctype>//字符处理
