@@ -192,22 +192,53 @@ int iMapMsgService::SendCmdMsgToQueue(iMapCmdMsg *pCmdMsg)
 
 int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg, int nProcID)
 {
+    //序列化消息体
+    string strMsgBody = pCmdMsg->serializeBody();
+    pCmdMsg->SetMsgBodyLength(strMsgBody.size());
+    //序列化消息头
+    string strMsgHeader = pCmdMsg->serializeHeader();
+    string strMsg = strMsgHeader + strMsgBody;
+
+    bool IsSend = false;
     map<int, ACE_SOCK_Stream>::iterator iter = m_nProcMapSocket.find(nProcID);
     if (iter != m_nProcMapSocket.end())
     {
-        //序列化消息体
-        string strMsgBody = pCmdMsg->serializeBody();
-        pCmdMsg->SetMsgBodyLength(strMsgBody.size());
-        //序列化消息头
-        string strMsgHeader = pCmdMsg->serializeHeader();
+        IsSend = true;
+    }
+    else
+    {
+        if (pCmdMsg->GetMsgType() == REQUEST_MSG_TYPE)
+        {
+            iter = m_nProcMapSocket.find(pCmdMsg->GetSendProc());
+            if (iter != m_nProcMapSocket.end())
+            {
+                pCmdMsg->SetMsgRet(-1);
+                pCmdMsg->SetMsgType(RESPONSE_MSG_TYPE);
+                strMsgHeader = pCmdMsg->serializeHeader();
+                strMsg = strMsgHeader + strMsgBody;
+                IsSend = true;
+            }
+            else
+            {
+                pCmdMsg->display("service is not register!");
+                return 0;
+            }
+        }
+        else if (pCmdMsg->GetMsgType() == RESPONSE_MSG_TYPE)
+        {
+            pCmdMsg->display("service is not register!");
+            return 0;
+        }
+    }
 
-        string strMsg = strMsgHeader + strMsgBody;
+    if (IsSend)
+    {
+        int send_cnt = 0;
         while (true)
         {
-            int send_cnt = iter->second.send_n(strMsg.c_str(), strMsg.length());
+            send_cnt = iter->second.send_n(strMsg.c_str(), strMsg.length());
             if (send_cnt > 0)
             {
-                
                 if (strMsg.length() == send_cnt)
                 {
                     break;
@@ -215,9 +246,6 @@ int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg, int nProcID)
                 else if (send_cnt < strMsg.length())
                 {
                     continue;
-                }
-                {
-                    break;
                 }
             }
 
@@ -234,7 +262,8 @@ int iMapMsgService::SendCmdMsgToProc(iMapCmdMsg *pCmdMsg, int nProcID)
             }
         }
 
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>nMsgType:%d, strMsg.size:%d, errno:%d\n", pCmdMsg->GetMsgType(), strMsg.size(), errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToProc>>nMsgType:%d, send_cnt:%d, errno:%d\n",
+            pCmdMsg->GetMsgType(), send_cnt, errno));
     }
 
     return 0;

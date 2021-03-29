@@ -41,6 +41,9 @@ public:
     void SetRecvProc(int nRecvProc);
     int GetRecvProc();
 
+    void SetMsgRet(int nMsgRet);
+    int GetMsgRet();
+
     void SetMsgBodyLength(int nLength);
     int GetMsgBodyLength();
 
@@ -56,7 +59,7 @@ public:
     std::string serializeHeaderFormat()
     {
         std::ostringstream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgBodyLength << m_nMsgLength;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgRet << m_nMsgBodyLength << m_nMsgLength;
         m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
@@ -64,14 +67,14 @@ public:
     int deserializeHeaderFormat(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgBodyLength >> m_nMsgLength;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgRet >> m_nMsgBodyLength >> m_nMsgLength;
         return is.size();
     }
 
     std::string serializeHeader()
     {
         OutStream os;
-        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgBodyLength << m_nMsgLength;
+        os << m_nMagicNum << m_nVersion << m_nMsgID << m_nMrbCmdMsg << m_nMsgType << m_nSendProc << m_nRecvProc << m_nMsgRet << m_nMsgBodyLength << m_nMsgLength;
         m_nMsgHeaderLength = os.str().size();
         return os.str();
     }
@@ -79,7 +82,7 @@ public:
     int deserializeHeader(std::string &str)
     {
         InStream is(str);
-        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgBodyLength >> m_nMsgLength;
+        is >> m_nMagicNum >> m_nVersion >> m_nMsgID >> m_nMrbCmdMsg >> m_nMsgType >> m_nSendProc >> m_nRecvProc >> m_nMsgRet >> m_nMsgBodyLength >> m_nMsgLength;
         return is.size();
     }
 
@@ -118,6 +121,7 @@ private:
     int m_nMsgType;
     int m_nSendProc;
     int m_nRecvProc;
+    int m_nMsgRet;
     //字符长度
     int m_nMsgLength;
     //序列化后的长度

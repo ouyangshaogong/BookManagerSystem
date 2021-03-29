@@ -9,6 +9,7 @@ iMapCmdMsg::iMapCmdMsg()
     m_nMsgType = 0;
     m_nRecvProc = 0;
     m_nSendProc = 0;
+    m_nMsgRet = 0;
     m_nMsgHeaderLength = 0;
     m_nMsgBodyLength = 0;
     m_strBody = NULL;
@@ -142,4 +143,14 @@ void iMapCmdMsg::SetRecvProc(int nRecvProc)
 int iMapCmdMsg::GetRecvProc()
 {
     return m_nRecvProc;
+}
+
+void iMapCmdMsg::SetMsgRet(int nMsgRet)
+{
+    m_nMsgRet = nMsgRet;
+}
+
+int iMapCmdMsg::GetMsgRet()
+{
+    return m_nMsgRet;
 }

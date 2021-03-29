@@ -143,3 +143,13 @@ int iMapCmdMsg::GetRecvProc()
 {
     return m_nRecvProc;
 }
+
+void iMapCmdMsg::SetMsgRet(int nMsgRet)
+{
+    m_nMsgRet = nMsgRet;
+}
+
+int iMapCmdMsg::GetMsgRet()
+{
+    return m_nMsgRet;
+}

@@ -54,10 +54,16 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
     //从内核缓存区读取消息头
     char buf[2048] = { 0 };
     int revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgHeaderLength());
-    if (revLength <= 0)
+    if (revLength == 0)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-        return 1;
+        return -1;
+    }
+
+    if (revLength < 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        return 0;
     }
 
     //序列化消息头
@@ -69,10 +75,17 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
     ACE_OS::memset(buf, 0, 2048);
     revLength = 0;
     revLength = m_socketPeer.recv_n(buf, pCmdMsg->GetMsgBodyLength());
-    if (revLength <= 0)
+
+    if (revLength == 0)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
-        return 1;
+        return -1;
+    }
+
+    if (revLength < 0)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapConnectorHandle::handle_input>>recv fail!revLength:%d, errno:%d\n", revLength, errno));
+        return 0;
     }
 
     //序列化消息体
