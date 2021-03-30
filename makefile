@@ -1,8 +1,18 @@
 SHELL = /bin/bash
 
-HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
+HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 
 ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
+
+MSGPROTO:
+	@cp -rf $(HOMEDIR)/component/msgproto/*.h $(HOMEDIR)/include/component/msgproto
+	${MAKE} -C $(HOMEDIR)/component/msgproto
+	@cp $(HOMEDIR)/component/msgproto/libmsgproto.so $(HOMEDIR)/lib
+
+TASKMGR:
+	@cp -rf $(HOMEDIR)/component/taskmgr/*.h $(HOMEDIR)/include/component/taskmgr
+	${MAKE} -C $(HOMEDIR)/component/taskmgr
+	@cp $(HOMEDIR)/component/taskmgr/libtaskmgr.so $(HOMEDIR)/lib
 
 UTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
