@@ -4,7 +4,6 @@
 #include "Task.h"
 #include "commonace.h"
 
-
 using namespace std;
 
 
@@ -19,6 +18,7 @@ public:
 
     int InitEnv(int nThreadNum, int nTaskMgrID);
 
+
     int open(int nThreadNum);
     int close();
     int svc();
@@ -26,11 +26,15 @@ public:
     void InsertTask(Task *task);
     void DestoryTask();
 
-    int GetTaskMgrID();
+    Task* GetTask(TaskID nTaskID);
 
-
+    TaskID GetGlobalTaskID();
+    TaskMgrID GetLocalTaskMgrID();
 
 private:
+    map<TaskID, Task*> m_nIDMapTask;
+    TaskID m_nGlobalTaskID;
+
     list<Task*> m_taskList;
     TaskMgrID m_nTaskMgrID;
     int m_nThreadNum;

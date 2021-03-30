@@ -30,7 +30,13 @@ int TaskMgr::InitEnv(int nThreadNum, int nTaskMgrID)
 
 int TaskMgr::open(int nThreadNum)
 {
-    activate();
+    activate(THR_NEW_LWP, nThreadNum);
+}
+
+void TaskMgr::InsertTask(Task *pTask)
+{
+    m_nIDMapTask.insert(map<TaskID, Task*>::value_type(m_nGlobalTaskID, pTask));
+    m_nGlobalTaskID++;
 }
 
 void TaskMgr::InsertTask(Task *task)
@@ -41,7 +47,8 @@ void TaskMgr::InsertTask(Task *task)
 
 void TaskMgr::DestoryTask()
 {
-    m_taskList.clear();
+    m_nIDMapTask.clear();
+
 }
 
 int TaskMgr::close()
@@ -54,7 +61,22 @@ int TaskMgr::svc()
     return 0;
 }
 
-int TaskMgr::GetTaskMgrID()
+Task* TaskMgr::GetTask(TaskID nTaskID)
+{
+    map<TaskID, Task*>::iterator iter = m_nIDMapTask.find(nTaskID);
+    if (iter != m_nIDMapTask.end())
+    {
+        return iter->second;
+    }
+    return NULL;
+}
+
+TaskID TaskMgr::GetGlobalTaskID()
+{
+    return m_nGlobalTaskID;
+}
+
+TaskMgrID TaskMgr::GetLocalTaskMgrID()
 {
     return m_nTaskMgrID;
 }

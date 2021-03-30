@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __TASK_MGR_APP__
 #define __TASK_MGR_APP__
 
@@ -21,6 +20,7 @@ public:
     void StartMsgLoop();
     void ExitThread();
     void TaskMgrDestory();
+    int GetGlobalTaskMgrID();
     
     
 private:
@@ -31,6 +31,8 @@ private:
     static ACE_Thread_Mutex m_mutex;
     static TaskMgrApp *m_instance;
     ACE_Thread_Manager *m_pThrMgr;
+
+    TaskMgrID m_nGlobalTaskMgrID;
 };
 
 #endif

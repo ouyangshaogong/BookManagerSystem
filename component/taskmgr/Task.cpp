@@ -9,10 +9,17 @@ Task::~Task()
 {
 }
 
-
-int Task::open(int nThreadNum)
+int Task::InitEnv(int nThreadNum, TaskID nTaskID)
 {
-    activate(THR_NEW_LWP, nThreadNum);
+    m_nTaskID = nTaskID;
+    m_nThreadNum = nThreadNum;
+    return 0;
+}
+
+int Task::open()
+{
+    activate(THR_NEW_LWP, m_nThreadNum);
+    return 0;
 }
 
 int Task::close()
@@ -22,10 +29,52 @@ int Task::close()
 
 int Task::svc()
 {
+
     return 0;
 }
 
-void Task::process(MyProtoMsg *pInMsg, MyProtoMsg *pOutMsg)
+int Task::CreateStaticTask()
+{
+    return open();
+}
+
+int Task::CreateDynamicTask()
+{
+    //ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, this->DynamicTask, NULL);
+}
+
+void Task::DynamicTask()
 {
 
 }
+
+void Task::process(int nCmdMsg, void* InBody, void* OutBody)
+{
+
+}
+
+TaskID Task::GetLocalTaskID()
+{
+    return m_nTaskID;
+}
+
+void Task::SendMsgToTask(MyProtoMsg *pMsg)
+{
+    
+}
+
+void Task::GetResultValue(Json::Value &value)
+{
+
+}
+
+void Task::SendSignal()
+{
+
+}
+
+void Task::WaitSignal()
+{
+
+}
+

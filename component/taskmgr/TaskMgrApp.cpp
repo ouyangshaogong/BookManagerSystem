@@ -5,6 +5,7 @@ TaskMgrApp *TaskMgrApp::m_instance = NULL;
 
 TaskMgrApp::TaskMgrApp()
 {
+    m_nGlobalTaskMgrID = 1;
     m_pThrMgr = NULL;
 }
 
@@ -35,6 +36,17 @@ int TaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
 
 int TaskMgrApp::InsertTaskMgr(TaskMgr* pTaskMgr)
 {
+    int nTaskMgrID = m_nGlobalTaskMgrID++;
+    m_nIdMapTaskMgr.insert(map<int, TaskMgr*>::value_type(nTaskMgrID, pTaskMgr));
+}
+
+int TaskMgrApp::GetGlobalTaskMgrID()
+{
+    return m_nGlobalTaskMgrID;
+}
+
+int TaskMgrApp::InsertTaskMgr(TaskMgr* pTaskMgr)
+{
     int nTaskMgrID = pTaskMgr->GetTaskMgrID();
     m_nIdMapTaskMgr.insert(map<int, TaskMgr*>::value_type(nTaskMgrID, pTaskMgr));
 }
@@ -47,6 +59,8 @@ TaskMgr* TaskMgrApp::GetTaskMgr(int nTaskMgrID)
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::TaskMgrApp::putq succeed!\n"));
         return iter->second;
     }
+
+    return NULL;
 }
 
 void TaskMgrApp::StartMsgLoop()
@@ -56,7 +70,6 @@ void TaskMgrApp::StartMsgLoop()
         ACE_Reactor::instance()->handle_events();
     }
 
-    //等待线程退出
     ACE_Thread_Manager::instance()->wait();
 }
 
