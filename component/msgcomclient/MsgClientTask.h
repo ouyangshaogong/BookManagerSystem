@@ -34,8 +34,7 @@ private:
     MyProtoEncode m_protoEncode;
     MyProtoMsg m_protoMsg;
 
-    ACE_Thread_Mutex m_callMutex;
-    ACE_Condition<ACE_Thread_Mutex> m_condMsg;
+    
 };
 
 #endif

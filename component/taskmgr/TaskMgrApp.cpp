@@ -34,12 +34,6 @@ int TaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
     return 0;
 }
 
-int TaskMgrApp::InsertTaskMgr(TaskMgr* pTaskMgr)
-{
-    int nTaskMgrID = m_nGlobalTaskMgrID++;
-    m_nIdMapTaskMgr.insert(map<int, TaskMgr*>::value_type(nTaskMgrID, pTaskMgr));
-}
-
 int TaskMgrApp::GetGlobalTaskMgrID()
 {
     return m_nGlobalTaskMgrID;
@@ -47,8 +41,8 @@ int TaskMgrApp::GetGlobalTaskMgrID()
 
 int TaskMgrApp::InsertTaskMgr(TaskMgr* pTaskMgr)
 {
-    int nTaskMgrID = pTaskMgr->GetTaskMgrID();
-    m_nIdMapTaskMgr.insert(map<int, TaskMgr*>::value_type(nTaskMgrID, pTaskMgr));
+    m_nIdMapTaskMgr.insert(map<int, TaskMgr*>::value_type(m_nGlobalTaskMgrID, pTaskMgr));
+    m_nGlobalTaskMgrID++;
 }
 
 TaskMgr* TaskMgrApp::GetTaskMgr(int nTaskMgrID)

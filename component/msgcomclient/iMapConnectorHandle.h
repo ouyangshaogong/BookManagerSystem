@@ -25,12 +25,11 @@ public:
 
     ACE_HANDLE get_handle(void) const;
 
-    void SendCmdMsgToTask(MyProtoMsg* pMsg);
+    
 
     void SendCmdMsgToServer(uint8_t* pData, int nLength);
 
-    void CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result);
-    Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);
+    void SendCmdMsgToTask(MyProtoMsg* pMsg);
 
 private:
     ACE_SOCK_Connector m_connector;

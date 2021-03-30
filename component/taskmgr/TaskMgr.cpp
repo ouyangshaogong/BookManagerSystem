@@ -39,12 +39,6 @@ void TaskMgr::InsertTask(Task *pTask)
     m_nGlobalTaskID++;
 }
 
-void TaskMgr::InsertTask(Task *task)
-{
-    task->open(m_nThreadNum);
-    m_taskList.push_back(task);
-}
-
 void TaskMgr::DestoryTask()
 {
     m_nIDMapTask.clear();

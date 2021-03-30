@@ -112,33 +112,9 @@ void iMapConnectorHandle::SendCmdMsgToServer(uint8_t* pData, int nLength)
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendCmdMsgToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
 }
 
-
 void iMapConnectorHandle::SendCmdMsgToTask(MyProtoMsg* pMsg)
 {
     TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(pMsg->Header.nTaskMgrID);
     MsgClientTask *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
     pTask->SendMsgToTask(pMsg);
-}
-
-void iMapConnectorHandle::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result)
-{
-    m_protoMsg.Header.nMsgID = m_nMsgID++;
-    m_protoMsg.Header.nCmdMsg = nCmdMsg;
-    //¸ù¾ÝMrbCmdÅÐ¶Ï
-    m_protoMsg.Header.nRecvProc = 0;
-
-    uint32_t nLength = 0;
-    uint8_t* pData = NULL;
-    pData = m_protoEncode.encode(&m_protoMsg, nLength);
-    SendCmdMsgToServer(pData, nLength);
-
-    TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(m_protoMsg.Header.nTaskMgrID);
-    Task *pTask = pTaskMgr->GetTask(m_protoMsg.Header.nTaskID);
-    pTask->WaitSignal();
-    pTask->GetResultValue(result);
-}
-
-Json::Value& iMapConnectorHandle::CallMethod(int nCmdMsg, const Json::Value &parameter)
-{
-
 }

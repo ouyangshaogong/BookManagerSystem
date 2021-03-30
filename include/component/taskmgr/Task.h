@@ -31,6 +31,9 @@ public:
 private:
     TaskID m_nTaskID;
     int m_nThreadNum;
+
+    ACE_Thread_Mutex m_tCallMutex;
+    ACE_Condition<ACE_Thread_Mutex> m_tCondMsg;
 };
 
 #endif

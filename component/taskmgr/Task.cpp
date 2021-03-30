@@ -1,6 +1,7 @@
 #include "Task.h"
 
 Task::Task()
+:m_tCallMutex(), m_tCondMsg(m_tCallMutex)
 {
 }
 
