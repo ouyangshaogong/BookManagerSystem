@@ -7,7 +7,6 @@
 
 using namespace std;
 
-class TaskMgrApp;
 class iMapConnectorHandle: public ACE_Event_Handler
 {
 public:
