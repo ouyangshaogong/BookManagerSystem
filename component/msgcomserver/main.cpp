@@ -18,17 +18,11 @@ int ACE_TMAIN(int, ACE_TCHAR *[])
     //ios::out以写的方式打开，ios::trunc清空文件;
     //ACE_LOG_MSG->msg_ostream(&out);
 
-    ACE_INET_Addr addr(5000, "127.0.0.1");
-    iMapMsgAcceptor acceptor;
+    
 
-    if (acceptor.open(addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
-    {
-        return 1;
-    }
+    
 
-    ACE_Reactor::instance()->run_reactor_event_loop();
 
-    //测试信息，这次能真正输出到文件。
     ACE_DEBUG((LM_DEBUG, "(%P|%t)main>>server is end.....!\n"));
     return 0;
 }

@@ -4,6 +4,7 @@
 #define HOSTNAME "127.0.0.1"
 
 extern MyMsgQueue g_pMsgQueue;
+extern ACE_Condition<ACE_Thread_Mutex> g_mMsgCond;
 
 iMapConnectorHandle::iMapConnectorHandle()
 {
@@ -13,6 +14,7 @@ iMapConnectorHandle::iMapConnectorHandle()
 
 iMapConnectorHandle::~iMapConnectorHandle()
 {
+    
 }
 
 int iMapConnectorHandle::open()
@@ -72,6 +74,7 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
     else
     {
         cout << "parser msg successful!" << endl;
+        g_mMsgCond.signal();
     }
 
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));

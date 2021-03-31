@@ -5,11 +5,12 @@
 #define END_MSG_TYPE 300
 
 MyMsgQueue g_pMsgQueue;
+ACE_Thread_Mutex g_mMsgMutex;
+ACE_Condition<ACE_Thread_Mutex> g_mMsgCond(g_mMsgMutex);
 
-int MsgClientTaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr, iMapConnectorHandle *pConnectorHandle)
+int MsgClientTaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
 {
     m_pThrMgr = pThrMgr;
-    m_pConnectorHandle = pConnectorHandle;
     return 0;
 }
 
@@ -36,26 +37,34 @@ int MsgClientTaskMgrApp::svc()
 
 void MsgClientTaskMgrApp::StartMsgLoop()
 {
-    MyProtoMsg* pMsg = NULL;
-    while (!g_pMsgQueue.empty())
+    while(true)
     {
-        pMsg = g_pMsgQueue.front();
-        if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
+        if (g_pMsgQueue.empty())
         {
-            m_pConnectorHandle->SendCmdMsgToServer(pMsg);
+            g_mMsgCond.wait();
         }
-        else if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE)
+        
+        MyProtoMsg* pMsg = NULL;
+        while (!g_pMsgQueue.empty())
         {
-            TaskMgr *pTaskMgr = this->GetTaskMgr(pMsg->Header.nTaskMgrID);
-            Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
-            pTask->SendSignal(pMsg);
-        }
-        else
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::StartMsgLoop>>MsgType Is Error!\n"));
-        }
+            pMsg = g_pMsgQueue.front();
+            if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
+            {
+                m_ConnectorHandle.SendCmdMsgToServer(pMsg);
+            }
+            else if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE)
+            {
+                TaskMgr *pTaskMgr = this->GetTaskMgr(pMsg->Header.nTaskMgrID);
+                Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
+                pTask->SendSignal(pMsg);
+            }
+            else
+            {
+                ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::StartMsgLoop>>MsgType Is Error!\n"));
+            }
 
-        g_pMsgQueue.pop();
+            g_pMsgQueue.pop();
+        }
     }
 
 }

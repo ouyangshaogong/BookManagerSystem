@@ -59,10 +59,7 @@ TaskMgr* TaskMgrApp::GetTaskMgr(int nTaskMgrID)
 
 void TaskMgrApp::StartMsgLoop()
 {
-    while (true)
-    {
-        ACE_Reactor::instance()->handle_events();
-    }
+
 }
 
 void TaskMgrApp::ExitThread()

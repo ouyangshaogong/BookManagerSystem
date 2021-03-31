@@ -11,7 +11,7 @@ private:
         MsgClientTaskMgrApp();
 
 public:
-    virtual int InitProcessEnv(ACE_Thread_Manager *pThrMgr, iMapConnectorHandle *pConnectorHandle);
+    virtual int InitProcessEnv(ACE_Thread_Manager *pThrMgr);
     void StartMsgLoop();
     
     virtual int open();
@@ -19,7 +19,9 @@ public:
     virtual int svc();
     
 private:
-    iMapConnectorHandle *m_pConnectorHandle;
+    iMapConnectorHandle m_ConnectorHandle;
+
+    
 };
 
 #endif

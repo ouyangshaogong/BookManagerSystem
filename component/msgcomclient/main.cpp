@@ -5,9 +5,9 @@
 int main()
 {
     iMapConnectorHandle connHandle;
-    MsgClientTaskMgrApp *pTaskApp = MsgClientTaskMgrApp::Instance();
+    TaskMgrApp *pTaskApp = MsgClientTaskMgrApp::Instance();
 
-    int nRet = pTaskApp->InitProcessEnv(ACE_Thread_Manager::instance(), connHandle);
+    int nRet = pTaskApp->InitProcessEnv(ACE_Thread_Manager::instance());
     if (0 != nRet)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskApp->InitProcessEnv fail!\n"));
