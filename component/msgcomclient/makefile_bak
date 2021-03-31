@@ -8,20 +8,20 @@ Deps := $(patsubst %.cpp,%.d, $(Sources))
 HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
-Bin := msgcomclient
+DynamicLib := libmsgcomclient.so
 
-AllLibs : $(Bin)
+AllLibs : $(DynamicLib)
 CC = g++
 CXXFLAGS = -g -O -fPIC -Wall
 CPPFLAGS = $(foreach n,$(AllDirs), -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component/msgproto -I$(INCDIR)/component/taskmgr 
-LDFLAGS = -lstdc++ -lpthread -lACE -ljsoncpp -lmsgproto -ltaskmgr
+LDFLAGS = -lstdc++ -lACE -ljsoncpp -lmsgproto -ltaskmgr
 
-$(Bin) : $(Objs)
-	g++ $(Objs) -o $@ $(LDFLAGS) 
+$(DynamicLib) : $(Objs)
+	g++ -shared -o $@ $^ $(LDFLAGS) 
 
 %.d : %.cpp
 	$(CC) -MT"$(<:.cpp=.o) $@" -MM $(CXXFLAGS) $(CPPFLAGS) $< > $@
 
 .PHONY : clean
 clean: 
-	rm -f $(Objs) $(Deps) $(Bin)
+	rm -f $(Objs) $(Deps) $(DynamicLib)

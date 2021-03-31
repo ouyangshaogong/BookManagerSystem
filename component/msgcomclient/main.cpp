@@ -1,45 +1,11 @@
-#include "MsgClientTaskMgrApp.h"
-#include "iMapConnectorHandle.h"
-#include "MsgClientTask.h"
+#include "iMapMrbBus.h"
 
 int main()
 {
-    iMapConnectorHandle connHandle;
-    TaskMgrApp *pTaskApp = MsgClientTaskMgrApp::Instance();
+    TaskMgrApp *pTaskMgrApp = TaskMgrApp::Instance();
+    iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 
-    int nRet = pTaskApp->InitProcessEnv(ACE_Thread_Manager::instance());
-    if (0 != nRet)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskApp->InitProcessEnv fail!\n"));
-    }
-
-    TaskMgr* pTaskMgr = new TaskMgr();
-    nRet = pTaskMgr->InitEnv(1, pTaskApp->GetGlobalTaskMgrID());
-    if (0 != nRet)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskMgr->InitEnv fail!\n"));
-    }
-
-    
-
-    Task *pTaskStatic = new MsgClientTask;
-    pTaskStatic->CreateStaticTask();
-    pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
-    pTaskMgr->InsertTask(pTaskStatic);
-
-    Task *pTaskDynamic = new MsgClientTask;
-    pTaskDynamic->CreateDynamicTask();
-    pTaskDynamic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
-    pTaskMgr->InsertTask(pTaskDynamic);
-
-    pTaskApp->InsertTaskMgr(pTaskMgr);
-
-    
-    //task->Initialize();
-    pTaskApp->StartMsgLoop();
-    //task->Initialize();
-
-    pTaskApp->ExitThread();
-
-    pTaskApp->TaskMgrDestory();
+    pMrbBus->StartBus();
+    pMrbBus->StartMsgLoop();
+    pMrbBus->StopBus();
 }

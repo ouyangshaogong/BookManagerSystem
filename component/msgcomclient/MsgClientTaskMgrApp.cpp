@@ -16,6 +16,7 @@ int MsgClientTaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
 
 int MsgClientTaskMgrApp::open()
 {
+    m_ConnectorHandle.open();
     activate();
     return 0;
 }
