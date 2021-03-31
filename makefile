@@ -2,10 +2,9 @@ SHELL = /bin/bash
 
 HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 
-ALLLIBS: UTILS MSGPROTO TASKMGR MSGCOMCLIENT MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
+ALLLIBS: SUTILS MSGPROTO TASKMGR MSGCOMCLIENT MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
 
-UTILS:
-	@echo "fsdfsdfsdfsdfd"
+SUTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
 	${MAKE} -C $(HOMEDIR)/utils
 	@cp $(HOMEDIR)/utils/libbookutils.so $(HOMEDIR)/lib
@@ -30,17 +29,17 @@ MODEL:
 	${MAKE} -C $(HOMEDIR)/business/model
 	@cp $(HOMEDIR)/business/model/libbookmodel.so $(HOMEDIR)/lib
 
-DAO: UTILS
+DAO: SUTILS
 	@cp -rf $(HOMEDIR)/business/dao/*.h $(HOMEDIR)/include/dao
 	${MAKE} -C $(HOMEDIR)/business/dao
 	@cp $(HOMEDIR)/business/dao/libbookmgrdao.so $(HOMEDIR)/lib
 
-BOOKMGRSERVICE: UTILS MODEL DAO
+BOOKMGRSERVICE: SUTILS MODEL DAO
 	@cp -rf $(HOMEDIR)/business/bookmgrservice/*.h $(HOMEDIR)/include/bookmgrservice
 	${MAKE} -C $(HOMEDIR)/business/bookmgrservice
 	@cp $(HOMEDIR)/business/bookmgrservice/libbookmgrservice.so $(HOMEDIR)/lib
 
-USERMGRSERVICE: UTILS MODEL DAO
+USERMGRSERVICE: SUTILS MODEL DAO
 	@cp -rf $(HOMEDIR)/business/usermgrservice/*.h $(HOMEDIR)/include/usermgrservice
 	${MAKE} -C $(HOMEDIR)/business/usermgrservice
 	@cp $(HOMEDIR)/business/usermgrservice/libusermgrservice.so $(HOMEDIR)/lib
@@ -53,12 +52,12 @@ MVCFRAME:
 TESTCLIENT: MVCFRAME
 	${MAKE} -C $(HOMEDIR)/test/client
 
-TEST: BOOKMGRSERVICE UTILS MODEL DAO
+TEST: BOOKMGRSERVICE SUTILS MODEL DAO
 	${MAKE} -C $(HOMEDIR)/test/bookmanagertest
 	${MAKE} -C $(HOMEDIR)/test/usermanagertest
 
 ECHO:
-	echo $(DynamicLib)
+	@echo "compile success"
 
 .PHONY : clean
 clean: 
