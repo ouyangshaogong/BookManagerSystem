@@ -14,10 +14,10 @@ public:
     virtual ~TaskMgrApp();
 
     static TaskMgrApp* Instance();
-    int InitProcessEnv(ACE_Thread_Manager *pThrMgr);
+    virtual int InitProcessEnv(ACE_Thread_Manager *pThrMgr);
     int InsertTaskMgr(TaskMgr* pTaskMgr);
     TaskMgr* GetTaskMgr(int nTaskMgrID);
-    void StartMsgLoop();
+    virtual void StartMsgLoop();
     void ExitThread();
     void TaskMgrDestory();
     int GetGlobalTaskMgrID();
