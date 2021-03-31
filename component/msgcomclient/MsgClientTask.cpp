@@ -1,5 +1,7 @@
 #include "MsgClientTask.h"
 
+MrbMsgClient MsgClientTask::m_mrbMsgClient;
+
 extern MyMsgQueue g_pMsgQueue;
 extern ACE_Thread_Mutex g_mMsgMutex;
 extern ACE_Condition<ACE_Thread_Mutex> g_mMsgCond;
@@ -13,11 +15,17 @@ const int RECV_PROC_ID = 50;
 MsgClientTask::MsgClientTask()
     :m_tCallMutex(), m_tCondMsg(m_tCallMutex), m_nMsgID(1)
 {
+    
 }
 
 
 MsgClientTask::~MsgClientTask()
 {
+}
+
+void MsgClientTask::SetMsgValue(int nSendProc, int nTaskMgrID)
+{
+    m_mrbMsgClient.SetMsgValue(nSendProc, nTaskMgrID, GetLocalTaskID());
 }
 
 
@@ -73,6 +81,22 @@ int MsgClientTask::svc()
         pMsgBlock = NULL;
     }
     return 0;
+}
+
+int MsgClientTask::CreateDynamicTask()
+{
+    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MsgClientTask::DynamicTask, NULL);
+    return 0;
+}
+
+ACE_THR_FUNC MsgClientTask::DynamicTask()
+{
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
+    Json::Value InParam;
+    InParam["test"] = "test";
+
+    Json::Value OutParam;
+    m_mrbMsgClient.CallMethod(1, InParam, OutParam);
 }
 
 

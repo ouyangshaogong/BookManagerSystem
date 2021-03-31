@@ -40,12 +40,13 @@ int Task::CreateStaticTask()
 
 int Task::CreateDynamicTask()
 {
-    //ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, this->DynamicTask, NULL);
+    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)Task::DynamicTask, NULL);
+    return 0;
 }
 
-void Task::DynamicTask()
+ACE_THR_FUNC Task::DynamicTask()
 {
-
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)Task::DynamicTask>>\n"));
 }
 
 void Task::process(int nCmdMsg, void* InBody, void* OutBody)

@@ -16,9 +16,9 @@ public:
     virtual int open();
     virtual int close();
     virtual int svc();
-    int CreateStaticTask();
-    int CreateDynamicTask();
-    void DynamicTask();
+    virtual int CreateStaticTask();
+    virtual int CreateDynamicTask();
+    static ACE_THR_FUNC DynamicTask();
     TaskID GetLocalTaskID();
     virtual void process(int nCmdMsg, void* InBody, void* OutBody);
 
@@ -26,7 +26,7 @@ public:
     virtual void SendSignal(MyProtoMsg *pMsg);
     virtual MyProtoMsg *WaitSignal();
 
-private:
+protected:
     TaskID m_nTaskID;
     int m_nThreadNum;
 

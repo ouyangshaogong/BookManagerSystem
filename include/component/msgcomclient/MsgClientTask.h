@@ -21,6 +21,10 @@ public:
     
     virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);
 
+    static ACE_THR_FUNC DynamicTask();
+
+    virtual int CreateDynamicTask();
+    
     void SendMsgToTask(MyProtoMsg *pMsg);
 
     void SendSignal(MyProtoMsg *m_pMsg);

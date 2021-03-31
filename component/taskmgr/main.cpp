@@ -2,7 +2,7 @@
 
 int main()
 {
-    TaskMgrApp *pTaskApp = TaskMgrApp::Instance();
+    TaskMgrApp *pTaskApp = new TaskMgrApp();
 
     int nRet = pTaskApp->InitProcessEnv(ACE_Thread_Manager::instance());
     if (0 != nRet)

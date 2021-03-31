@@ -4,13 +4,13 @@
 #include "MyProtoMsg.h"
 #include "MsgClientTaskMgrApp.h"
 
-class CmdMsgClient
+class MrbMsgClient
 {
 public:
-    CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID);
-    ~CmdMsgClient();
+    MrbMsgClient();
+    ~MrbMsgClient();
 
-    
+    void SetMsgValue(int nSendProc, int nTaskMgrID, TaskID nTaskID);
 
     void CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result);
     Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);

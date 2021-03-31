@@ -5,13 +5,15 @@
 #include "iMapConnectorHandle.h"
 
 
-class MsgClientTaskMgrApp: public TaskMgrApp, public ACE_Task<ACE_MT_SYNCH>
+class MsgClientTaskMgrApp: public TaskMgrApp
 {
 private:
-        MsgClientTaskMgrApp();
+    MsgClientTaskMgrApp();
 
 public:
-    virtual int InitProcessEnv(ACE_Thread_Manager *pThrMgr);
+    ~MsgClientTaskMgrApp();
+    static MsgClientTaskMgrApp* Instance();
+
     void StartMsgLoop();
     
     virtual int open();
@@ -21,7 +23,8 @@ public:
 private:
     iMapConnectorHandle m_ConnectorHandle;
 
-    
+    static ACE_Thread_Mutex m_mutex;
+    static MsgClientTaskMgrApp *m_instance;
 };
 
 #endif

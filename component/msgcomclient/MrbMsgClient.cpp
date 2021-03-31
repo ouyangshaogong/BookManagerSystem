@@ -1,4 +1,4 @@
-#include "CmdMsgClient.h"
+#include "MrbMsgClient.h"
 
 extern MyMsgQueue g_pMsgQueue;
 
@@ -7,8 +7,19 @@ extern MyMsgQueue g_pMsgQueue;
 #define END_MSG_TYPE 300
 
 
-CmdMsgClient::CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID)
+MrbMsgClient::MrbMsgClient()
     :m_nMsgID(1)
+{
+    
+}
+
+MrbMsgClient::~MrbMsgClient()
+{
+
+}
+
+
+void MrbMsgClient::SetMsgValue(int nSendProc, int nTaskMgrID, TaskID nTaskID)
 {
     m_protoMsg.Header.nMsgID = m_nMsgID++;
     m_protoMsg.Header.nMsgType = REQUEST_MSG_TYPE;
@@ -17,13 +28,8 @@ CmdMsgClient::CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID)
     m_protoMsg.Header.nTaskID = nTaskID;
 }
 
-CmdMsgClient::~CmdMsgClient()
-{
 
-}
-
-
-void CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result)
+void MrbMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result)
 {
     
     m_protoMsg.Header.nMsgID = m_nMsgID++;
@@ -41,7 +47,7 @@ void CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::V
     
 }
 
-Json::Value& CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter)
+Json::Value& MrbMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter)
 {
 
 }

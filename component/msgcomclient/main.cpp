@@ -2,7 +2,7 @@
 
 int main()
 {
-    TaskMgrApp *pTaskMgrApp = TaskMgrApp::Instance();
+    MsgClientTaskMgrApp *pTaskMgrApp = MsgClientTaskMgrApp::Instance();
     iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 
     pMrbBus->StartBus();

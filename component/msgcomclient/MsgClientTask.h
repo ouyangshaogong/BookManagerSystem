@@ -4,6 +4,7 @@
 #include "commonace.h"
 #include "MyProtoMsg.h"
 #include "Task.h"
+#include "MrbMsgClient.h"
 
 typedef int TaskID;
 
@@ -16,11 +17,15 @@ class MsgClientTask: public Task
 public:
     MsgClientTask();
     virtual ~MsgClientTask();
-    
+    void SetMsgValue(int nSendProc, int nTaskMgrID);
     virtual int svc();
     
     virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);
 
+    static ACE_THR_FUNC DynamicTask();
+
+    virtual int CreateDynamicTask();
+    
     void SendMsgToTask(MyProtoMsg *pMsg);
 
     void SendSignal(MyProtoMsg *m_pMsg);
@@ -35,6 +40,8 @@ private:
 
     ACE_Thread_Mutex m_tCallMutex;
     ACE_Condition<ACE_Thread_Mutex> m_tCondMsg;
+
+    static MrbMsgClient m_mrbMsgClient; 
 };
 
 #endif

@@ -34,27 +34,31 @@ iMapMrbBus* iMapMrbBus::Instance(TaskMgrApp *pTaskMgrApp)
 
 void iMapMrbBus::StartBus()
 {
+    m_pTaskMgrApp->open();
     int nRet = m_pTaskMgrApp->InitProcessEnv(ACE_Thread_Manager::instance());
     if (0 != nRet)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskApp->InitProcessEnv fail!\n"));
     }
 
-    TaskMgr* pTaskMgr = new TaskMgr();
+    TaskMgr* pTaskMgr = new TaskMgr;
     nRet = pTaskMgr->InitEnv(1, m_pTaskMgrApp->GetGlobalTaskMgrID());
     if (0 != nRet)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskMgr->InitEnv fail!\n"));
     }
 
-    Task *pTaskStatic = new MsgClientTask;
+    MsgClientTask *pTaskStatic = new MsgClientTask;
+    
     pTaskStatic->CreateStaticTask();
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
+    pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
     pTaskMgr->InsertTask(pTaskStatic);
 
-    Task *pTaskDynamic = new MsgClientTask;
+    MsgClientTask *pTaskDynamic = new MsgClientTask;
     pTaskDynamic->CreateDynamicTask();
     pTaskDynamic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
+    pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
     pTaskMgr->InsertTask(pTaskDynamic);
 
     m_pTaskMgrApp->InsertTaskMgr(pTaskMgr);

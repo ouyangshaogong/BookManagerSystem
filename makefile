@@ -22,7 +22,7 @@ TASKMGR:
 MSGCOMCLIENT:MSGPROTO TASKMGR
 	@cp -rf $(HOMEDIR)/component/msgcomclient/*.h $(HOMEDIR)/include/component/msgcomclient
 	${MAKE} -C $(HOMEDIR)/component/msgcomclient
-	@cp $(HOMEDIR)/component/msgcomclient/libmsgcomclient.so $(HOMEDIR)/lib
+#	@cp $(HOMEDIR)/component/msgcomclient/libmsgcomclient.so $(HOMEDIR)/lib
 
 MSGCOMSERVER:MSGPROTO
 	${MAKE} -C $(HOMEDIR)/component/msgcomserver

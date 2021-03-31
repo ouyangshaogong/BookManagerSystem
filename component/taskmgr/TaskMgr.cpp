@@ -41,6 +41,13 @@ void TaskMgr::InsertTask(Task *pTask)
 
 void TaskMgr::DestoryTask()
 {
+    map<int, Task*>::iterator iter = m_nIDMapTask.begin();
+    for (; iter != m_nIDMapTask.end(); ++iter)
+    {
+        delete iter->second;
+        iter->second = NULL;
+    }
+    
     m_nIDMapTask.clear();
 
 }

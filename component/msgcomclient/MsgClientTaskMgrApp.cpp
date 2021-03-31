@@ -8,14 +8,36 @@ MyMsgQueue g_pMsgQueue;
 ACE_Thread_Mutex g_mMsgMutex;
 ACE_Condition<ACE_Thread_Mutex> g_mMsgCond(g_mMsgMutex);
 
-int MsgClientTaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
+ACE_Thread_Mutex MsgClientTaskMgrApp::m_mutex;
+MsgClientTaskMgrApp* MsgClientTaskMgrApp::m_instance = NULL;
+
+MsgClientTaskMgrApp::MsgClientTaskMgrApp()
 {
-    m_pThrMgr = pThrMgr;
-    return 0;
+
+}
+
+MsgClientTaskMgrApp::~MsgClientTaskMgrApp()
+{
+
+}
+
+MsgClientTaskMgrApp* MsgClientTaskMgrApp::Instance()
+{
+    if (NULL == m_instance)
+    {
+        ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
+        if (NULL == m_instance)
+        {
+            m_instance = new MsgClientTaskMgrApp();
+        }
+    }
+    
+    return m_instance;
 }
 
 int MsgClientTaskMgrApp::open()
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::open>>begin\n"));
     m_ConnectorHandle.open();
     activate();
     return 0;
