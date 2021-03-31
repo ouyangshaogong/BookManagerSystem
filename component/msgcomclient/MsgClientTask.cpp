@@ -29,8 +29,17 @@ void MsgClientTask::SetMsgValue(int nSendProc, int nTaskMgrID)
 }
 
 
+int MsgClientTask::open()
+{
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::open>>\n"));
+    activate(THR_NEW_LWP, m_nThreadNum);
+    return 0;
+}
+
+
 int MsgClientTask::svc()
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>\n"));
     ACE_Message_Block* pMsgBlock = NULL;
     while (true)
     {
@@ -50,6 +59,7 @@ int MsgClientTask::svc()
             break;
         }
 
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>msg_type\n"));
         MyProtoMsg *pMsg = (MyProtoMsg*)pMsgBlock->base();
         int nLength = pMsgBlock->length();
         if (pMsg->Header.nSendProc == SEND_PROC_ID) //如果是我自己的进程
@@ -83,9 +93,16 @@ int MsgClientTask::svc()
     return 0;
 }
 
+
+/*ACE_THR_FUNC Work(void *arg)
+{
+     ACE_DEBUG((LM_DEBUG, "(%P|%t)Work>>\n"));
+     return 0;
+}*/
+
 int MsgClientTask::CreateDynamicTask()
 {
-    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MsgClientTask::DynamicTask, NULL);
+    //ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)Work, NULL);
     return 0;
 }
 

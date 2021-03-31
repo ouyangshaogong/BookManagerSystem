@@ -18,6 +18,7 @@ int Task::InitEnv(int nThreadNum, TaskID nTaskID)
 
 int Task::open()
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)Task::open>>\n"));
     activate(THR_NEW_LWP, m_nThreadNum);
     return 0;
 }
@@ -31,11 +32,6 @@ int Task::svc()
 {
 
     return 0;
-}
-
-int Task::CreateStaticTask()
-{
-    return open();
 }
 
 int Task::CreateDynamicTask()

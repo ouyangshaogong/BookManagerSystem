@@ -25,3 +25,4 @@ $(Bin) : $(Objs)
 .PHONY : clean
 clean: 
 	rm -f $(Objs) $(Deps) $(Bin)
+	rm -rf core.*

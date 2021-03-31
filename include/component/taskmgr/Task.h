@@ -16,7 +16,6 @@ public:
     virtual int open();
     virtual int close();
     virtual int svc();
-    virtual int CreateStaticTask();
     virtual int CreateDynamicTask();
     static ACE_THR_FUNC DynamicTask();
     TaskID GetLocalTaskID();

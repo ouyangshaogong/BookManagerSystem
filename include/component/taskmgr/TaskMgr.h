@@ -19,7 +19,7 @@ public:
     int InitEnv(int nThreadNum, int nTaskMgrID);
 
 
-    int open(int nThreadNum);
+    int open();
     int close();
     int svc();
 

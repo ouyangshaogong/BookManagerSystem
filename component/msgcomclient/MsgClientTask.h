@@ -18,6 +18,8 @@ public:
     MsgClientTask();
     virtual ~MsgClientTask();
     void SetMsgValue(int nSendProc, int nTaskMgrID);
+
+    virtual int open();
     virtual int svc();
     
     virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);

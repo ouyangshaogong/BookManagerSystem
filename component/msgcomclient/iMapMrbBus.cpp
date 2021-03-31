@@ -49,9 +49,8 @@ void iMapMrbBus::StartBus()
     }
 
     MsgClientTask *pTaskStatic = new MsgClientTask;
-    
-    pTaskStatic->CreateStaticTask();
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
+    pTaskStatic->open();
     pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
     pTaskMgr->InsertTask(pTaskStatic);
 
@@ -59,7 +58,7 @@ void iMapMrbBus::StartBus()
     pTaskDynamic->CreateDynamicTask();
     pTaskDynamic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
     pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
-    pTaskMgr->InsertTask(pTaskDynamic);
+    //pTaskMgr->InsertTask(pTaskDynamic);
 
     m_pTaskMgrApp->InsertTaskMgr(pTaskMgr);
 }

@@ -25,12 +25,15 @@ int TaskMgr::InitEnv(int nThreadNum, int nTaskMgrID)
         m_nThreadNum = TASK_MAX_VALUE;
     }
 
+    open();
     return 0;
 }
 
-int TaskMgr::open(int nThreadNum)
+int TaskMgr::open()
 {
-    activate(THR_NEW_LWP, nThreadNum);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgr::open>>\n"));
+    activate(THR_NEW_LWP, m_nThreadNum);
+    return 0;
 }
 
 void TaskMgr::InsertTask(Task *pTask)

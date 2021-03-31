@@ -38,7 +38,7 @@ MsgClientTaskMgrApp* MsgClientTaskMgrApp::Instance()
 int MsgClientTaskMgrApp::open()
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::open>>begin\n"));
-    m_ConnectorHandle.open();
+    
     activate();
     return 0;
 }
@@ -50,8 +50,11 @@ int MsgClientTaskMgrApp::close()
 
 int MsgClientTaskMgrApp::svc()
 {
+    m_ConnectorHandle.open();
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::svc\n"));
     while (true)
     {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::svc>>handle_events\n"));
         ACE_Reactor::instance()->handle_events();
     }
 
@@ -62,8 +65,10 @@ void MsgClientTaskMgrApp::StartMsgLoop()
 {
     while(true)
     {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::StartMsgLoop>>while(true)\n"));
         if (g_pMsgQueue.empty())
         {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::StartMsgLoop>>g_mMsgCond\n"));
             g_mMsgCond.wait();
         }
         
@@ -88,6 +93,8 @@ void MsgClientTaskMgrApp::StartMsgLoop()
 
             g_pMsgQueue.pop();
         }
+        
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTaskMgrApp::StartMsgLoop>>\n"));
     }
 
 }
