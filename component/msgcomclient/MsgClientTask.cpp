@@ -1,5 +1,14 @@
 #include "MsgClientTask.h"
 
+extern MyMsgQueue g_pMsgQueue;
+extern ACE_Thread_Mutex g_mMsgMutex;
+extern ACE_Condition<ACE_Thread_Mutex> g_mMsgCond;
+
+const int CMD_MSG_SERVICE_REGISTER = 1;
+
+const int SEND_PROC_ID = 51;
+const int RECV_PROC_ID = 50;
+
 
 MsgClientTask::MsgClientTask()
     :m_tCallMutex(), m_tCondMsg(m_tCallMutex), m_nMsgID(1)
@@ -10,6 +19,62 @@ MsgClientTask::MsgClientTask()
 MsgClientTask::~MsgClientTask()
 {
 }
+
+
+int MsgClientTask::svc()
+{
+    ACE_Message_Block* pMsgBlock = NULL;
+    while (true)
+    {
+        if (this->getq(pMsgBlock) == -1)
+        {
+            continue;
+        }
+
+        if (NULL == pMsgBlock)
+        {
+            continue;
+        }
+
+        if (pMsgBlock->msg_type() == ACE_Message_Block::MB_STOP)
+        {
+            pMsgBlock->release();
+            break;
+        }
+
+        MyProtoMsg *pMsg = (MyProtoMsg*)pMsgBlock->base();
+        int nLength = pMsgBlock->length();
+        if (pMsg->Header.nSendProc == SEND_PROC_ID) //如果是我自己的进程
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+            if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE) //别人对我的响应
+            {
+                pMsg->Header.display();
+                static int i = 1;
+                ACE_DEBUG((LM_DEBUG, "(%P|%t)receive response success.%d\n", i++));
+            }
+        }
+        else
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+            MyProtoMsg *pInMsg = pMsg;
+            MyProtoMsg *pOutMsg = pMsg;
+            if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE) //如果别人的请求
+            {
+                process(pMsg->Header.nCmdMsg, pInMsg, pOutMsg);
+                //处理完以后，会产生一个消息响应，发送到网络
+                g_pMsgQueue.push(pOutMsg);
+                g_mMsgCond.signal();
+            }
+        }
+
+        //ÊÍ·Åblock
+        pMsgBlock->release();
+        pMsgBlock = NULL;
+    }
+    return 0;
+}
+
 
 void MsgClientTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody)
 {

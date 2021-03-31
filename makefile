@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 
-ALLLIBS: SUTILS MSGPROTO TASKMGR MSGCOMCLIENT MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
+ALLLIBS: SUTILS MSGPROTO TASKMGR MSGCOMCLIENT MSGCOMSERVER MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
 
 SUTILS:
 	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
@@ -23,6 +23,10 @@ MSGCOMCLIENT:MSGPROTO TASKMGR
 	@cp -rf $(HOMEDIR)/component/msgcomclient/*.h $(HOMEDIR)/include/component/msgcomclient
 	${MAKE} -C $(HOMEDIR)/component/msgcomclient
 	@cp $(HOMEDIR)/component/msgcomclient/libmsgcomclient.so $(HOMEDIR)/lib
+
+MSGCOMSERVER:MSGPROTO
+	${MAKE} -C $(HOMEDIR)/component/msgcomserver
+
 
 MODEL:
 	@cp -rf $(HOMEDIR)/business/model/*.h $(HOMEDIR)/include/model
