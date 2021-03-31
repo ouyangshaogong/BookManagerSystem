@@ -10,7 +10,7 @@ public:
     CmdMsgClient();
     ~CmdMsgClient();
 
-    void SendCmdMsgToTask(MyProtoMsg* pMsg);
+    
 
     void CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result);
     Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);

@@ -63,14 +63,13 @@ void TaskMgrApp::StartMsgLoop()
     {
         ACE_Reactor::instance()->handle_events();
     }
-
-    ACE_Thread_Manager::instance()->wait();
 }
 
 void TaskMgrApp::ExitThread()
 {
     m_pThrMgr->wait();
 }
+
 void TaskMgrApp::TaskMgrDestory()
 {
     map<int, TaskMgr*>::iterator iter = m_nIdMapTaskMgr.begin();

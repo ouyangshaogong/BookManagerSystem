@@ -58,19 +58,8 @@ struct MyProtoMsg
     Json::Value Body;
 };
 
-//协议封装类
-class MyProtoEncode
-{
-public:
-    //协议消息体封装函数：传入的pMsg里面只有部分数据，比如Json协议体，服务号，我们对消息编码后会修改长度信息，这时需要重新编码协议
-    uint8_t* encode(MyProtoMsg* pMsg, uint32_t& len); //返回长度信息，用于后面socket发送数据
-private:
-    //协议头封装函数
-    void headEncode(uint8_t* pData, MyProtoMsg* pMsg);
-};
-
 //协议解析类
-class MyProtoDecode
+class MyMsgQueue
 {
 private:
     MyProtoMsg m_mCurMsg; //当前解析中的协议消息体
@@ -82,14 +71,18 @@ public:
     void clear(); //清空解析好的消息队列
     bool empty(); //判断解析好的消息队列是否为空
     void pop();  //出队一个消息
-
+    
+    void push(MyProtoMsg*);
     MyProtoMsg* front(); //获取一个解析好的消息
     bool parser(void* data, size_t len); //从网络字节流中解析出来协议消息，len是网络中的字节流长度，通过socket可以获取
+    uint8_t* encode(MyProtoMsg* pMsg, uint32_t& len); 
 private:
     bool parserHead(uint8_t** curData, uint32_t& curLen,
         uint32_t& parserLen, bool& parserBreak); //用于解析消息头
     bool parserBody(uint8_t** curData, uint32_t& curLen,
         uint32_t& parserLen, bool& parserBreak); //用于解析消息体
+
+    void headEncode(uint8_t* pData, MyProtoMsg* pMsg);
 };
 
 #endif

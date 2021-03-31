@@ -1,6 +1,6 @@
 #include "MyProtoMsg.h"
 
-uint8_t* MyProtoEncode::encode(MyProtoMsg* pMsg, uint32_t& length)
+uint8_t* MyMsgQueue::encode(MyProtoMsg* pMsg, uint32_t& length)
 {
     uint8_t* pData = NULL; //用于开辟新的空间，存放编码后的数据
     Json::FastWriter fwriter; //读取Json::Value数据，转换为可以写入文件的字符串
@@ -21,7 +21,7 @@ uint8_t* MyProtoEncode::encode(MyProtoMsg* pMsg, uint32_t& length)
 }
 
 //协议头封装函数
-void MyProtoEncode::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
+void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
 {
     //设置协议头魔术字
     *pData = MY_PROTO_MAGIC;
@@ -53,12 +53,12 @@ void MyProtoEncode::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
     *(uint32_t*)pData = pMsg->Header.nMsgLength;
 }
 
-void MyProtoDecode::init()
+void MyMsgQueue::init()
 {
     m_mCurParserStatus = ON_PARSER_INIT;
 }
 
-void MyProtoDecode::clear()
+void MyMsgQueue::clear()
 {
     MyProtoMsg* pMsg = NULL;
     while (!m_mMsgQ.empty())
@@ -69,23 +69,28 @@ void MyProtoDecode::clear()
     }
 }
 
-bool MyProtoDecode::empty()
+bool MyMsgQueue::empty()
 {
     return m_mMsgQ.empty();
 }
 
-void MyProtoDecode::pop()
+void MyMsgQueue::pop()
 {
     m_mMsgQ.pop();
 }
 
 
-MyProtoMsg* MyProtoDecode::front()
+MyProtoMsg* MyMsgQueue::front()
 {
     return m_mMsgQ.front();
 }
 
-bool MyProtoDecode::parser(void* data, size_t len)
+void MyMsgQueue::push(MyProtoMsg *pMsg)
+{
+    m_mMsgQ.push(pMsg);
+}
+
+bool MyMsgQueue::parser(void* data, size_t len)
 {
     if (len <= 0)
         return false;
@@ -150,7 +155,7 @@ bool MyProtoDecode::parser(void* data, size_t len)
     return true;
 }
 
-bool MyProtoDecode::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
+bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
 {
     if (curLen < MY_PROTO_HEAD_SIZE)
     {
@@ -213,7 +218,7 @@ bool MyProtoDecode::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& pa
     return true;
 }
 
-bool MyProtoDecode::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
+bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
 {
     uint32_t JsonSize = m_mCurMsg.Header.nMsgLength - MY_PROTO_HEAD_SIZE; //消息体的大小
     if (curLen < JsonSize)
