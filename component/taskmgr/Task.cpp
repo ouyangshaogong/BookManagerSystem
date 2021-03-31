@@ -1,7 +1,6 @@
 #include "Task.h"
 
 Task::Task()
-:m_tCallMutex(), m_tCondMsg(m_tCallMutex)
 {
 }
 
@@ -64,17 +63,12 @@ void Task::SendMsgToTask(MyProtoMsg *pMsg)
     
 }
 
-void Task::GetResultValue(Json::Value &value)
+void Task::SendSignal(MyProtoMsg *pMsg)
 {
 
 }
 
-void Task::SendSignal()
-{
-
-}
-
-void Task::WaitSignal()
+MyProtoMsg* Task::WaitSignal()
 {
 
 }

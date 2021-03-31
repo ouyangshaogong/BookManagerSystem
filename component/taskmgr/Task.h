@@ -23,17 +23,14 @@ public:
     virtual void process(int nCmdMsg, void* InBody, void* OutBody);
 
     virtual void SendMsgToTask(MyProtoMsg *pMsg);
-
-    virtual void GetResultValue(Json::Value &value);
-    virtual void SendSignal();
-    virtual void WaitSignal();
+    virtual void SendSignal(MyProtoMsg *m_pMsg);
+    virtual MyProtoMsg *WaitSignal();
 
 private:
     TaskID m_nTaskID;
     int m_nThreadNum;
 
-    ACE_Thread_Mutex m_tCallMutex;
-    ACE_Condition<ACE_Thread_Mutex> m_tCondMsg;
+    
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 
 MsgClientTask::MsgClientTask()
-    :m_callMutex(), m_condMsg(m_callMutex), m_nMsgID(1)
+    :m_tcallMutex(), m_tcondMsg(m_tcallMutex), m_nMsgID(1)
 {
 }
 
@@ -32,17 +32,14 @@ void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
     }
 }
 
-void MsgClientTask::SendSignal()
+void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
 {
+    m_pMsg = pMsg;
     m_condMsg.signal();
 }
 
-void MsgClientTask::WaitSignal()
+MyProtoMsg *MsgClientTask::WaitSignal()
 {
     m_condMsg.wait();
-}
-
-void MsgClientTask::GetResultValue(Json::Value &value)
-{
-
+    returnb m_pMsg;
 }

@@ -1,17 +1,14 @@
 #include "iMapConnectorHandle.h"
-#include "MsgClientTask.h"
 
 #define PORT_NO 5000
 #define HOSTNAME "127.0.0.1"
 
-iMapConnectorHandle::iMapConnectorHandle(TaskMgrApp *pTaskMgrApp, int nSendProc, int nTaskMgrID, TaskID nTaskID)
-    :m_pTaskMgrApp(pTaskMgrApp), m_nMsgID(1)
+extern MyMsgQueue g_pMsgQueue;
+
+iMapConnectorHandle::iMapConnectorHandle()
+    :m_nMsgID(1)
 {
-    m_protoMsg.Header.nMsgID = m_nMsgID;
-    m_protoMsg.Header.nMsgType = REQUEST_MSG_TYPE;
-    m_protoMsg.Header.nSendProc = nSendProc;
-    m_protoMsg.Header.nTaskMgrID = nTaskMgrID;
-    m_protoMsg.Header.nTaskID = nTaskID;
+
 }
 
 
@@ -69,7 +66,7 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
         return 0;
     }
 
-    if (!m_protoDecode.parser(buf, recv_cnt))
+    if (!g_pMsgQueue.parser(buf, recv_cnt))
     {
         cout << "parser msg failed!" << endl;
     }
@@ -79,17 +76,6 @@ int iMapConnectorHandle::handle_input(ACE_HANDLE fd)
     }
 
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
-
-    MyProtoMsg* pMsg = NULL;
-    while(!m_protoDecode.empty())
-    {
-        pMsg = m_protoDecode.front();
-        SendCmdMsgToTask(pMsg);
-        m_protoDecode.pop();
-    }
-
-    
-
     return 0;
 }
 
@@ -106,15 +92,12 @@ ACE_HANDLE iMapConnectorHandle::get_handle(void) const
     return m_socketPeer.get_handle();
 }
 
-void iMapConnectorHandle::SendCmdMsgToServer(uint8_t* pData, int nLength)
+void iMapConnectorHandle::SendCmdMsgToServer(MyProtoMsg *pMsg)
 {
+    uint8_t *pData = NULL;
+    uint32_t nLength = 0;
+    pData = g_pMsgQueue.encode(pMsg, nLength);
+
     int recv_cnt = this->m_socketPeer.send(pData, nLength);
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapConnectorHandle::SendCmdMsgToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
-}
-
-void iMapConnectorHandle::SendCmdMsgToTask(MyProtoMsg* pMsg)
-{
-    TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(pMsg->Header.nTaskMgrID);
-    MsgClientTask *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
-    pTask->SendMsgToTask(pMsg);
 }

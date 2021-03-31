@@ -26,11 +26,14 @@ public:
 private:
     TaskMgrApp();
 
+protected:
+    ACE_Thread_Manager *m_pThrMgr;
+
 private:
     map<int, TaskMgr*> m_nIdMapTaskMgr;
     static ACE_Thread_Mutex m_mutex;
     static TaskMgrApp *m_instance;
-    ACE_Thread_Manager *m_pThrMgr;
+    
 
     TaskMgrID m_nGlobalTaskMgrID;
 };

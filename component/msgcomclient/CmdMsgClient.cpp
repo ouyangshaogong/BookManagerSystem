@@ -1,8 +1,16 @@
 #include "CmdMsgClient.h"
 
-CmdMsgClient::CmdMsgClient()
-{
+extern MyMsgQueue g_pMsgQueue;
 
+
+CmdMsgClient::CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID)
+    :m_nMsgID(1)
+{
+    m_protoMsg.Header.nMsgID = m_nMsgID++;
+    m_protoMsg.Header.nMsgType = REQUEST_MSG_TYPE;
+    m_protoMsg.Header.nSendProc = nSendProc;
+    m_protoMsg.Header.nTaskMgrID = nTaskMgrID;
+    m_protoMsg.Header.nTaskID = nTaskID;
 }
 
 CmdMsgClient::~CmdMsgClient()
@@ -13,20 +21,20 @@ CmdMsgClient::~CmdMsgClient()
 
 void CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result)
 {
+    
     m_protoMsg.Header.nMsgID = m_nMsgID++;
     m_protoMsg.Header.nCmdMsg = nCmdMsg;
     //¸ù¾ÝMrbCmdÅÐ¶Ï
     m_protoMsg.Header.nRecvProc = 0;
 
-    uint32_t nLength = 0;
-    uint8_t* pData = NULL;
-    pData = m_protoEncode.encode(&m_protoMsg, nLength);
-    m_pConnecotorHandle->SendCmdMsgToServer(pData, nLength);
+    MyProtoMsg *pInMsg = new MyProtoMsg;
+    g_pMsgQueue.push(pMsg);
 
-    TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(m_protoMsg.Header.nTaskMgrID);
-    Task *pTask = pTaskMgr->GetTask(m_protoMsg.Header.nTaskID);
-    pTask->WaitSignal();
-    pTask->GetResultValue(result);
+    
+    TaskMgr *pTaskMgr = m_pClientTaskMgrApp->GetTaskMgr(pMsg->Header.nTaskMgrID);
+    Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
+    MyProtoMsg *pOutMsg = pTask->WaitSignal();
+    
 }
 
 Json::Value& CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter)

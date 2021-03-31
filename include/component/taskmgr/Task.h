@@ -22,11 +22,11 @@ public:
     TaskID GetLocalTaskID();
     virtual void process(int nCmdMsg, void* InBody, void* OutBody);
 
-    void SendMsgToTask(MyProtoMsg *pMsg);
+    virtual void SendMsgToTask(MyProtoMsg *pMsg);
 
-    void GetResultValue(Json::Value &value);
-    void SendSignal();
-    void WaitSignal();
+    virtual void GetResultValue(Json::Value &value);
+    virtual void SendSignal();
+    virtual void WaitSignal();
 
 private:
     TaskID m_nTaskID;

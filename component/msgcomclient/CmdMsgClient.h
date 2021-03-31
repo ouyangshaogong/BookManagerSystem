@@ -1,13 +1,13 @@
 #ifndef __CMD_MSG_CLIENT__
 #define __CMD_MSG_CLIENT__
 
-#include "TaskMgrApp.h"
-#include "iMapConnectorHandle.h"
+#include "MyProtoMsg.h"
+#include "MsgClientTaskMgrApp.h"
 
 class CmdMsgClient
 {
 public:
-    CmdMsgClient();
+    CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID);
     ~CmdMsgClient();
 
     
@@ -16,8 +16,9 @@ public:
     Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);
 
 private:
-    TaskMgrApp *m_pTaskMgrApp;
-    iMapConnectorHandle *m_pConnecotorHandle;
+    int m_nMsgID;
+    MyProtoMsg m_protoMsg;
+    MsgClientTaskMgrApp *m_pClientTaskMgrApp
 };
 
 #endif

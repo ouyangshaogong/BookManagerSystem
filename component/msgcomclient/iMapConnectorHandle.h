@@ -3,14 +3,13 @@
 
 #include "commonace.h"
 #include "MyProtoMsg.h"
-#include "TaskMgrApp.h"
 
 using namespace std;
 
 class iMapConnectorHandle: public ACE_Event_Handler
 {
 public:
-    iMapConnectorHandle(TaskMgrApp *pTaskMgrApp, int nSendProc, int nTaskMgrID, TaskID nTaskID);
+    iMapConnectorHandle();
     ~iMapConnectorHandle();
 
     virtual int open();
@@ -25,21 +24,12 @@ public:
 
     ACE_HANDLE get_handle(void) const;
 
-    
-
-    void SendCmdMsgToServer(uint8_t* pData, int nLength);
-
-    void SendCmdMsgToTask(MyProtoMsg* pMsg);
+    void SendCmdMsgToServer(MyProtoMsg *pMsg);
 
 private:
     ACE_SOCK_Connector m_connector;
     ACE_SOCK_Stream m_socketPeer;
 
-    TaskMgrApp *m_pTaskMgrApp;
-
-    MyProtoDecode m_protoDecode;
-    MyProtoEncode m_protoEncode;
-    MyProtoMsg m_protoMsg;
     int m_nMsgID;
 };
 

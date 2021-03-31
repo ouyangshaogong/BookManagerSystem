@@ -21,9 +21,8 @@ public:
 
     void SendMsgToTask(MyProtoMsg *pMsg);
 
-    void GetResultValue(Json::Value &value);
-    void SendSignal();
-    void WaitSignal();
+    void SendSignal(MyProtoMsg *m_pMsg);
+    MyProtoMsg *WaitSignal();
 
 private:
 
@@ -32,9 +31,10 @@ private:
 
     MyProtoDecode m_protoDecode;
     MyProtoEncode m_protoEncode;
-    MyProtoMsg m_protoMsg;
+    MyProtoMsg *m_pMsg;
 
-    
+    ACE_Thread_Mutex m_tCallMutex;
+    ACE_Condition<ACE_Thread_Mutex> m_tCondMsg;
 };
 
 #endif
