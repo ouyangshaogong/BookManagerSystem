@@ -35,13 +35,8 @@ iMapMsgService* iMapMsgService::Instance()
 
 int iMapMsgService::open()
 {
-    ACE_INET_Addr addr(5000, "127.0.0.1");
 
-    if (m_acceptor.open(addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
-    {
-        return 1;
-    }
-    
+    m_nInetAddr.set(5000, "127.0.0.1");
     activate();
     return 0;
 }
@@ -53,11 +48,12 @@ int iMapMsgService::close()
 
 int iMapMsgService::svc()
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgService::svc>>begin\n"));
+    if (m_acceptor.open(m_nInetAddr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
+    {
+        return 1;
+    }
+    
     ACE_Reactor::instance()->run_reactor_event_loop();
     return 0;
-}
-
-void iMapMsgService::StartMsgLoop()
-{
-    m_acceptor.StartMsgLoop();
 }

@@ -18,10 +18,10 @@ int ACE_TMAIN(int, ACE_TCHAR *[])
     //ios::out以写的方式打开，ios::trunc清空文件;
     //ACE_LOG_MSG->msg_ostream(&out);
 
-    
+    iMapMsgService *pMsgService = iMapMsgService::Instance();
+    pMsgService->open();
 
-    
-
+    ACE_Thread_Manager::instance()->wait();
 
     ACE_DEBUG((LM_DEBUG, "(%P|%t)main>>server is end.....!\n"));
     return 0;

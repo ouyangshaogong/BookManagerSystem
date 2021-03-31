@@ -14,7 +14,7 @@ AllLibs : $(DynamicLib)
 CC = g++
 CXXFLAGS = -g -O -fPIC -Wall
 CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common
-LDFLAGS = -lstdc++ -lACE -ljsoncpp
+LDFLAGS = -lstdc++ -lACE -ljsoncpp /usr/local/lib/libjsoncpp.a 
 
 $(DynamicLib) : $(Objs)
 	g++ -shared -o $@ $^ $(LDFLAGS) 

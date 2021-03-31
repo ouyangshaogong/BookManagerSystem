@@ -14,10 +14,10 @@ AllLibs : $(Bin)
 CC = g++
 CXXFLAGS = -g -O -fPIC -Wall
 CPPFLAGS = $(foreach n,$(AllDirs), -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component/msgproto -I$(INCDIR)/component/taskmgr 
-LDFLAGS = -lstdc++ -lACE -ljsoncpp -lmsgproto -ltaskmgr
+LDFLAGS = -lstdc++ -lpthread -lACE -ljsoncpp -lmsgproto 
 
 $(Bin) : $(Objs)
-	g++ -shared -o $@ $^ $(LDFLAGS) 
+	g++ $(Objs) -o $@ $(LDFLAGS) 
 
 %.d : %.cpp
 	$(CC) -MT"$(<:.cpp=.o) $@" -MM $(CXXFLAGS) $(CPPFLAGS) $< > $@
