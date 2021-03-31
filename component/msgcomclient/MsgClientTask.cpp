@@ -2,7 +2,7 @@
 
 
 MsgClientTask::MsgClientTask()
-    :m_tcallMutex(), m_tcondMsg(m_tcallMutex), m_nMsgID(1)
+    :m_tCallMutex(), m_tCondMsg(m_tCallMutex), m_nMsgID(1)
 {
 }
 
@@ -35,11 +35,11 @@ void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
 void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
 {
     m_pMsg = pMsg;
-    m_condMsg.signal();
+    m_tCallMutex.signal();
 }
 
 MyProtoMsg *MsgClientTask::WaitSignal()
 {
-    m_condMsg.wait();
-    returnb m_pMsg;
+    m_tCallMutex.wait();
+    return m_pMsg;
 }

@@ -48,7 +48,7 @@ void MsgClientTaskMgrApp::StartMsgLoop()
         {
             TaskMgr *pTaskMgr = this->GetTaskMgr(pMsg->Header.nTaskMgrID);
             Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
-            pTask->SendSignal();
+            pTask->SendSignal(pMsg);
         }
         else
         {

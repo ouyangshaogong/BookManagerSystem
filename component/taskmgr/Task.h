@@ -23,7 +23,7 @@ public:
     virtual void process(int nCmdMsg, void* InBody, void* OutBody);
 
     virtual void SendMsgToTask(MyProtoMsg *pMsg);
-    virtual void SendSignal(MyProtoMsg *m_pMsg);
+    virtual void SendSignal(MyProtoMsg *pMsg);
     virtual MyProtoMsg *WaitSignal();
 
 private:
