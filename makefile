@@ -2,7 +2,13 @@ SHELL = /bin/bash
 
 HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 
-ALLLIBS: UTILS MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
+ALLLIBS: UTILS MSGPROTO TASKMGR MSGCOMCLIENT MODEL DAO BOOKMGRSERVICE USERMGRSERVICE MVCFRAME TESTCLIENT TEST ECHO
+
+UTILS:
+	@echo "fsdfsdfsdfsdfd"
+	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
+	${MAKE} -C $(HOMEDIR)/utils
+	@cp $(HOMEDIR)/utils/libbookutils.so $(HOMEDIR)/lib
 
 MSGPROTO:
 	@cp -rf $(HOMEDIR)/component/msgproto/*.h $(HOMEDIR)/include/component/msgproto
@@ -14,10 +20,10 @@ TASKMGR:
 	${MAKE} -C $(HOMEDIR)/component/taskmgr
 	@cp $(HOMEDIR)/component/taskmgr/libtaskmgr.so $(HOMEDIR)/lib
 
-UTILS:
-	@cp -rf $(HOMEDIR)/utils/*.h $(HOMEDIR)/include/utils
-	${MAKE} -C $(HOMEDIR)/utils
-	@cp $(HOMEDIR)/utils/libbookutils.so $(HOMEDIR)/lib
+MSGCOMCLIENT:MSGPROTO TASKMGR
+	@cp -rf $(HOMEDIR)/component/msgcomclient/*.h $(HOMEDIR)/include/component/msgcomclient
+	${MAKE} -C $(HOMEDIR)/component/msgcomclient
+	@cp $(HOMEDIR)/component/msgcomclient/libmsgcomclient.so $(HOMEDIR)/lib
 
 MODEL:
 	@cp -rf $(HOMEDIR)/business/model/*.h $(HOMEDIR)/include/model
@@ -64,6 +70,9 @@ clean:
 	@${MAKE} clean -C $(HOMEDIR)/test/bookmanagertest
 	@${MAKE} clean -C $(HOMEDIR)/test/usermanagertest
 	@${MAKE} clean -C $(HOMEDIR)/test/client
+	@${MAKE} clean -C $(HOMEDIR)/component/msgproto
+	@${MAKE} clean -C $(HOMEDIR)/component/taskmgr
+	@${MAKE} clean -C $(HOMEDIR)/component/msgcomclient
 	@${MAKE} clean -C $(HOMEDIR)/component/mvcframe
 	@rm -rf $(HOMEDIR)/lib/*.so
 	@rm -rf $(HOMEDIR)/build-BookManagerClient-Desktop_Qt_5_12_10_GCC_64bit-Debug

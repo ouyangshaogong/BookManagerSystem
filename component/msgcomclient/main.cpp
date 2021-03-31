@@ -1,10 +1,10 @@
-#include "TaskMgrApp.h"
+#include "MsgClientTaskMgrApp.h"
 #include "iMapConnectorHandle.h"
 #include "MsgClientTask.h"
 
 int main()
 {
-    TaskMgrApp *pTaskApp = TaskMgrApp::Instance();
+    TaskMgrApp *pTaskApp = MsgClientTaskMgrApp::Instance();
 
     int nRet = pTaskApp->InitProcessEnv(ACE_Thread_Manager::instance());
     if (0 != nRet)
@@ -13,7 +13,7 @@ int main()
     }
 
     TaskMgr* pTaskMgr = new TaskMgr();
-    nRet = pTaskMgr->InitEnv(1);
+    nRet = pTaskMgr->InitEnv(1, pTaskApp->GetGlobalTaskMgrID());
     if (0 != nRet)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskMgr->InitEnv fail!\n"));
@@ -33,7 +33,7 @@ int main()
 
     pTaskApp->InsertTaskMgr(pTaskMgr);
 
-    iMapConnectorHandle connHandle(pTaskApp, 50, pTaskMgr->GetLocalTaskMgrID(), pTaskStatic->GetLocalTaskID());
+    iMapConnectorHandle connHandle;
     //task->Initialize();
     pTaskApp->StartMsgLoop();
     //task->Initialize();

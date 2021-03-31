@@ -2,6 +2,10 @@
 
 extern MyMsgQueue g_pMsgQueue;
 
+#define REQUEST_MSG_TYPE 200
+#define RESPONSE_MSG_TYPE 201
+#define END_MSG_TYPE 300
+
 
 CmdMsgClient::CmdMsgClient(int nSendProc, int nTaskMgrID, TaskID nTaskID)
     :m_nMsgID(1)
@@ -28,11 +32,11 @@ void CmdMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::V
     m_protoMsg.Header.nRecvProc = 0;
 
     MyProtoMsg *pInMsg = new MyProtoMsg;
-    g_pMsgQueue.push(pMsg);
+    g_pMsgQueue.push(pInMsg);
 
     
-    TaskMgr *pTaskMgr = m_pClientTaskMgrApp->GetTaskMgr(pMsg->Header.nTaskMgrID);
-    Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
+    TaskMgr *pTaskMgr = m_pClientTaskMgrApp->GetTaskMgr(m_protoMsg.Header.nTaskMgrID);
+    Task *pTask = pTaskMgr->GetTask(m_protoMsg.Header.nTaskID);
     MyProtoMsg *pOutMsg = pTask->WaitSignal();
     
 }

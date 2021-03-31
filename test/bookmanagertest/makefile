@@ -6,7 +6,7 @@ Objs := $(patsubst %.cpp,%.o, $(Sources))
 Deps := $(patsubst %.cpp,%.d, $(Sources))
 
 
-HOMEDIR=/home/zhangfengli/vscode-projects/BookManagerSystem
+HOMEDIR=/mnt/hgfs/BOOKDEVELOPMENT/BookManagerSystem
 INCDIR=$(HOMEDIR)/include
 
 Bin := bookmanagertest

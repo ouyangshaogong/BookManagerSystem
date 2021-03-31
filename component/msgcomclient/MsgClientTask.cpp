@@ -35,11 +35,11 @@ void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
 void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
 {
     m_pMsg = pMsg;
-    m_tCallMutex.signal();
+    m_tCondMsg.signal();
 }
 
 MyProtoMsg *MsgClientTask::WaitSignal()
 {
-    m_tCallMutex.wait();
+    m_tCondMsg.wait();
     return m_pMsg;
 }

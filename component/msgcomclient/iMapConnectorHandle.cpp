@@ -6,7 +6,6 @@
 extern MyMsgQueue g_pMsgQueue;
 
 iMapConnectorHandle::iMapConnectorHandle()
-    :m_nMsgID(1)
 {
 
 }
