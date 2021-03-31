@@ -76,6 +76,7 @@ clean:
 	@${MAKE} clean -C $(HOMEDIR)/component/msgproto
 	@${MAKE} clean -C $(HOMEDIR)/component/taskmgr
 	@${MAKE} clean -C $(HOMEDIR)/component/msgcomclient
+	@${MAKE} clean -C $(HOMEDIR)/component/msgcomserver
 	@${MAKE} clean -C $(HOMEDIR)/component/mvcframe
 	@rm -rf $(HOMEDIR)/lib/*.so
 	@rm -rf $(HOMEDIR)/build-BookManagerClient-Desktop_Qt_5_12_10_GCC_64bit-Debug

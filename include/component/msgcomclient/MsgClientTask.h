@@ -16,7 +16,9 @@ class MsgClientTask: public Task
 public:
     MsgClientTask();
     virtual ~MsgClientTask();
-
+    
+    virtual int svc();
+    
     virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);
 
     void SendMsgToTask(MyProtoMsg *pMsg);
