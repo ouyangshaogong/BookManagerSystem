@@ -9,13 +9,13 @@ ACE_THR_FUNC Work(void *arg)
 
     for (int i = 0; i < 5; i++)
     {
-        MrbMsgClient mrbMsgClient; 
+        //MrbMsgClient mrbMsgClient; 
         ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
         Json::Value InParam;
         InParam["test"] = "test";
 
         Json::Value OutParam;
-        mrbMsgClient.CallMethod(i, InParam, OutParam);
+        //mrbMsgClient.CallMethod(i, InParam, OutParam);
     }
      return 0;
 }
@@ -23,7 +23,7 @@ ACE_THR_FUNC Work(void *arg)
 
 int main()
 {
-     ACE_Thread_Manager::instance()->spawn_n(1, (ACE_THR_FUNC)Work, NULL);
+    //ACE_Thread_Manager::instance()->spawn_n(1, (ACE_THR_FUNC)Work, NULL);
     MsgClientTaskMgrApp *pTaskMgrApp = MsgClientTaskMgrApp::Instance();
     iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 

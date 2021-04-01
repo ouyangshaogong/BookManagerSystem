@@ -17,16 +17,15 @@ class MsgClientTask: public Task
 public:
     MsgClientTask();
     virtual ~MsgClientTask();
-    void SetMsgValue(int nSendProc, int nTaskMgrID);
 
     virtual int open();
     virtual int svc();
     
     virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);
 
-    static ACE_THR_FUNC DynamicTask();
+    static ACE_THR_FUNC DynamicTask(void* arg);
 
-    virtual int CreateDynamicTask();
+    virtual int CreateDynamicTask(MrbMsgClient *pMrbMsgClient);
     
     void SendMsgToTask(MyProtoMsg *pMsg);
 

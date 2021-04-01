@@ -51,14 +51,16 @@ void iMapMrbBus::StartBus()
     MsgClientTask *pTaskStatic = new MsgClientTask;
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
     pTaskStatic->open();
-    pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
     pTaskMgr->InsertTask(pTaskStatic);
 
     MsgClientTask *pTaskDynamic = new MsgClientTask;
-    pTaskDynamic->CreateDynamicTask();
-    pTaskDynamic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
-    pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
-    //pTaskMgr->InsertTask(pTaskDynamic);
+    pTaskDynamic->InitEnv(1, pTaskMgr->GetGlobalTaskID());
+
+    MrbMsgClient *mrbMsgClient = new MrbMsgClient(m_pTaskMgrApp);
+    mrbMsgClient->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID(), pTaskDynamic->GetLocalTaskID());
+    pTaskDynamic->CreateDynamicTask(mrbMsgClient);
+    //pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
+    pTaskMgr->InsertTask(pTaskDynamic);
 
     m_pTaskMgrApp->InsertTaskMgr(pTaskMgr);
 }

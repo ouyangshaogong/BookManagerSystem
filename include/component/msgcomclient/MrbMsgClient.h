@@ -7,7 +7,7 @@
 class MrbMsgClient
 {
 public:
-    MrbMsgClient();
+    MrbMsgClient(TaskMgrApp *pTaskMgrApp);
     ~MrbMsgClient();
 
     void SetMsgValue(int nSendProc, int nTaskMgrID, TaskID nTaskID);
@@ -18,7 +18,8 @@ public:
 private:
     int m_nMsgID;
     MyProtoMsg m_protoMsg;
-    MsgClientTaskMgrApp *m_pClientTaskMgrApp;
+    ACE_Thread_Mutex m_mutex;
+    TaskMgrApp *m_pTaskMgrApp;
 };
 
 #endif

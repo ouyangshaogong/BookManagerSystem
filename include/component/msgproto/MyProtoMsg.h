@@ -38,6 +38,8 @@ struct MyProtoHeader
         nVersion = 0;
         nSendProc = 0;
         nRecvProc = 0;
+        nTaskMgrID = 0;
+        nTaskID = 0;
         nMsgID = 0;
         nCmdMsg = 0;
         nMsgType = 0;

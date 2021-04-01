@@ -37,6 +37,12 @@ void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
     *(uint16_t*)pData = pMsg->Header.nRecvProc;
     pData += 2; //向前移动两个字节，到消息ID
 
+    *(uint32_t*)pData = pMsg->Header.nTaskMgrID;
+    pData += 4; //向前移动两个字节，到命令消息nCmdMsg
+    
+    *(uint32_t*)pData = pMsg->Header.nTaskID;
+    pData += 4; //向前移动两个字节，到命令消息nCmdMsg
+    
     *(uint32_t*)pData = pMsg->Header.nMsgID;
     pData += 4; //向前移动两个字节，到命令消息nCmdMsg
 
@@ -186,6 +192,12 @@ bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     m_mCurMsg.Header.nRecvProc = *(uint16_t*)pData;
     pData += 2;
 
+    m_mCurMsg.Header.nTaskMgrID = *(uint32_t*)pData;
+    pData += 4;
+
+    m_mCurMsg.Header.nTaskID = *(uint32_t*)pData;
+    pData += 4;
+    
     //解析接收消息ID
     m_mCurMsg.Header.nMsgID = *(uint32_t*)pData;
     pData += 4;

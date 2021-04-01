@@ -1,7 +1,5 @@
 #include "MsgClientTask.h"
 
-MrbMsgClient MsgClientTask::m_mrbMsgClient;
-
 extern MyMsgQueue g_pMsgQueue;
 extern ACE_Thread_Mutex g_mMsgMutex;
 extern ACE_Condition<ACE_Thread_Mutex> g_mMsgCond;
@@ -22,12 +20,6 @@ MsgClientTask::MsgClientTask()
 MsgClientTask::~MsgClientTask()
 {
 }
-
-void MsgClientTask::SetMsgValue(int nSendProc, int nTaskMgrID)
-{
-    m_mrbMsgClient.SetMsgValue(nSendProc, nTaskMgrID, GetLocalTaskID());
-}
-
 
 int MsgClientTask::open()
 {
@@ -100,20 +92,24 @@ int MsgClientTask::svc()
      return 0;
 }*/
 
-int MsgClientTask::CreateDynamicTask()
+int MsgClientTask::CreateDynamicTask(MrbMsgClient *pMrbMsgClient)
 {
-    //ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)Work, NULL);
+    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MsgClientTask::DynamicTask, pMrbMsgClient);
     return 0;
 }
 
-ACE_THR_FUNC MsgClientTask::DynamicTask()
+ACE_THR_FUNC MsgClientTask::DynamicTask(void* arg)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
+    MrbMsgClient *pMrbMsgClient = (MrbMsgClient*)arg;
+    
     Json::Value InParam;
     InParam["test"] = "test";
 
     Json::Value OutParam;
-    m_mrbMsgClient.CallMethod(1, InParam, OutParam);
+    pMrbMsgClient->CallMethod(1, InParam, OutParam);
+
+    delete pMrbMsgClient;
 }
 
 
@@ -140,12 +136,14 @@ void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
 
 void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::SendSignal>>%d\n", pMsg));
     m_pMsg = pMsg;
     m_tCondMsg.signal();
 }
 
 MyProtoMsg *MsgClientTask::WaitSignal()
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::WaitSignal>>\n", m_pMsg));
     m_tCondMsg.wait();
     return m_pMsg;
 }
