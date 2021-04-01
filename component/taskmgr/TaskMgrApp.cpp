@@ -1,5 +1,8 @@
 #include "TaskMgrApp.h"
 
+ACE_Thread_Mutex TaskMgrApp::m_mutex;
+TaskMgrApp* TaskMgrApp::m_instance = NULL;
+
 TaskMgrApp::TaskMgrApp()
 {
     m_nGlobalTaskMgrID = 1;
@@ -9,28 +12,29 @@ TaskMgrApp::TaskMgrApp()
 
 TaskMgrApp::~TaskMgrApp()
 {
+    if (NULL != m_instance)
+    {
+        delete m_instance;
+    }
+}
+
+TaskMgrApp* TaskMgrApp::Instance()
+{
+    if (NULL == m_instance)
+    {
+        ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
+        if (NULL == m_instance)
+        {
+            m_instance = new TaskMgrApp;
+        }
+    }
+    
+    return m_instance;
 }
 
 int TaskMgrApp::InitProcessEnv(ACE_Thread_Manager *pThrMgr)
 {
     m_pThrMgr = pThrMgr;
-
-    return 0;
-}
-
-int TaskMgrApp::open()
-{
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::open>>begin\n"));
-    return 0;
-}
-
-int TaskMgrApp::close()
-{
-    return 0;
-}
-
-int TaskMgrApp::svc()
-{
 
     return 0;
 }
@@ -59,11 +63,6 @@ TaskMgr* TaskMgrApp::GetTaskMgr(int nTaskMgrID)
     return NULL;
 }
 
-void TaskMgrApp::StartMsgLoop()
-{
-
-}
-
 void TaskMgrApp::ExitThread()
 {
     m_pThrMgr->wait();
@@ -75,7 +74,7 @@ void TaskMgrApp::TaskMgrDestory()
     for (; iter != m_nIdMapTaskMgr.end(); ++iter)
     {
         iter->second->DestoryTask();
-        //delete iter->second;
+        delete iter->second;
         iter->second = NULL;
     }
 
