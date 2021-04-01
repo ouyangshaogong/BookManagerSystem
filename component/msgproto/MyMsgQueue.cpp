@@ -12,37 +12,37 @@ MyMsgQueue::MyMsgQueue()
 
 uint8_t* MyMsgQueue::encode(MyProtoMsg* pMsg, uint32_t& length)
 {
-    uint8_t* pData = NULL; //���ڿ����µĿռ䣬��ű���������
-    Json::FastWriter fwriter; //��ȡJson::Value���ݣ�ת��Ϊ����д���ļ����ַ���
+    uint8_t* pData = NULL; 
+    Json::FastWriter fwriter; 
 
-                              //Э��Json�����л�
+                            
     string bodyStr = fwriter.write(pMsg->Body);
 
-    //������Ϣ���л��Ժ���³���
+
     length = MY_PROTO_HEAD_SIZE + (uint32_t)bodyStr.size();
-    pMsg->Header.nMsgLength = length; //һ�����Э��ͷ��ʱ�����õ�
-                          //����һ���µĿռ䣬���ڱ�����Ϣ��������Բ��ã�ֱ��ʹ��ԭ���ռ�Ҳ���ԣ�
+    pMsg->Header.nMsgLength = length; 
+                         
     pData = new uint8_t[length];
     //����Э��ͷ
-    headEncode(pData, pMsg); //�����ڲ�û��ͨ������ָ���޸�pData�����ݣ��޸ĵ�����ʱ���ݴ��Э����
+    headEncode(pData, pMsg);
     memcpy(pData + MY_PROTO_HEAD_SIZE, bodyStr.data(), bodyStr.size());
 
-    return pData; //������Ϣ�ײ���ַ
+    return pData; 
 }
 
 //Э��ͷ��װ����
 void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
 {
-    //����Э��ͷħ����
+ 
     *pData = MY_PROTO_MAGIC;
-    ++pData; //��ǰ�ƶ�һ���ֽ�λ�õ��汾
+    ++pData; 
 
-    //����Э��ͷ�汾
+
     *pData = 1;
-    ++pData; //��ǰ�ƶ�һ���ֽ�λ�ã������ͽ���ID��16λ��С��
+    ++pData; 
 
     *(uint16_t*)pData = pMsg->Header.nSendProc;
-    pData += 2; //��ǰ�ƶ������ֽڣ������ս���ID
+    pData += 2; 
 
     *(uint16_t*)pData = pMsg->Header.nRecvProc;
     pData += 2; //��ǰ�ƶ������ֽڣ�����ϢID
