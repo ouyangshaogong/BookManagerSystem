@@ -1,8 +1,4 @@
-#include "MsgClientTask.h"
-
-extern MyMsgQueue g_pMsgQueue;
-extern ACE_Thread_Mutex g_mMsgMutex;
-extern ACE_Condition<ACE_Thread_Mutex> g_mMsgCond;
+#include "MyMsgServerTask.h"
 
 const int CMD_MSG_SERVICE_REGISTER = 1;
 
@@ -10,28 +6,33 @@ const int SEND_PROC_ID = 51;
 const int RECV_PROC_ID = 50;
 
 
-MsgClientTask::MsgClientTask()
-    :m_tCallMutex(), m_tCondMsg(m_tCallMutex), m_nMsgID(1)
+MyMsgServerTask::MyMsgServerTask()
+{
+
+}
+
+MyMsgServerTask::MyMsgServerTask(MyMsgServer *pMsgServer)
+    :m_nMsgID(1), m_pMsgServer(pMsgServer)
 {
     
 }
 
 
-MsgClientTask::~MsgClientTask()
+MyMsgServerTask::~MyMsgServerTask()
 {
 }
 
-int MsgClientTask::open()
+int MyMsgServerTask::open()
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::open>>\n"));
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServerTask::open>>\n"));
     activate(THR_NEW_LWP, m_nThreadNum);
     return 0;
 }
 
 
-int MsgClientTask::svc()
+int MyMsgServerTask::svc()
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>\n"));
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServerTask::svc>>\n"));
     ACE_Message_Block* pMsgBlock = NULL;
     while (true)
     {
@@ -73,8 +74,7 @@ int MsgClientTask::svc()
             {
                 process(pMsg->Header.nCmdMsg, pInMsg, pOutMsg);
                 //处理完以后，会产生一个消息响应，发送到网络
-                g_pMsgQueue.push(pOutMsg);
-                g_mMsgCond.signal();
+                m_pMsgServer->push(pOutMsg);
             }
         }
 
@@ -92,15 +92,15 @@ int MsgClientTask::svc()
      return 0;
 }*/
 
-int MsgClientTask::CreateDynamicTask(MrbMsgClient *pMrbMsgClient)
+int MyMsgServerTask::CreateDynamicTask(MrbMsgClient *pMrbMsgClient)
 {
-    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MsgClientTask::DynamicTask, pMrbMsgClient);
+    ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MyMsgServerTask::DynamicTask, pMrbMsgClient);
     return 0;
 }
 
-ACE_THR_FUNC MsgClientTask::DynamicTask(void* arg)
+ACE_THR_FUNC MyMsgServerTask::DynamicTask(void* arg)
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServerTask::DynamicTask>>\n"));
     MrbMsgClient *pMrbMsgClient = (MrbMsgClient*)arg;
     
     //Json::Value InParam;
@@ -113,12 +113,12 @@ ACE_THR_FUNC MsgClientTask::DynamicTask(void* arg)
 }
 
 
-void MsgClientTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody)
+void MyMsgServerTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody)
 {
 
 }
 
-/*void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
+void MyMsgServerTask::SendMsgToTask(MyProtoMsg *pMsg)
 {
     int nLength = pMsg->Header.nMsgLength;
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
@@ -132,18 +132,4 @@ void MsgClientTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody
         mb->release();
         ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToQueue>>msg_queue is full!\n"));
     }
-}*/
-
-void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
-{
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::SendSignal>>%d\n", pMsg));
-    m_pMsg = pMsg;
-    m_tCondMsg.signal();
-}
-
-MyProtoMsg *MsgClientTask::WaitSignal()
-{
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::WaitSignal>>\n", m_pMsg));
-    m_tCondMsg.wait();
-    return m_pMsg;
 }

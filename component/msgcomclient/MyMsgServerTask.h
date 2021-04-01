@@ -1,10 +1,11 @@
-#ifndef __MSG_CLIENT_TASK__
-#define __MSG_CLIENT_TASK__
+#ifndef __MY_MSG_SERVER_TASK__
+#define __MY_MSG_SERVER_TASK__
 
 #include "commonace.h"
 #include "MyProtoMsg.h"
 #include "Task.h"
 #include "MrbMsgClient.h"
+#include "MyMsgServer.h"
 
 typedef int TaskID;
 
@@ -12,11 +13,12 @@ typedef int TaskID;
 #define RESPONSE_MSG_TYPE 201
 #define END_MSG_TYPE 300
 
-class MsgClientTask: public Task
+class MyMsgServerTask: public Task
 {
 public:
-    MsgClientTask();
-    virtual ~MsgClientTask();
+    MyMsgServerTask();
+    MyMsgServerTask(MyMsgServer *pMsgServer);
+    virtual ~MyMsgServerTask();
 
     virtual int open();
     virtual int svc();
@@ -27,20 +29,13 @@ public:
 
     virtual int CreateDynamicTask(MrbMsgClient *pMrbMsgClient);
     
-    //void SendMsgToTask(MyProtoMsg *pMsg);
-
-    void SendSignal(MyProtoMsg *m_pMsg);
-    MyProtoMsg *WaitSignal();
+    void SendMsgToTask(MyProtoMsg *pMsg);
 
 private:
 
     int m_nMsgID;
     int m_nSendProc;
-
-    MyProtoMsg *m_pMsg;
-
-    ACE_Thread_Mutex m_tCallMutex;
-    ACE_Condition<ACE_Thread_Mutex> m_tCondMsg;
+    MyMsgServer *m_pMsgServer;
 
     static MrbMsgClient m_mrbMsgClient; 
 };

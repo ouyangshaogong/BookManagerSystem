@@ -1,6 +1,6 @@
 #include "iMapMrbBus.h"
 #include "MrbMsgClient.h"
-
+#include "TaskMgrApp.h"
 
 ACE_THR_FUNC Work(void *arg)
 {
@@ -24,7 +24,7 @@ ACE_THR_FUNC Work(void *arg)
 int main()
 {
     //ACE_Thread_Manager::instance()->spawn_n(1, (ACE_THR_FUNC)Work, NULL);
-    MsgClientTaskMgrApp *pTaskMgrApp = MsgClientTaskMgrApp::Instance();
+    TaskMgrApp *pTaskMgrApp = TaskMgrApp::Instance();
     iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 
     pMrbBus->StartBus();

@@ -1,6 +1,5 @@
 #include "iMapMrbBus.h"
-#include "iMapConnectorHandle.h"
-#include "MsgClientTask.h"
+#include "MyMsgServer.h"
 
 ACE_Thread_Mutex iMapMrbBus::m_mutex;
 iMapMrbBus* iMapMrbBus::m_instance = NULL;
@@ -31,10 +30,25 @@ iMapMrbBus* iMapMrbBus::Instance(TaskMgrApp *pTaskMgrApp)
     return m_instance;
 }
 
+int iMapMrbBus::open()
+{
+    activate();
+    return 0;
+}
+
+int iMapMrbBus::svc()
+{
+    
+}
+
+int iMapMrbBus::close()
+{
+    return 0;
+}
+
 
 void iMapMrbBus::StartBus()
 {
-    m_pTaskMgrApp->open();
     int nRet = m_pTaskMgrApp->InitProcessEnv(ACE_Thread_Manager::instance());
     if (0 != nRet)
     {
@@ -48,15 +62,16 @@ void iMapMrbBus::StartBus()
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::main>>pTaskMgr->InitEnv fail!\n"));
     }
 
-    MsgClientTask *pTaskStatic = new MsgClientTask;
+    m_pMsgServer = MyMsgServer::Instance(m_pTaskMgrApp);
+    MyMsgServerTask *pTaskStatic = new MyMsgServerTask(m_pMsgServer);
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
     pTaskStatic->open();
     pTaskMgr->InsertTask(pTaskStatic);
 
-    MsgClientTask *pTaskDynamic = new MsgClientTask;
+    MyMsgServerTask *pTaskDynamic = new MyMsgServerTask;
     pTaskDynamic->InitEnv(1, pTaskMgr->GetGlobalTaskID());
 
-    MrbMsgClient *mrbMsgClient = new MrbMsgClient(m_pTaskMgrApp);
+    MrbMsgClient *mrbMsgClient = new MrbMsgClient;
     mrbMsgClient->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID(), pTaskDynamic->GetLocalTaskID());
     pTaskDynamic->CreateDynamicTask(mrbMsgClient);
     //pTaskStatic->SetMsgValue(50, pTaskMgr->GetLocalTaskMgrID());
@@ -67,7 +82,7 @@ void iMapMrbBus::StartBus()
 
 void iMapMrbBus::StartMsgLoop()
 {
-    m_pTaskMgrApp->StartMsgLoop();
+    m_pMsgServer->StartMsgLoop();
 }
 
 void iMapMrbBus::StopBus()

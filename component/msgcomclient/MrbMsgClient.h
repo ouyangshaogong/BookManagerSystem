@@ -1,16 +1,15 @@
-#ifndef __CMD_MSG_CLIENT__
-#define __CMD_MSG_CLIENT__
+#ifndef __MRB_MSG_CLIENT__
+#define __MRB_MSG_CLIENT__
 
 #include "MyProtoMsg.h"
-#include "MsgClientTaskMgrApp.h"
 
 class MrbMsgClient
 {
 public:
-    MrbMsgClient(TaskMgrApp *pTaskMgrApp);
+    MrbMsgClient();
     ~MrbMsgClient();
 
-    void SetMsgValue(int nSendProc, int nTaskMgrID, TaskID nTaskID);
+    void SetMsgValue(int nSendProc, int nTaskMgrID, int nTaskID);
 
     void CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result);
     Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);
@@ -18,8 +17,6 @@ public:
 private:
     int m_nMsgID;
     MyProtoMsg m_protoMsg;
-    ACE_Thread_Mutex m_mutex;
-    TaskMgrApp *m_pTaskMgrApp;
 };
 
 #endif

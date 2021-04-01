@@ -2,14 +2,20 @@
 #define __MRB_BUS__
 
 #include "commonace.h"
-#include "MsgClientTaskMgrApp.h"
-class iMapMrbBus
+#include "TaskMgrApp.h"
+#include "MyMsgServerTask.h"
+
+class iMapMrbBus: public ACE_Task<ACE_MT_SYNCH>
 {
 public:
     
     ~iMapMrbBus();
 
     static iMapMrbBus* Instance(TaskMgrApp *pTaskMgrApp);
+
+    virtual int open();
+    virtual int svc();
+    virtual int close();
 
     void StartBus();
     void StartMsgLoop();
@@ -22,6 +28,7 @@ private:
     static ACE_Thread_Mutex m_mutex;
     static iMapMrbBus *m_instance;
 
+    MyMsgServer *m_pMsgServer;
     TaskMgrApp *m_pTaskMgrApp;
 };
 
