@@ -17,7 +17,7 @@ CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common
 LDFLAGS = -lstdc++ -lACE -ljsoncpp /usr/local/lib/libjsoncpp.a 
 
 $(DynamicLib) : $(Objs)
-	g++ -shared -o $@ $^ $(LDFLAGS) 
+	g++ -shared -fPIC -o $@ $^ $(LDFLAGS) 
 
 %.d : %.cpp
 	$(CC) -MT"$(<:.cpp=.o) $@" -MM $(CXXFLAGS) $(CPPFLAGS) $< > $@

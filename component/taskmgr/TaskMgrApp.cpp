@@ -75,7 +75,7 @@ void TaskMgrApp::TaskMgrDestory()
     for (; iter != m_nIdMapTaskMgr.end(); ++iter)
     {
         iter->second->DestoryTask();
-        delete iter->second;
+        //delete iter->second;
         iter->second = NULL;
     }
 

@@ -103,13 +103,13 @@ ACE_THR_FUNC MsgClientTask::DynamicTask(void* arg)
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
     MrbMsgClient *pMrbMsgClient = (MrbMsgClient*)arg;
     
-    Json::Value InParam;
-    InParam["test"] = "test";
+    //Json::Value InParam;
+   // InParam["test"] = "test";
 
-    Json::Value OutParam;
-    pMrbMsgClient->CallMethod(1, InParam, OutParam);
-
-    delete pMrbMsgClient;
+    //Json::Value OutParam;
+    //pMrbMsgClient->CallMethod(1, InParam, OutParam);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>CallMethod\n"));
+    //delete pMrbMsgClient;
 }
 
 
@@ -118,7 +118,7 @@ void MsgClientTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody
 
 }
 
-void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
+/*void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
 {
     int nLength = pMsg->Header.nMsgLength;
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
@@ -132,7 +132,7 @@ void MsgClientTask::SendMsgToTask(MyProtoMsg *pMsg)
         mb->release();
         ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::SendCmdMsgToQueue>>msg_queue is full!\n"));
     }
-}
+}*/
 
 void MsgClientTask::SendSignal(MyProtoMsg *pMsg)
 {

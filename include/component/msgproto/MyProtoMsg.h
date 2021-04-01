@@ -7,7 +7,7 @@ using namespace std;
 
 const uint8_t MY_PROTO_MAGIC = 2; //协议魔数：通过魔数进行简单对比校验，也可以像之前学的CRC校验替换
 const uint32_t MY_PROTO_MAX_SIZE = 5 * 1024 * 1024; //10M协议中数据最大
-const uint32_t MY_PROTO_HEAD_SIZE = 26; //协议头大小
+const uint32_t MY_PROTO_HEAD_SIZE = 34; //协议头大小
 
 typedef enum MyProtoParserStatus //协议解析的状态
 {

@@ -50,7 +50,7 @@ void MrbMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::V
     TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(m_protoMsg.Header.nTaskMgrID);
     Task *pTask = pTaskMgr->GetTask(m_protoMsg.Header.nTaskID);
     MyProtoMsg *pOutMsg = pTask->WaitSignal();
-    
+    pOutMsg->Header.display();
 }
 
 Json::Value& MrbMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter)

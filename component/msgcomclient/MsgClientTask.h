@@ -27,7 +27,7 @@ public:
 
     virtual int CreateDynamicTask(MrbMsgClient *pMrbMsgClient);
     
-    void SendMsgToTask(MyProtoMsg *pMsg);
+    //void SendMsgToTask(MyProtoMsg *pMsg);
 
     void SendSignal(MyProtoMsg *m_pMsg);
     MyProtoMsg *WaitSignal();
