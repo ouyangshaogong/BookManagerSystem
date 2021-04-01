@@ -10,6 +10,7 @@
 #include "ace/Log_Msg.h"
 #include "commonace.h"
 #include "MyProtoMsg.h"
+#include "MyMsgQueue.h"
 #include "ace/Thread.h"
 #include "ace/Task.h"
 #include "ace/Thread_Manager.h"
