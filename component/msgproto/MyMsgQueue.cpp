@@ -23,7 +23,7 @@ uint8_t* MyMsgQueue::encode(MyProtoMsg* pMsg, uint32_t& length)
     pMsg->Header.nMsgLength = length; 
                          
     pData = new uint8_t[length];
-    //����Э��ͷ
+
     headEncode(pData, pMsg);
     memcpy(pData + MY_PROTO_HEAD_SIZE, bodyStr.data(), bodyStr.size());
 
@@ -45,8 +45,8 @@ void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
     pData += 2; 
 
     *(uint16_t*)pData = pMsg->Header.nRecvProc;
-    pData += 2; //��ǰ�ƶ������ֽڣ�����ϢID
-
+    pData += 2;
+    
     *(uint32_t*)pData = pMsg->Header.nTaskMgrID;
     pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnCmdMsg
     
@@ -209,6 +209,7 @@ bool MyMsgQueue::parser(void* data, size_t len)
         }
     }
 
+    m_mMsgCond.signal();
     return true;
 }
 
@@ -341,30 +342,34 @@ int MyMsgQueue::handle_input(ACE_HANDLE fd)
     const int BUFFER_MAX_LENGTH = 2048;
     //���ں˻�������ȡ��Ϣͷ
     uint8_t buf[BUFFER_MAX_LENGTH] = { 0 };
-    int recv_cnt = m_socketPeer.recv(buf, BUFFER_MAX_LENGTH);
-    if (recv_cnt == 0)
+    while(true)
     {
+        int recv_cnt = m_socketPeer.recv(buf, BUFFER_MAX_LENGTH);
+        if (recv_cnt == 0)
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+            return -1;
+        }
+
+        if (recv_cnt < 0)
+        {
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+            break;
+        }
+
+        if (!parser(buf, recv_cnt))
+        {
+            cout << "parser msg failed!" << endl;
+        }
+        else
+        {
+            cout << "parser msg successful!" << endl;
+        }
         ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
-        return -1;
     }
+    
 
-    if (recv_cnt < 0)
-    {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
-        return 0;
-    }
-
-    if (!parser(buf, recv_cnt))
-    {
-        cout << "parser msg failed!" << endl;
-    }
-    else
-    {
-        cout << "parser msg successful!" << endl;
-        m_mMsgCond.signal();
-    }
-
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::handle_input>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+    
     return 0;
 }
 
