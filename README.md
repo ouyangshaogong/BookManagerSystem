@@ -1,4 +1,7 @@
 # BookManagerSystem
 BookManagerSystem
 
-遗留问题：将BookManagerService服务的功能拆分成LendManager.cpp和BookManager.cpp
+消息循环功能未完全实现
+任务管理器功能实现
+
+待续......
