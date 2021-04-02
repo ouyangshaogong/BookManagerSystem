@@ -35,7 +35,6 @@ iMapMsgService* iMapMsgService::Instance()
 
 int iMapMsgService::open()
 {
-
     m_nInetAddr.set(5000, "127.0.0.1");
     activate();
     return 0;

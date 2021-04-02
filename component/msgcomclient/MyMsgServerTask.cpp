@@ -5,12 +5,6 @@ const int CMD_MSG_SERVICE_REGISTER = 1;
 const int SEND_PROC_ID = 51;
 const int RECV_PROC_ID = 50;
 
-
-MyMsgServerTask::MyMsgServerTask()
-{
-
-}
-
 MyMsgServerTask::MyMsgServerTask(MyMsgServer *pMsgServer)
     :m_nMsgID(1), m_pMsgServer(pMsgServer)
 {
@@ -92,7 +86,7 @@ int MyMsgServerTask::svc()
      return 0;
 }*/
 
-int MyMsgServerTask::CreateDynamicTask(MrbMsgClient *pMrbMsgClient)
+int MyMsgServerTask::CreateDynamicTask(MyMsgClient *pMrbMsgClient)
 {
     ACE_Thread_Manager::instance()->spawn_n(m_nThreadNum, (ACE_THR_FUNC)MyMsgServerTask::DynamicTask, pMrbMsgClient);
     return 0;
@@ -101,7 +95,7 @@ int MyMsgServerTask::CreateDynamicTask(MrbMsgClient *pMrbMsgClient)
 ACE_THR_FUNC MyMsgServerTask::DynamicTask(void* arg)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServerTask::DynamicTask>>\n"));
-    MrbMsgClient *pMrbMsgClient = (MrbMsgClient*)arg;
+    MyMsgClient *pMrbMsgClient = (MyMsgClient*)arg;
     
     //Json::Value InParam;
    // InParam["test"] = "test";
@@ -120,6 +114,7 @@ void MyMsgServerTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBo
 
 void MyMsgServerTask::SendMsgToTask(MyProtoMsg *pMsg)
 {
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServerTask::SendMsgToTask>>\n"));
     int nLength = pMsg->Header.nMsgLength;
     ACE_Message_Block*  mb = new ACE_Message_Block(nLength, ACE_Message_Block::MB_DATA);
     mb->copy((char*)pMsg, nLength);

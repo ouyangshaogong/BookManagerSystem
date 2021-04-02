@@ -9,7 +9,7 @@ MyMsgServer* MyMsgServer::m_instance = NULL;
 
 MyMsgServer::MyMsgServer(TaskMgrApp *pTaskMgrApp)
 {
-
+    m_pTaskMgrApp = pTaskMgrApp;
 }
 
 MyMsgServer::~MyMsgServer()
@@ -41,6 +41,19 @@ void MyMsgServer::StartMsgLoop()
         ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgClient::StartMsgLoop>>\n"));
     }
 
+}
+
+void MyMsgServer::DispatchMessage(MyProtoMsg* pMsg)
+{
+    if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
+    {
+        this->HandleRequestMessage(pMsg);
+    }
+    else if(pMsg->Header.nMsgType == RESPONSE_MSG_TYPE)
+    {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::StartMsgLoop>>MsgType Is Error!\n"));
+        SendCmdMsgToServer(pMsg);
+    }
 }
 
 void MyMsgServer::HandleRequestMessage(MyProtoMsg* pMsg)

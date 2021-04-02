@@ -4,7 +4,7 @@
 #include "commonace.h"
 #include "MyProtoMsg.h"
 #include "Task.h"
-#include "MyMsgClient.h"
+#include "MrbMsgClient.h"
 #include "MyMsgServer.h"
 
 typedef int TaskID;
@@ -16,6 +16,7 @@ typedef int TaskID;
 class MyMsgServerTask: public Task
 {
 public:
+    MyMsgServerTask();
     MyMsgServerTask(MyMsgServer *pMsgServer);
     virtual ~MyMsgServerTask();
 
@@ -26,7 +27,7 @@ public:
 
     static ACE_THR_FUNC DynamicTask(void* arg);
 
-    virtual int CreateDynamicTask(MyMsgClient *pMrbMsgClient);
+    virtual int CreateDynamicTask(MrbMsgClient *pMrbMsgClient);
     
     void SendMsgToTask(MyProtoMsg *pMsg);
 
@@ -36,7 +37,7 @@ private:
     int m_nSendProc;
     MyMsgServer *m_pMsgServer;
 
-    static MyMsgClient m_mrbMsgClient; 
+    static MrbMsgClient m_mrbMsgClient; 
 };
 
 #endif

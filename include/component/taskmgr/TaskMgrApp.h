@@ -8,16 +8,13 @@
 
 using namespace std;
 
-class TaskMgrApp: public ACE_Task<ACE_MT_SYNCH>
+class TaskMgrApp
 {
 public:
     TaskMgrApp();
     virtual ~TaskMgrApp();
+    static TaskMgrApp* Instance();
     int InitProcessEnv(ACE_Thread_Manager *pThrMgr);
-    virtual int open();
-    virtual int close();
-    virtual int svc();
-    virtual void StartMsgLoop();
 
     
     int InsertTaskMgr(TaskMgr* pTaskMgr);
@@ -33,6 +30,9 @@ protected:
 private:
     map<int, TaskMgr*> m_nIdMapTaskMgr;
     TaskMgrID m_nGlobalTaskMgrID;
+
+    static ACE_Thread_Mutex m_mutex;
+    static TaskMgrApp *m_instance;
 };
 
 #endif

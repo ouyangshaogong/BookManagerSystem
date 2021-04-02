@@ -1,5 +1,5 @@
 #include "iMapMrbBus.h"
-#include "MrbMsgClient.h"
+#include "MyMsgClient.h"
 #include "TaskMgrApp.h"
 
 ACE_THR_FUNC Work(void *arg)
@@ -7,23 +7,21 @@ ACE_THR_FUNC Work(void *arg)
     ACE_OS::sleep(5);
     ACE_DEBUG((LM_DEBUG, "(%P|%t)Work>>\n"));
 
-    for (int i = 0; i < 5; i++)
-    {
-        //MrbMsgClient mrbMsgClient; 
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
-        Json::Value InParam;
-        InParam["test"] = "test";
+    MyMsgClient mrbMsgClient; 
+    mrbMsgClient.SetMsgValue(50, 1, 1);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::DynamicTask>>\n"));
+    Json::Value InParam;
+    InParam["test"] = "test";
 
-        Json::Value OutParam;
-        //mrbMsgClient.CallMethod(i, InParam, OutParam);
-    }
+    Json::Value OutParam;
+    mrbMsgClient.CallMethod(1, InParam, OutParam);
      return 0;
 }
 
 
 int main()
 {
-    //ACE_Thread_Manager::instance()->spawn_n(1, (ACE_THR_FUNC)Work, NULL);
+    ACE_Thread_Manager::instance()->spawn_n(1, (ACE_THR_FUNC)Work, NULL);
     TaskMgrApp *pTaskMgrApp = TaskMgrApp::Instance();
     iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 

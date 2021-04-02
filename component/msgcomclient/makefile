@@ -14,7 +14,7 @@ AllLibs : $(Bin)
 CC = g++
 CXXFLAGS = -g -O -fPIC -Wall
 CPPFLAGS = $(foreach n,$(AllDirs), -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component/msgproto -I$(INCDIR)/component/taskmgr 
-LDFLAGS = -lstdc++ -lpthread -lACE -ljsoncpp -lmsgproto -ltaskmgr
+LDFLAGS = -lstdc++ -lpthread -lACE -ljsoncpp -lmsgproto -ltaskmgr -L/usr/local/lib /usr/local/lib/libjsoncpp.a
 
 $(Bin) : $(Objs)
 	g++ $(Objs) -o $@ $(LDFLAGS) 
