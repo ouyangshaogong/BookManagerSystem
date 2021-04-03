@@ -13,8 +13,8 @@ DynamicLib := libmsgproto.so
 AllLibs : $(DynamicLib)
 CC = g++
 CXXFLAGS = -g -O -fPIC -Wall
-CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common
-LDFLAGS = -lstdc++ -lACE -ljsoncpp -L/usr/local/lib /usr/local/lib/libjsoncpp.a
+CPPFLAGS = $(foreach n,$(AllDirs) , -I$(n)) -I$(INCDIR)/common -I$(INCDIR)/component/taskmgr
+LDFLAGS = -lstdc++ -lACE -ljsoncpp -ltaskmgr -L/usr/local/lib /usr/local/lib/libjsoncpp.a
 
 $(DynamicLib) : $(Objs)
 	g++ -shared -fPIC -o $@ $^ $(LDFLAGS) 

@@ -6,7 +6,7 @@ iMapMrbBus* iMapMrbBus::m_instance = NULL;
 iMapMrbBus::iMapMrbBus(TaskMgrApp *pTaskMgrApp)
 {
     m_pTaskMgrApp = pTaskMgrApp;
-    m_pMsgServer = MyMsgServer::Instance(pTaskMgrApp);
+    m_pMsgQueue = MyMsgQueue::Instance(pTaskMgrApp);
 }
 
 iMapMrbBus::~iMapMrbBus()
@@ -33,6 +33,8 @@ iMapMrbBus* iMapMrbBus::Instance(TaskMgrApp *pTaskMgrApp)
 
 int iMapMrbBus::open()
 {
+    m_nInetAddr.set(5000, "127.0.0.1");
+
     activate();
     return 0;
 }
@@ -40,12 +42,14 @@ int iMapMrbBus::open()
 int iMapMrbBus::svc()
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMrbBus::svc>>\n"));
-    m_pMsgServer->open();
     
-    while(true)
+    if (m_acceptor.open(m_nInetAddr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
-        ACE_Reactor::instance ()->handle_events();
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>-1\n"));
+        return -1;
     }
+
+    ACE_Reactor::instance()->run_reactor_event_loop();
     
     return 0;
 }
@@ -73,9 +77,9 @@ void iMapMrbBus::StartBus()
     }
 
     //连接服务器
-    m_pMsgServer->open();
+    
      //创建2个任务，用来响应消息
-    MyMsgServerTask *pTaskStatic = new MyMsgServerTask(m_pMsgServer);
+    MyMsgServerTask *pTaskStatic = new MyMsgServerTask(m_pMsgQueue);
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
     pTaskStatic->open();
     //将任务插入任务管理器
@@ -96,7 +100,11 @@ void iMapMrbBus::StartBus()
 
 void iMapMrbBus::StartMsgLoop()
 {
-    m_pMsgServer->StartMsgLoop();
+    MyProtoMsg *pMsg = NULL;
+    while (m_pMsgQueue->GetMessage(pMsg))
+    {
+        m_pMsgQueue->DispatchMessage(pMsg);
+    }
 }
 
 void iMapMrbBus::StopBus()

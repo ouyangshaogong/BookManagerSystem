@@ -55,13 +55,13 @@ int MyMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Val
 
     uint8_t *pData = NULL;
     uint32_t length = 0;
-    pData = m_msgQueue.encode(pInMsg, length);
+    //pData = m_msgQueue.encode(pInMsg, length);
     
     uint8_t buf[2048] = {0};
     uint32_t retLength = 0;
 
     MyProtoMsg *pOutMsg = new MyProtoMsg;
-    m_sockHandle.send_to_server(pData, length, pOutMsg, &m_msgQueue, buf, 2048);
+    m_sockHandle.send_to_server(pData, length, pOutMsg, buf, 2048);
     
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MrbMsgClient::CallMethod>>nTaskMgrID:%d, nTaskID:%d\n", m_protoMsg.Header.nTaskMgrID, m_protoMsg.Header.nTaskID));
     return 0;

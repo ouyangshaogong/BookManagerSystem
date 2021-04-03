@@ -7,7 +7,7 @@ ACE_Thread_Mutex iMapMsgHandle::m_mapMutex;
 
 iMapMsgHandle::iMapMsgHandle()
 {
-    
+    m_pMsgQueue = MyMsgQueue::Instance();
 }
 
 iMapMsgHandle::~iMapMsgHandle()
@@ -17,7 +17,6 @@ iMapMsgHandle::~iMapMsgHandle()
 
 int iMapMsgHandle::open(void *p)
 {
-    
     if (ACE_Svc_Handler::open(p) == -1)
     {
         return -1;
@@ -42,7 +41,7 @@ int iMapMsgHandle::handle_input(ACE_HANDLE fd)
     int recv_cnt = peer().recv(buf, BUFFER_MAX_LENGTH);
     if (recv_cnt > 0)
     {
-        if (!m_mMsgQueue.parser(buf, recv_cnt))
+        if (!m_pMsgQueue->parser(buf, recv_cnt))
         {
             cout << "parser msg failed!" << endl;
         }
@@ -65,11 +64,11 @@ int iMapMsgHandle::handle_input(ACE_HANDLE fd)
     }
 
     MyProtoMsg* pMsg = NULL;
-    while (!m_mMsgQueue.empty())
+    while (!m_pMsgQueue->empty())
     {
-        pMsg = m_mMsgQueue.front();
+        pMsg = m_pMsgQueue->front();
         SendCmdMsgToQueue(pMsg);
-        m_mMsgQueue.pop();
+        m_pMsgQueue->pop();
     }
     return 0;
 }
@@ -161,7 +160,7 @@ int iMapMsgHandle::SendCmdMsgToProc(MyProtoMsg *pMsg, int nProcID)
     map<int, ACE_SOCK_Stream>::iterator iter = m_nProcMapSocket.find(nProcID);
     if (iter != m_nProcMapSocket.end())
     {
-        pData = m_mMsgQueue.encode(pMsg, length);
+        pData = m_pMsgQueue->encode(pMsg, length);
     }
     else
     {
@@ -172,7 +171,7 @@ int iMapMsgHandle::SendCmdMsgToProc(MyProtoMsg *pMsg, int nProcID)
             {
                 pMsg->Header.nMsgRet = -1;
                 pMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
-                pData = m_mMsgQueue.encode(pMsg, length);
+                pData = m_pMsgQueue->encode(pMsg, length);
             }
             else
             {

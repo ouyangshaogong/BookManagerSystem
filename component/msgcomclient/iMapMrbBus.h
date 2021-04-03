@@ -4,6 +4,8 @@
 #include "commonace.h"
 #include "TaskMgrApp.h"
 #include "MyMsgServerTask.h"
+#include "MyMsgQueue.h"
+#include "MsgServiceHandle.h"
 
 class iMapMrbBus: public ACE_Task<ACE_MT_SYNCH>
 {
@@ -28,8 +30,11 @@ private:
     static ACE_Thread_Mutex m_mutex;
     static iMapMrbBus *m_instance;
 
-    MyMsgServer *m_pMsgServer;
+    MyMsgQueue *m_pMsgQueue;
     TaskMgrApp *m_pTaskMgrApp;
+
+    MsgServiceAcceptor m_acceptor;
+     ACE_INET_Addr m_nInetAddr;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include "MyProtoMsg.h"
 #include "Task.h"
 #include "MyMsgClient.h"
-#include "MyMsgServer.h"
+#include "MyMsgQueue.h"
 
 typedef int TaskID;
 
@@ -16,7 +16,7 @@ typedef int TaskID;
 class MyMsgServerTask: public Task
 {
 public:
-    MyMsgServerTask(MyMsgServer *pMsgServer);
+    MyMsgServerTask(MyMsgQueue *pMsgQueue);
     virtual ~MyMsgServerTask();
 
     virtual int open();
@@ -34,7 +34,7 @@ private:
 
     int m_nMsgID;
     int m_nSendProc;
-    MyMsgServer *m_pMsgServer;
+    MyMsgQueue *m_pMsgQueue;
 
     static MyMsgClient m_mrbMsgClient; 
 };

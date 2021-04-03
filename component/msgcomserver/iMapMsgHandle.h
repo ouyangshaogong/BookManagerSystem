@@ -49,7 +49,7 @@ public:
 private:
     static ACE_Thread_Mutex m_mapMutex;
     static map<int, ACE_SOCK_Stream> m_nProcMapSocket;
-    MyMsgQueue m_mMsgQueue;
+    MyMsgQueue *m_pMsgQueue;
      
 };
 

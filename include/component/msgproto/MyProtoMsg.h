@@ -8,7 +8,7 @@ using namespace std;
 
 const uint8_t MY_PROTO_MAGIC = 2;                   
 const uint32_t MY_PROTO_MAX_SIZE = 5 * 1024 * 1024; 
-const uint32_t MY_PROTO_HEAD_SIZE = 34;             
+const uint32_t MY_PROTO_HEAD_SIZE = 42;             
 
 typedef enum MyProtoParserStatus 
 {
@@ -26,6 +26,8 @@ struct MyProtoHeader
     uint32_t nTaskMgrID;
     uint32_t nTaskID;
     uint32_t nMsgID;
+    string   strIP;
+    uint32_t nPort;
     uint32_t nCmdMsg;
     uint32_t nMsgType;
 

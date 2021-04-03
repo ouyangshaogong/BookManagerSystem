@@ -5,8 +5,8 @@ const int CMD_MSG_SERVICE_REGISTER = 1;
 const int SEND_PROC_ID = 51;
 const int RECV_PROC_ID = 50;
 
-MyMsgServerTask::MyMsgServerTask(MyMsgServer *pMsgServer)
-    :m_nMsgID(1), m_pMsgServer(pMsgServer)
+MyMsgServerTask::MyMsgServerTask(MyMsgQueue *pMsgQueue)
+    :m_nMsgID(1), m_pMsgQueue(pMsgQueue)
 {
     
 }
@@ -68,7 +68,7 @@ int MyMsgServerTask::svc()
             {
                 process(pMsg->Header.nCmdMsg, pInMsg, pOutMsg);
                 //处理完以后，会产生一个消息响应，发送到网络
-                m_pMsgServer->push(pOutMsg);
+                m_pMsgQueue->push(pOutMsg);
             }
         }
 
