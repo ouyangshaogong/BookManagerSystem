@@ -5,7 +5,7 @@ iMapMsgService *iMapMsgService::m_instance = NULL;
 
 iMapMsgService::iMapMsgService()
 {
-
+    m_pMsgServer = MyMsgServer::Instance();
 }
 
 iMapMsgService::~iMapMsgService()
@@ -55,4 +55,14 @@ int iMapMsgService::svc()
     
     ACE_Reactor::instance()->run_reactor_event_loop();
     return 0;
+}
+
+
+void iMapMsgService::StartMsgLoop()
+{
+    MyProtoMsg *pMsg = NULL;
+    while (m_pMsgServer->GetMessage(pMsg))
+    {
+        m_pMsgServer->DispatchMessage(pMsg);
+    }
 }

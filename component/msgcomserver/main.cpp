@@ -21,6 +21,8 @@ int ACE_TMAIN(int, ACE_TCHAR *[])
     iMapMsgService *pMsgService = iMapMsgService::Instance();
     pMsgService->open();
 
+    pMsgService->StartMsgLoop();
+
     ACE_Thread_Manager::instance()->wait();
 
     ACE_DEBUG((LM_DEBUG, "(%P|%t)main>>server is end.....!\n"));
