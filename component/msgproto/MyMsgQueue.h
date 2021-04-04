@@ -4,7 +4,6 @@
 #include "MyProtoMsg.h"
 #include "commonace.h"
 #include "json/json.h"
-#include "TaskMgrApp.h"
 
 #define PORT_NO 5000
 #define HOSTNAME "127.0.0.1"

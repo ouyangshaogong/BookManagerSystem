@@ -4,9 +4,6 @@
 #define RESPONSE_MSG_TYPE 201
 #define END_MSG_TYPE 300
 
-ACE_Thread_Mutex MyMsgQueue::m_mutex;
-MyMsgQueue* MyMsgQueue::m_instance = NULL;
-
 MyMsgQueue::MyMsgQueue()
 :m_mMsgMutex(), m_mMsgCond(m_mMsgMutex)
 {

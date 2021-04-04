@@ -36,6 +36,12 @@ MyMsgServer* MyMsgServer::Instance(TaskMgrApp *pTaskMgrApp)
     return m_instance;
 }
 
+MyMsgServer* MyMsgServer::Instance()
+{
+    return m_instance;
+}
+
+
 void MyMsgServer::DispatchMessage(MyProtoMsg* pMsg)
 {
     if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)

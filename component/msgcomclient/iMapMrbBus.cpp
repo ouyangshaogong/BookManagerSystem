@@ -101,9 +101,9 @@ void iMapMrbBus::StartBus()
 void iMapMrbBus::StartMsgLoop()
 {
     MyProtoMsg *pMsg = NULL;
-    while (m_pMsgQueue->GetMessage(pMsg))
+    while (m_pMsgServer->GetMessage(pMsg))
     {
-        m_pMsgQueue->DispatchMessage(pMsg);
+        m_pMsgServer->DispatchMessage(pMsg);
     }
 }
 

@@ -13,6 +13,7 @@ private:
 public:
     ~MyMsgServer();
     static MyMsgServer* Instance(TaskMgrApp *pTaskMgrApp);
+    static MyMsgServer* Instance();
 
     virtual void DispatchMessage(MyProtoMsg* pMsg);
     void SendCmdMsgToTask(MyProtoMsg* pMsg);
