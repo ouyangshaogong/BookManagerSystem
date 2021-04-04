@@ -30,7 +30,6 @@ private:
     static ACE_Thread_Mutex m_mutex;
     static iMapMrbBus *m_instance;
 
-    MyMsgQueue *m_pMsgQueue;
     TaskMgrApp *m_pTaskMgrApp;
 
     MsgServiceAcceptor m_acceptor;

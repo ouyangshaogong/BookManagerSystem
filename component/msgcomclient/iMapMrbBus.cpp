@@ -6,7 +6,7 @@ iMapMrbBus* iMapMrbBus::m_instance = NULL;
 iMapMrbBus::iMapMrbBus(TaskMgrApp *pTaskMgrApp)
 {
     m_pTaskMgrApp = pTaskMgrApp;
-    m_pMsgQueue = MyMsgQueue::Instance(pTaskMgrApp);
+    m_pMsgServer = MyMsgServer::Instance(pTaskMgrApp);
 }
 
 iMapMrbBus::~iMapMrbBus()
@@ -79,7 +79,7 @@ void iMapMrbBus::StartBus()
     //连接服务器
     
      //创建2个任务，用来响应消息
-    MyMsgServerTask *pTaskStatic = new MyMsgServerTask(m_pMsgQueue);
+    MyMsgServerTask *pTaskStatic = new MyMsgServerTask(m_pMsgServer);
     pTaskStatic->InitEnv(3, pTaskMgr->GetGlobalTaskID());
     pTaskStatic->open();
     //将任务插入任务管理器
