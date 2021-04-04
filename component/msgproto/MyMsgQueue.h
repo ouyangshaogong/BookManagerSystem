@@ -28,9 +28,9 @@ public:
     void DeleteSockPeer(string strIP);
 
     bool GetMessage(MyProtoMsg* pMsg);
-    void DispatchMessage(MyProtoMsg* pMsg);
-    void SendCmdMsgToTask(MyProtoMsg* pMsg);
-    int SendCmdMsgToServer(MyProtoMsg* pMsg);
+    virtual void DispatchMessage(MyProtoMsg* pMsg);
+    
+    
 
     bool parser(void *data, size_t len); 
     uint8_t *encode(MyProtoMsg *pMsg, uint32_t &len);

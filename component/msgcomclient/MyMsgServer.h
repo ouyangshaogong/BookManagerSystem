@@ -5,7 +5,7 @@
 #include "MyProtoMsg.h"
 #include "MyMsgQueue.h"
 
-class MyMsgServer
+class MyMsgServer: public MyMsgQueue
 {
 private:
     MyMsgServer();
@@ -14,7 +14,9 @@ public:
     ~MyMsgServer();
     static MyMsgServer* Instance();
 
-    void StartMsgLoop();
+    virtual void DispatchMessage(MyProtoMsg* pMsg);
+    void SendCmdMsgToTask(MyProtoMsg* pMsg);
+    int SendCmdMsgToServer(MyProtoMsg* pMsg);
 
 private:
     static ACE_Thread_Mutex m_mutex;

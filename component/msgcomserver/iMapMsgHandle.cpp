@@ -63,13 +63,6 @@ int iMapMsgHandle::handle_input(ACE_HANDLE fd)
         return 0;
     }
 
-    MyProtoMsg* pMsg = NULL;
-    while (!m_pMsgQueue->empty())
-    {
-        pMsg = m_pMsgQueue->front();
-        SendCmdMsgToQueue(pMsg);
-        m_pMsgQueue->pop();
-    }
     return 0;
 }
 

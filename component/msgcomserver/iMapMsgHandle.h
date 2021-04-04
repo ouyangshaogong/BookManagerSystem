@@ -48,8 +48,9 @@ public:
 
 private:
     static ACE_Thread_Mutex m_mapMutex;
-    static map<int, ACE_SOCK_Stream> m_nProcMapSocket;
-    MyMsgQueue *m_pMsgQueue;
+    static map<int, ACE_SOCK_Stream> m_nSendProcMapSocket;
+    static map<int, ACE_SOCK_Stream> m_nRecvProcMapSocket;
+    static MyMsgQueue *m_pMsgQueue;
      
 };
 

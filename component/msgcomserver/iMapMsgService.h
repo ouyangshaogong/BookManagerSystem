@@ -3,6 +3,7 @@
 
 #include "commonace.h"
 #include "MyProtoMsg.h"
+#include "MyProtoMsg.h"
 #include "iMapMsgHandle.h"
 #include "ace/Thread.h"
 #include "ace/Thread_Manager.h"
@@ -23,7 +24,7 @@
 #include "ace/OS_NS_unistd.h"
 #include "ace/Thread_Manager.h"
 
-class iMapMsgService: public ACE_Task<ACE_MT_SYNCH>
+class iMapMsgService: public ACE_Task<ACE_MT_SYNCH>, public MyMsgQueue
 {
 public:
 
