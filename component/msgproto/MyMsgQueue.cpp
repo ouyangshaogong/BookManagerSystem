@@ -7,12 +7,6 @@
 ACE_Thread_Mutex MyMsgQueue::m_mutex;
 MyMsgQueue* MyMsgQueue::m_instance = NULL;
 
-MyMsgQueue::MyMsgQueue(TaskMgrApp *pTaskMgrApp)
-:m_mMsgMutex(), m_mMsgCond(m_mMsgMutex)
-{
-    m_pTaskMgrApp = pTaskMgrApp;
-}
-
 MyMsgQueue::MyMsgQueue()
 :m_mMsgMutex(), m_mMsgCond(m_mMsgMutex)
 {
@@ -21,29 +15,6 @@ MyMsgQueue::MyMsgQueue()
 
 MyMsgQueue::~MyMsgQueue()
 {
-    if (NULL != m_instance)
-    {
-        delete m_instance;
-    }
-}
-
-MyMsgQueue* MyMsgQueue::Instance(TaskMgrApp *pTaskMgrApp)
-{
-    if (NULL == m_instance)
-    {
-        ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
-        if (NULL == m_instance)
-        {
-            m_instance = new MyMsgQueue(pTaskMgrApp);
-        }
-    }
-
-    return m_instance;
-}
-
-MyMsgQueue* MyMsgQueue::Instance()
-{
-    return m_instance;
 }
 
 uint8_t* MyMsgQueue::encode(MyProtoMsg* pMsg, uint32_t& length)
@@ -140,21 +111,6 @@ void MyMsgQueue::push(MyProtoMsg *pMsg)
 MyProtoMsg* MyMsgQueue::front()
 {
     return m_mMsgQ.front();
-}
-
-void MyMsgQueue::GetSockPeer(string strIP, ACE_SOCK_Stream *pPeer)
-{
-    m_IPMapSockPeer.insert(map<string, ACE_SOCK_Stream*>::value_type(strIP, pPeer));
-}
-
-void MyMsgQueue::DeleteSockPeer(string strIP)
-{
-    map<string, ACE_SOCK_Stream*>::iterator iter = m_IPMapSockPeer.find(strIP);
-    if (iter != m_IPMapSockPeer.end())
-    {
-        m_IPMapSockPeer.erase(iter);
-    }
-
 }
 
 bool MyMsgQueue::GetMessage(MyProtoMsg* pMsg)

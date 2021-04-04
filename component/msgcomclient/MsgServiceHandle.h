@@ -1,7 +1,7 @@
 #ifndef __MSG_SERVICE_HANDLE__
 #define __MSG_SERVICE_HANDLE__
 
-#include "MyMsgQueue.h"
+#include "MyMsgServer.h"
 #include "commonace.h"
 #include "ace/Acceptor.h"
 #include "ace/SOCK_Acceptor.h"
@@ -21,7 +21,7 @@ public:
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask mask);
     
 private:
-    static MyMsgQueue *m_pMsgQueue;
+    static MyMsgServer *m_pMsgQueue;
     ACE_TCHAR m_peerName[512];
     ACE_INET_Addr m_peerAddr;
 };

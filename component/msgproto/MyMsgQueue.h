@@ -12,10 +12,9 @@
 class MyMsgQueue
 {
 public:
-    
+    MyMsgQueue();
     virtual ~MyMsgQueue();
-    static MyMsgQueue* Instance(TaskMgrApp *pTaskMgrApp);
-    static MyMsgQueue* Instance();
+    
     void init();  
     void clear(); 
     bool empty();
@@ -24,13 +23,8 @@ public:
     void push(MyProtoMsg *);
     MyProtoMsg *front(); 
 
-    void GetSockPeer(string strIP, ACE_SOCK_Stream *pPeer);
-    void DeleteSockPeer(string strIP);
-
     bool GetMessage(MyProtoMsg* pMsg);
     virtual void DispatchMessage(MyProtoMsg* pMsg);
-    
-    
 
     bool parser(void *data, size_t len); 
     uint8_t *encode(MyProtoMsg *pMsg, uint32_t &len);
@@ -41,9 +35,6 @@ public:
     bool parserBody(uint8_t **curData, uint32_t &curLen,
                     uint32_t &parserLen, bool &parserBreak);
     
-private:
-    MyMsgQueue(TaskMgrApp *pTaskMgrApp);
-    MyMsgQueue();
 
 private:
     
@@ -53,12 +44,6 @@ private:
     MyProtoParserStatus m_mCurParserStatus;
     ACE_Thread_Mutex m_mMsgMutex;
     ACE_Condition<ACE_Thread_Mutex> m_mMsgCond;
-
-    map<string, ACE_SOCK_Stream*> m_IPMapSockPeer;
-    TaskMgrApp *m_pTaskMgrApp;
-
-    static ACE_Thread_Mutex m_mutex;
-    static MyMsgQueue *m_instance;
     
 };
 

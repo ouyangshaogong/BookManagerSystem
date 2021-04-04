@@ -7,24 +7,29 @@
 ACE_Thread_Mutex MyMsgServer::m_mutex;
 MyMsgServer* MyMsgServer::m_instance = NULL;
 
-MyMsgServer::MyMsgServer()
+MyMsgServer::MyMsgServer(TaskMgrApp *pTaskMgrApp)
+:m_pTaskMgrApp(pTaskMgrApp)
 {
     
 }
 
 MyMsgServer::~MyMsgServer()
 {
-
+    if (NULL != m_instance)
+    {
+        delete m_instance;
+        m_instance = NULL;
+    }
 }
 
-MyMsgServer* MyMsgServer::Instance()
+MyMsgServer* MyMsgServer::Instance(TaskMgrApp *pTaskMgrApp)
 {
     if (NULL == m_instance)
     {
         ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
         if (NULL == m_instance)
         {
-            m_instance = new MyMsgServer;
+            m_instance = new MyMsgServer(pTaskMgrApp);
         }
     }
     
@@ -44,6 +49,20 @@ void MyMsgServer::DispatchMessage(MyProtoMsg* pMsg)
     }
 }
 
+void MyMsgServer::GetSockPeer(string strIP, ACE_SOCK_Stream *pPeer)
+{
+    m_IPMapSockPeer.insert(map<string, ACE_SOCK_Stream*>::value_type(strIP, pPeer));
+}
+
+void MyMsgServer::DeleteSockPeer(string strIP)
+{
+    map<string, ACE_SOCK_Stream*>::iterator iter = m_IPMapSockPeer.find(strIP);
+    if (iter != m_IPMapSockPeer.end())
+    {
+        m_IPMapSockPeer.erase(iter);
+    }
+
+}
 
 void MyMsgServer::SendCmdMsgToTask(MyProtoMsg* pMsg)
 {

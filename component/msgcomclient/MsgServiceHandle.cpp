@@ -5,15 +5,13 @@ MyMsgQueue *MsgServiceHandle::m_pMsgQueue = NULL;
 
 MsgServiceHandle::MsgServiceHandle()
 {
-    m_pMsgQueue = MyMsgQueue::Instance();
+    MyMsgServer = MyMsgServer::Instance();
 }
 
 MsgServiceHandle::~MsgServiceHandle()
 {
 
 }
-
-
 
 int MsgServiceHandle::open(void *p)
 {
@@ -28,6 +26,8 @@ int MsgServiceHandle::open(void *p)
         ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::open>>connection success.peer_name:%s\n", m_peerName));
     }
 
+    MyMsgServer->GetSockPeer(m_peerName, &peer());
+
     return 0;
 }
 
@@ -39,7 +39,7 @@ int MsgServiceHandle::handle_input(ACE_HANDLE fd)
     int recv_cnt = peer().recv(buf, BUFFER_MAX_LENGTH);
     if (recv_cnt > 0)
     {
-        if (!m_pMsgQueue->parser(buf, recv_cnt))
+        if (!MyMsgServer->parser(buf, recv_cnt))
         {
             cout << "parser msg failed!" << endl;
         }
@@ -82,7 +82,7 @@ int MsgServiceHandle::handle_close(ACE_HANDLE handle, ACE_Reactor_Mask mask)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::open>>connection success.peer_name:%s\n", m_peerName));
     }
-    m_pMsgQueue->DeleteSockPeer(m_peerName);
+    MyMsgServer->DeleteSockPeer(m_peerName);
 
     return ACE_Svc_Handler::handle_close(handle, mask);
 }
