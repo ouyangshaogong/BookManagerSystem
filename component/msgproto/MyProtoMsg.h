@@ -26,7 +26,7 @@ struct MyProtoHeader
     uint32_t nTaskMgrID;
     uint32_t nTaskID;
     uint32_t nMsgID;
-    string   strIP;
+    uint32_t nIP;
     uint32_t nPort;
     uint32_t nCmdMsg;
     uint32_t nMsgType;

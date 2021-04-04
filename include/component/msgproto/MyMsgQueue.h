@@ -33,7 +33,10 @@ public:
                     uint32_t &parserLen, bool &parserBreak);
     bool parserBody(uint8_t **curData, uint32_t &curLen,
                     uint32_t &parserLen, bool &parserBreak);
-    
+
+    int GetHeaderLength();
+    bool parserBody(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength);
+    bool parserHead(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength);
 
 private:
     

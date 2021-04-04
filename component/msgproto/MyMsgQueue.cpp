@@ -39,8 +39,7 @@ void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
 {
  
     *pData = MY_PROTO_MAGIC;
-    ++pData; 
-
+    ++pData;
 
     *pData = 1;
     ++pData; 
@@ -52,22 +51,28 @@ void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
     pData += 2;
     
     *(uint32_t*)pData = pMsg->Header.nTaskMgrID;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnCmdMsg
+    pData += 4; 
     
     *(uint32_t*)pData = pMsg->Header.nTaskID;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnCmdMsg
+    pData += 4; 
     
     *(uint32_t*)pData = pMsg->Header.nMsgID;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnCmdMsg
+    pData += 4;
+
+    *(uint32_t*)pData = pMsg->Header.nIP;
+    pData += 4;
+
+    *(uint32_t*)pData = pMsg->Header.nPort;
+    pData += 4;
 
     *(uint32_t*)pData = pMsg->Header.nCmdMsg;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnMsgType
+    pData += 4;
 
     *(uint32_t*)pData = pMsg->Header.nMsgType;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnMsgRet
+    pData += 4;
 
     *(uint32_t*)pData = pMsg->Header.nMsgRet;
-    pData += 4; //��ǰ�ƶ������ֽڣ���������ϢnMsgLength
+    pData += 4; 
 
     *(uint32_t*)pData = pMsg->Header.nMsgLength;
 }
@@ -100,8 +105,10 @@ void MyMsgQueue::pop()
 
 void MyMsgQueue::push(MyProtoMsg *pMsg)
 {
+    m_mMsgMutex.acquire();
     m_mMsgQ.push(pMsg);
     m_mMsgCond.signal();
+    m_mMsgMutex.release();
 }
 
 
@@ -211,6 +218,65 @@ bool MyMsgQueue::parser(void* data, size_t len)
     return true;
 }
 
+
+bool MyMsgQueue::parserHead(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength)
+{
+    if (nLength != MY_PROTO_HEAD_SIZE)
+    {
+        return false;
+    }
+
+    pMsg->Header.nMagic = *pData;
+    pData++;
+
+    if (MY_PROTO_MAGIC != m_mCurMsg.Header.nMagic)
+    {
+        return false;
+    }
+
+    pMsg->Header.nVersion = *pData;
+    pData++;
+
+    pMsg->Header.nSendProc = *(uint16_t*)pData;
+    pData += 2;
+
+    pMsg->Header.nRecvProc = *(uint16_t*)pData;
+    pData += 2;
+
+    pMsg->Header.nTaskMgrID = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nTaskID = *(uint32_t*)pData;
+    pData += 4;
+    
+    pMsg->Header.nMsgID = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nIP = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nPort = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nCmdMsg = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nMsgType = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nMsgRet = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nMsgLength = *(uint32_t*)pData;
+
+    if (pMsg->Header.nMsgLength > MY_PROTO_MAX_SIZE)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
 {
     if (curLen < MY_PROTO_HEAD_SIZE)
@@ -278,6 +344,17 @@ bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     return true;
 }
 
+bool MyMsgQueue::parserBody(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength)
+{
+    Json::Reader reader;
+    if (!reader.parse((char*)(*pData), pMsg->Body))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parserLen, bool& parserBreak)
 {
     uint32_t JsonSize = m_mCurMsg.Header.nMsgLength - MY_PROTO_HEAD_SIZE; //��Ϣ��Ĵ�С
@@ -299,4 +376,9 @@ bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     m_mCurParserStatus = ON_PARSER_BODY;
 
     return true;
+}
+
+int MyMsgQueue::GetHeaderLength()
+{
+    return MY_PROTO_HEAD_SIZE;
 }

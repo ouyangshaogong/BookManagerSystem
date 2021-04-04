@@ -36,7 +36,7 @@ private:
     int m_nSendProc;
     MyMsgServer *m_pMsgServer;
 
-    static MyMsgClient m_mrbMsgClient; 
+    //static MyMsgClient m_mrbMsgClient; 
 };
 
 #endif

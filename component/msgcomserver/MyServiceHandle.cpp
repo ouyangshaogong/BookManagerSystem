@@ -75,7 +75,7 @@ int MyServiceHandle::handle_close(ACE_HANDLE handle, ACE_Reactor_Mask mask)
     if (this->peer().get_remote_addr(m_peerAddr) == 0
         && m_peerAddr.addr_to_string(m_peerName, 512) == 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::open>>connection success.peer_name:%s\n", m_peerName));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)iMapMsgService::handle_close>>connection success.peer_name:%s\n", m_peerName));
     }
 
     m_pMsgServer->DeleteSockPeer(m_peerName);
