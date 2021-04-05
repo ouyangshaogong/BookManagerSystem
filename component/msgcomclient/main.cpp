@@ -25,6 +25,7 @@ int main()
     TaskMgrApp *pTaskMgrApp = TaskMgrApp::Instance();
     iMapMrbBus *pMrbBus = iMapMrbBus::Instance(pTaskMgrApp);
 
+    pMrbBus->open();
     pMrbBus->StartBus();
     pMrbBus->StartMsgLoop();
     pMrbBus->StopBus();

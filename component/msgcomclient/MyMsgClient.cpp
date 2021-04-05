@@ -35,6 +35,8 @@ int MyMsgClient::CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Val
     //ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
     ACE_OS::sleep(5);
     m_protoMsg.Header.nMsgID = m_nMsgID++;
+    m_protoMsg.Header.nIP = m_pMsgServer->StringIPToUint("127.0.0.1");
+    m_protoMsg.Header.nPort = 5001;
     m_protoMsg.Header.nCmdMsg = nCmdMsg;
     //¸ù¾ÝMrbCmdÅÐ¶Ï
     m_protoMsg.Header.nRecvProc = 0;

@@ -33,7 +33,7 @@ iMapMrbBus* iMapMrbBus::Instance(TaskMgrApp *pTaskMgrApp)
 
 int iMapMrbBus::open()
 {
-    m_nInetAddr.set(5000, "127.0.0.1");
+    m_nInetAddr.set(5001, "127.0.0.1");
 
     activate();
     return 0;

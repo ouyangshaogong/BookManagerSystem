@@ -404,8 +404,7 @@ string MyMsgQueue::UintToStringIP(uint32_t nIP)
 {
     char ipstr[16];
     struct in_addr s;
-    u_int32_t ip = 1246899950;
-    s.s_addr = htonl(ip);
+    s.s_addr = htonl(nIP);
     ACE_OS::inet_ntop(AF_INET, (void *)&s, ipstr, (socklen_t)sizeof(ipstr));
     return string(ipstr);
 
