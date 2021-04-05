@@ -56,10 +56,11 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
     uint32_t length = 0;
-    if (pMsg->Header.nCmdMsg == CMD_MSG_SERVICE_REGISTER)  //发送进程是服务器端，接收进程为服务器端
+    if (pMsg->Header.nCmdMsg == CMD_MSG_SERVICE_REGISTER)
     {
         string strIP = UintToStringIP(pMsg->Header.nIP);
         MyClientHandle *pClientSock = new MyClientHandle(pMsg->Header.nPort, strIP);
+        pMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
         if (!pClientSock->ConnectToServer())
         {
             pMsg->Header.nMsgRet = 0;
@@ -70,8 +71,9 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
             pMsg->Header.nMsgRet = -1;
         }
 
-        pData = encode(pMsg, length);
-        pClientSock->SendToServer(pData, length);
+        //pData = encode(pMsg, length);
+        //pClientSock->SendToServer(pData, length);
+        this->push(pMsg);
     }
     else 
     {
