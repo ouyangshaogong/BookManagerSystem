@@ -41,12 +41,13 @@ void MyMsgServer::DispatchMessage(MyProtoMsg* pMsg)
     //如果是消息请求，根据发送进程ID，找到socket，发生数据到相应service
     if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
     {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::DispatchMessage>>REQUEST_MSG_TYPE\n"));
         SendMsgToService(pMsg);
     }
     //如果是消息响应，根据接受进程ID，找到socket，发生数据到相应的客户端
     else if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::StartMsgLoop>>MsgType Is RESPONSE_MSG_TYPE!\n"));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::DispatchMessage>>MsgType Is RESPONSE_MSG_TYPE!\n"));
         SendMsgToClient(pMsg);
     }
 }
@@ -57,21 +58,22 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
     uint32_t length = 0;
     if (pMsg->Header.nCmdMsg == CMD_MSG_SERVICE_REGISTER)  //发送进程是服务器端，接收进程为服务器端
     {
-        MyClientHandle *pClientSock = new MyClientHandle(pMsg->Header.nPort, pMsg->Header.strIP);
+        string strIP = UintToStringIP(pMsg->Header.nIP);
+        MyClientHandle *pClientSock = new MyClientHandle(pMsg->Header.nPort, strIP);
         if (!pClientSock->ConnectToServer())
         {
-            pMsg->Header.nMsgRet = 0;//表示连接成功
+            pMsg->Header.nMsgRet = 0;
             m_nSendProcMapSocket.insert(map<int, MyClientHandle*>::value_type(pMsg->Header.nSendProc, pClientSock));
         }
         else
         {
-            pMsg->Header.nMsgRet = -1;//表示连接失败
+            pMsg->Header.nMsgRet = -1;
         }
 
         pData = encode(pMsg, length);
         pClientSock->SendToServer(pData, length);
     }
-    else //其他发送进程是客户请求端，接收进程为该服务器端
+    else 
     {
         const int BUFFER_MAX = 2048;
         char buf[BUFFER_MAX] = { 0 };
@@ -101,7 +103,8 @@ void MyMsgServer::SendMsgToClient(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
     uint32_t length = 0;
-    string strIPInfo = pMsg->Header.strIP + ":" + to_string(pMsg->Header.nPort);
+    string strIP = UintToStringIP(pMsg->Header.nIP);
+    string strIPInfo = strIP + ":" + to_string(pMsg->Header.nPort);
     map<string, ACE_SOCK_Stream*>::iterator iter = m_strIPMapSocket.find(strIPInfo);
     if (iter != m_strIPMapSocket.end())
     {

@@ -61,7 +61,7 @@ int iMapMsgService::svc()
 void iMapMsgService::StartMsgLoop()
 {
     MyProtoMsg *pMsg = NULL;
-    while (m_pMsgServer->GetMessage(pMsg))
+    while (m_pMsgServer->GetMessage(&pMsg))
     {
         m_pMsgServer->DispatchMessage(pMsg);
     }

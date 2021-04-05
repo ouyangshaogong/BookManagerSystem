@@ -105,10 +105,8 @@ void MyMsgQueue::pop()
 
 void MyMsgQueue::push(MyProtoMsg *pMsg)
 {
-    m_mMsgMutex.acquire();
     m_mMsgQ.push(pMsg);
     m_mMsgCond.signal();
-    m_mMsgMutex.release();
 }
 
 
@@ -117,15 +115,16 @@ MyProtoMsg* MyMsgQueue::front()
     return m_mMsgQ.front();
 }
 
-bool MyMsgQueue::GetMessage(MyProtoMsg* pMsg)
+bool MyMsgQueue::GetMessage(MyProtoMsg **pMsg)
 {
     while (true)
     {
         m_mMsgMutex.acquire();
         if(!empty())
         {
-            pMsg = front();
-            if(pMsg->Header.nMsgType == END_MSG_TYPE)
+            ACE_DEBUG((LM_DEBUG, "(%P|%t|)MyMsgQueue::GetMessage>>m_mMsgQ.size:%d\n", m_mMsgQ.size()));
+            *pMsg = front();
+            if((*pMsg)->Header.nMsgType == END_MSG_TYPE)
             {
                 pop();
                 m_mMsgMutex.release();
@@ -139,6 +138,8 @@ bool MyMsgQueue::GetMessage(MyProtoMsg* pMsg)
         else
         {
             m_mMsgCond.wait();
+            m_mMsgMutex.release();
+            ACE_DEBUG((LM_DEBUG, "(%P|%t|)MyMsgQueue::GetMessage>>m_mMsgCond.wait\n"));
         }
         
     }
@@ -201,10 +202,8 @@ bool MyMsgQueue::parser(void* data, size_t len)
             MyProtoMsg* pMsg = NULL;
             pMsg = new MyProtoMsg;
             *pMsg = m_mCurMsg;
-            m_mMsgMutex.acquire();
             m_mMsgQ.push(pMsg);
             m_mMsgCond.signal();
-            m_mMsgMutex.release();
             ACE_DEBUG((LM_DEBUG, "(%P|%t|)MyProtoDecode::parser>>m_mMsgQ.size:%d\n", m_mMsgQ.size()));
         }
 
@@ -316,6 +315,12 @@ bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     m_mCurMsg.Header.nMsgID = *(uint32_t*)pData;
     pData += 4;
 
+    m_mCurMsg.Header.nIP = *(uint32_t*)pData;
+    pData += 4;
+
+    m_mCurMsg.Header.nPort = *(uint32_t*)pData;
+    pData += 4;
+
     //��������������
     m_mCurMsg.Header.nCmdMsg = *(uint32_t*)pData;
     pData += 4;
@@ -369,7 +374,6 @@ bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parse
         (char*)((*curData) + JsonSize), m_mCurMsg.Body, false)) //false��ʾ����ע��
         return false; //�������ݵ�body��
 
-                      //����ָ����ǰ�ƶ�
     (*curData) += JsonSize;
     curLen -= JsonSize;
     parserLen += JsonSize;
@@ -381,4 +385,28 @@ bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parse
 int MyMsgQueue::GetHeaderLength()
 {
     return MY_PROTO_HEAD_SIZE;
+}
+
+uint32_t MyMsgQueue::StringIPToUint(string strIP)
+{
+    struct in_addr addrv4;
+    ACE_OS::memset((void *)&addrv4, 0, sizeof(addrv4));
+
+    ACE_UINT32 addr32;
+    ACE_OS::inet_pton (AF_INET, strIP.c_str(), &addrv4);
+    addr32 = addrv4.s_addr;
+    addr32 = ntohl(addr32);
+    
+    return addr32;
+}
+
+string MyMsgQueue::UintToStringIP(uint32_t nIP)
+{
+    char ipstr[16];
+    struct in_addr s;
+    u_int32_t ip = 1246899950;
+    s.s_addr = htonl(ip);
+    ACE_OS::inet_ntop(AF_INET, (void *)&s, ipstr, (socklen_t)sizeof(ipstr));
+    return string(ipstr);
+
 }

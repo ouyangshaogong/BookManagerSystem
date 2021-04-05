@@ -3,6 +3,7 @@
 
 #include "MyProtoMsg.h"
 #include "commonace.h"
+#include "ace/OS.h"
 #include "json/json.h"
 
 #define PORT_NO 5000
@@ -22,7 +23,7 @@ public:
     void push(MyProtoMsg *);
     MyProtoMsg *front(); 
 
-    bool GetMessage(MyProtoMsg* pMsg);
+    bool GetMessage(MyProtoMsg **pMsg);
     virtual void DispatchMessage(MyProtoMsg* pMsg);
 
     bool parser(void *data, size_t len); 
@@ -37,6 +38,9 @@ public:
     int GetHeaderLength();
     bool parserBody(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength);
     bool parserHead(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength);
+
+    uint32_t StringIPToUint(string strIP);
+    string UintToStringIP(uint32_t nIP);
 
 private:
     

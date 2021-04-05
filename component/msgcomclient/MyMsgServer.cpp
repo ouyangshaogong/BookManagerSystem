@@ -85,7 +85,9 @@ int MyMsgServer::SendCmdMsgToServer(MyProtoMsg* pMsg)
     uint32_t length = 0;
     pData = encode(pMsg, length);
     string strPort = to_string(pMsg->Header.nPort);
-    string strIPInfo = pMsg->Header.strIP + ":" + strPort;
+
+    string strIP = UintToStringIP(pMsg->Header.nIP);
+    string strIPInfo = strIP + ":" + strPort;
     map<string, ACE_SOCK_Stream*>::iterator iter = m_IPMapSockPeer.find(strIPInfo);
     if (iter != m_IPMapSockPeer.end())
     {
