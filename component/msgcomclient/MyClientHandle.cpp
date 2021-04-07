@@ -12,7 +12,7 @@ MyClientHandle::~MyClientHandle()
 }
 
 
-int MyClientHandle::ConnectToServer()
+int MyClientHandle::ConnectToServer(string &strIP, int &nPort)
 {
     ACE_DEBUG((LM_DEBUG, "(%P|%t) Starting connect to %s:%d\n", m_remoteAddr.get_host_name(), m_remoteAddr.get_port_number()));
     if (m_connector.connect(m_clientStream, m_remoteAddr) == -1)
@@ -23,6 +23,12 @@ int MyClientHandle::ConnectToServer()
     else
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t) connected to %s\n", m_remoteAddr.get_host_name()));
+        ACE_INET_Addr localAddr;
+        m_clientStream.get_local_addr(localAddr);
+        
+        strIP = localAddr.get_host_addr();
+        nPort = localAddr.get_port_number();
+        ACE_DEBUG((LM_DEBUG, "(%P|%t) ConnectToServer>>local strIP:%s, port:%d\n", strIP.c_str(), nPort));
     }
 
     return 0;
@@ -70,7 +76,7 @@ int MyClientHandle::RecvFromServer(uint8_t *buf, uint32_t max_length)
 
     if (recv_cnt > 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)RecvFromServer recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         return recv_cnt;
     }
 }

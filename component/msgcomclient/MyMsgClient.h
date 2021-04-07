@@ -14,14 +14,17 @@ public:
 
     void SetMsgValue(int nSendProc, int nTaskMgrID, int nTaskID);
 
-    int CallMethod(int nCmdMsg, const Json::Value &parameter, Json::Value& result);
-    Json::Value& CallMethod(int nCmdMsg, const Json::Value &parameter);
+    int CallMethod(int nCmdCode, const Json::Value &parameter, Json::Value& result);
+    Json::Value& CallMethod(int nCmdCode, const Json::Value &parameter);
 
 private:
     int m_nMsgID;
     MyProtoMsg m_protoMsg;
     MyClientHandle m_sockHandle;
     MyMsgServer *m_pMsgServer;
+
+    string m_strIP;
+    int m_nPort;
 };
 
 #endif

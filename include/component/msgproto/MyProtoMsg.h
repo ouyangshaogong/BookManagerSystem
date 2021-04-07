@@ -8,7 +8,7 @@ using namespace std;
 
 const uint8_t MY_PROTO_MAGIC = 2;                   
 const uint32_t MY_PROTO_MAX_SIZE = 5 * 1024 * 1024; 
-const uint32_t MY_PROTO_HEAD_SIZE = 42;             
+const uint32_t MY_PROTO_HEAD_SIZE = 50;             
 
 typedef enum MyProtoParserStatus 
 {
@@ -26,9 +26,11 @@ struct MyProtoHeader
     uint32_t nTaskMgrID;
     uint32_t nTaskID;
     uint32_t nMsgID;
-    uint32_t nIP;
-    uint32_t nPort;
-    uint32_t nCmdMsg;
+    uint32_t nClientIP;
+    uint32_t nClientPort;
+    uint32_t nServerIP;
+    uint32_t nServerPort;
+    uint32_t nCmdCode;
     uint32_t nMsgType;
 
     uint32_t nMsgRet;
@@ -43,7 +45,11 @@ struct MyProtoHeader
         nTaskMgrID = 0;
         nTaskID = 0;
         nMsgID = 0;
-        nCmdMsg = 0;
+        nClientIP = 0;
+        nClientPort = 0;
+        nServerIP = 0;
+        nServerPort = 0;
+        nCmdCode = 0;
         nMsgType = 0;
         nMsgRet = 0;
         nMsgLength = 0;
@@ -51,8 +57,8 @@ struct MyProtoHeader
 
     void display()
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyProtoMsg>>nMagic:%d, nVersion:%d, nSendProc:%d, nRecvProc:%d, nMsgID:%d, nCmdMsg:%d, nMsgType:%d, nMsgRet:%d, nMsgLength:%d\n",
-                   nMagic, nVersion, nSendProc, nRecvProc, nMsgID, nCmdMsg, nMsgType, nMsgRet, nMsgLength));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyProtoMsg>>nMagic:%d, nVersion:%d, nSendProc:%d, nRecvProc:%d, nMsgID:%d, nCmdCode:%d, nMsgType:%d, nMsgRet:%d, nMsgLength:%d\n",
+                   nMagic, nVersion, nSendProc, nRecvProc, nMsgID, nCmdCode, nMsgType, nMsgRet, nMsgLength));
     }
 };
 

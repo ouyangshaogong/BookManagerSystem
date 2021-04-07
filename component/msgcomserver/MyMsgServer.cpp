@@ -56,10 +56,10 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
     uint32_t length = 0;
-    if (pMsg->Header.nCmdMsg == CMD_MSG_SERVICE_REGISTER)
+    if (pMsg->Header.nCmdCode == CMD_MSG_SERVICE_REGISTER)
     {
-        string strIP = UintToStringIP(pMsg->Header.nIP);
-        MyClientHandle *pClientSock = new MyClientHandle(pMsg->Header.nPort, strIP);
+        string strIP = UintToStringIP(pMsg->Header.nServerIP);
+        MyClientHandle *pClientSock = new MyClientHandle(pMsg->Header.nServerPort, strIP);
         pMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
         if (!pClientSock->ConnectToServer())
         {
@@ -105,8 +105,8 @@ void MyMsgServer::SendMsgToClient(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
     uint32_t length = 0;
-    string strIP = UintToStringIP(pMsg->Header.nIP);
-    string strIPInfo = strIP + ":" + to_string(pMsg->Header.nPort);
+    string strIP = UintToStringIP(pMsg->Header.nClientIP);
+    string strIPInfo = strIP + ":" + to_string(pMsg->Header.nClientPort);
     map<string, ACE_SOCK_Stream*>::iterator iter = m_strIPMapSocket.find(strIPInfo);
     if (iter != m_strIPMapSocket.end())
     {

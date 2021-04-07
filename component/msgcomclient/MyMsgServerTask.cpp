@@ -51,7 +51,7 @@ int MyMsgServerTask::svc()
         int nLength = pMsgBlock->length();
         if (pMsg->Header.nSendProc == SEND_PROC_ID) //如果是我自己的进程
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
             if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE) //别人对我的响应
             {
                 pMsg->Header.display();
@@ -61,12 +61,12 @@ int MyMsgServerTask::svc()
         }
         else
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdMsg));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
             MyProtoMsg *pInMsg = pMsg;
             MyProtoMsg *pOutMsg = pMsg;
             if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE) //如果别人的请求
             {
-                process(pMsg->Header.nCmdMsg, pInMsg, pOutMsg);
+                process(pMsg->Header.nCmdCode, pInMsg, pOutMsg);
                 //处理完以后，会产生一个消息响应，发送到网络
                 m_pMsgServer->push(pOutMsg);
             }

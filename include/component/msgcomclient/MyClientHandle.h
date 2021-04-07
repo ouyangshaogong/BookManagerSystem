@@ -23,7 +23,7 @@ public:
     
     ~MyClientHandle();
 
-    int ConnectToServer();
+    int ConnectToServer(string &strIP, int &nPort);
 
     int RecvFromServer(uint8_t *buf, uint32_t max_length);
 

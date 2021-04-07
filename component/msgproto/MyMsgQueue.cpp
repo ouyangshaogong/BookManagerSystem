@@ -59,13 +59,19 @@ void MyMsgQueue::headEncode(uint8_t* pData, MyProtoMsg* pMsg)
     *(uint32_t*)pData = pMsg->Header.nMsgID;
     pData += 4;
 
-    *(uint32_t*)pData = pMsg->Header.nIP;
+    *(uint32_t*)pData = pMsg->Header.nClientIP;
     pData += 4;
 
-    *(uint32_t*)pData = pMsg->Header.nPort;
+    *(uint32_t*)pData = pMsg->Header.nClientPort;
     pData += 4;
 
-    *(uint32_t*)pData = pMsg->Header.nCmdMsg;
+    *(uint32_t*)pData = pMsg->Header.nServerIP;
+    pData += 4;
+
+    *(uint32_t*)pData = pMsg->Header.nServerPort;
+    pData += 4;
+
+    *(uint32_t*)pData = pMsg->Header.nCmdCode;
     pData += 4;
 
     *(uint32_t*)pData = pMsg->Header.nMsgType;
@@ -228,8 +234,9 @@ bool MyMsgQueue::parserHead(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength)
     pMsg->Header.nMagic = *pData;
     pData++;
 
-    if (MY_PROTO_MAGIC != m_mCurMsg.Header.nMagic)
+    if (MY_PROTO_MAGIC != pMsg->Header.nMagic)
     {
+        ACE_DEBUG((LM_DEBUG, "(%P|%t|)MyProtoDecode::parser>>MY_PROTO_MAGIC:%d, pMsg->Header.nMagic:%d\n", MY_PROTO_MAGIC, pMsg->Header.nMagic));
         return false;
     }
 
@@ -251,13 +258,19 @@ bool MyMsgQueue::parserHead(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength)
     pMsg->Header.nMsgID = *(uint32_t*)pData;
     pData += 4;
 
-    pMsg->Header.nIP = *(uint32_t*)pData;
+    pMsg->Header.nClientIP = *(uint32_t*)pData;
     pData += 4;
 
-    pMsg->Header.nPort = *(uint32_t*)pData;
+    pMsg->Header.nClientPort = *(uint32_t*)pData;
     pData += 4;
 
-    pMsg->Header.nCmdMsg = *(uint32_t*)pData;
+    pMsg->Header.nServerIP = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nServerPort = *(uint32_t*)pData;
+    pData += 4;
+
+    pMsg->Header.nCmdCode = *(uint32_t*)pData;
     pData += 4;
 
     pMsg->Header.nMsgType = *(uint32_t*)pData;
@@ -315,32 +328,32 @@ bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     m_mCurMsg.Header.nMsgID = *(uint32_t*)pData;
     pData += 4;
 
-    m_mCurMsg.Header.nIP = *(uint32_t*)pData;
+    m_mCurMsg.Header.nClientIP = *(uint32_t*)pData;
     pData += 4;
 
-    m_mCurMsg.Header.nPort = *(uint32_t*)pData;
+    m_mCurMsg.Header.nClientPort = *(uint32_t*)pData;
     pData += 4;
 
-    //��������������
-    m_mCurMsg.Header.nCmdMsg = *(uint32_t*)pData;
+    m_mCurMsg.Header.nServerIP = *(uint32_t*)pData;
     pData += 4;
 
-    //����������Ϣ����
+    m_mCurMsg.Header.nServerPort = *(uint32_t*)pData;
+    pData += 4;
+
+    m_mCurMsg.Header.nCmdCode = *(uint32_t*)pData;
+    pData += 4;
+
     m_mCurMsg.Header.nMsgType = *(uint32_t*)pData;
     pData += 4;
 
-    //����������Ϣ����ֵ
     m_mCurMsg.Header.nMsgRet = *(uint32_t*)pData;
     pData += 4;
 
-    //����������Ϣ�峤��
     m_mCurMsg.Header.nMsgLength = *(uint32_t*)pData;
 
-    //�ж����ݳ����Ƿ񳬹�ָ���Ĵ�С
     if (m_mCurMsg.Header.nMsgLength > MY_PROTO_MAX_SIZE)
         return false;
 
-    //������ָ����ǰ�ƶ�����Ϣ��λ��,������Ϣͷ��С
     (*curData) += MY_PROTO_HEAD_SIZE;
     curLen -= MY_PROTO_HEAD_SIZE;
     parserLen += MY_PROTO_HEAD_SIZE;
@@ -352,7 +365,8 @@ bool MyMsgQueue::parserHead(uint8_t** curData, uint32_t& curLen, uint32_t& parse
 bool MyMsgQueue::parserBody(MyProtoMsg *pMsg, uint8_t* pData, uint32_t nLength)
 {
     Json::Reader reader;
-    if (!reader.parse((char*)(*pData), pMsg->Body))
+    ACE_DEBUG((LM_DEBUG, "(%P|%t|)MyMsgQueue::parserBody>>pData:%s\n", pData));
+    if (!reader.parse((char*)pData, pMsg->Body))
     {
         return false;
     }
@@ -365,14 +379,14 @@ bool MyMsgQueue::parserBody(uint8_t** curData, uint32_t& curLen, uint32_t& parse
     uint32_t JsonSize = m_mCurMsg.Header.nMsgLength - MY_PROTO_HEAD_SIZE; //��Ϣ��Ĵ�С
     if (curLen < JsonSize)
     {
-        parserBreak = true; //���ݻ�û����ȫ������ǻ�Ҫ�ȴ�һ�����ݵ��ˣ��ٽ�����Ϣ�塣���ڱ�־û�䣬һ�ỹ�ǽ�����Ϣ��
+        parserBreak = true;
         return true;
     }
 
-    Json::Reader reader; //Json������
+    Json::Reader reader;
     if (!reader.parse((char*)(*curData),
-        (char*)((*curData) + JsonSize), m_mCurMsg.Body, false)) //false��ʾ����ע��
-        return false; //�������ݵ�body��
+        (char*)((*curData) + JsonSize), m_mCurMsg.Body, false))
+        return false;
 
     (*curData) += JsonSize;
     curLen -= JsonSize;
