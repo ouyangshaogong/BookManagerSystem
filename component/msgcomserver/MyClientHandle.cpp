@@ -17,12 +17,12 @@ int MyClientHandle::ConnectToServer()
     ACE_DEBUG((LM_DEBUG, "(%P|%t) Starting connect to %s:%d\n", m_remoteAddr.get_host_name(), m_remoteAddr.get_port_number()));
     if (m_connector.connect(m_clientStream, m_remoteAddr) == -1)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) connection failed\n"));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>connection failed\n"));
         return -1;
     }
     else
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) connected to %s\n", m_remoteAddr.get_host_name()));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>connected to %s\n", m_remoteAddr.get_host_name()));
     }
 
     return 0;
@@ -33,13 +33,13 @@ int MyClientHandle::SendToServer(uint8_t *pData, uint32_t nLength)
     int send_cnt = m_clientStream.send_n(pData, nLength);
     if (send_cnt < 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) send_cnt:%d, errno:%d\n", send_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>send_cnt:%d, errno:%d\n", send_cnt, errno));
         return -1;
     }
 
     if (send_cnt == 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) send_cnt:%d, errno:%d\n", send_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>send_cnt:%d, errno:%d\n", send_cnt, errno));
         m_clientStream.close();
         return 0;
     }
@@ -57,20 +57,20 @@ int MyClientHandle::RecvFromServer(char *buf, int max_length)
     int recv_cnt = m_clientStream.recv_n(buf, max_length);
     if (recv_cnt < 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         return -1;
     }
 
     if (recv_cnt == 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         m_clientStream.close();
         return 0;
     }
 
     if (recv_cnt > 0)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t) recv_cnt:%d, errno:%d\n", recv_cnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyClientHandle::SendToServer>>recv_cnt:%d, errno:%d\n", recv_cnt, errno));
         return recv_cnt;
     }
 }
@@ -80,7 +80,7 @@ int MyClientHandle::Close()
 {
     if (m_clientStream.close() == -1)
     {
-        ACE_DEBUG((LM_ERROR, "(%P|%t) close\n"));
+        ACE_DEBUG((LM_ERROR, "(%P|%t)MyClientHandle::SendToServer>>close\n"));
     }
     else
     {

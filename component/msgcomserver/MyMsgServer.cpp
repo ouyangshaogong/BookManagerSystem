@@ -38,13 +38,11 @@ MyMsgServer* MyMsgServer::Instance()
 
 void MyMsgServer::DispatchMessage(MyProtoMsg* pMsg)
 {
-    //如果是消息请求，根据发送进程ID，找到socket，发生数据到相应service
     if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
     {
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::DispatchMessage>>REQUEST_MSG_TYPE\n"));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::DispatchMessage>>MsgType Is REQUEST_MSG_TYPE!\n"));
         SendMsgToService(pMsg);
     }
-    //如果是消息响应，根据接受进程ID，找到socket，发生数据到相应的客户端
     else if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE)
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::DispatchMessage>>MsgType Is RESPONSE_MSG_TYPE!\n"));
@@ -56,6 +54,7 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
     uint32_t length = 0;
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToService>>nCmdCode:%d\n", pMsg->Header.nCmdCode));
     if (pMsg->Header.nCmdCode == CMD_MSG_SERVICE_REGISTER)
     {
         string strIP = UintToStringIP(pMsg->Header.nServerIP);
@@ -64,43 +63,45 @@ void MyMsgServer::SendMsgToService(MyProtoMsg* pMsg)
         if (!pClientSock->ConnectToServer())
         {
             pMsg->Header.nMsgRet = 0;
-            m_nSendProcMapSocket.insert(map<int, MyClientHandle*>::value_type(pMsg->Header.nSendProc, pClientSock));
+            m_nSendProcMapSocket.insert(map<int, MyClientHandle*>::value_type(pMsg->Header.nRecvProc, pClientSock));
         }
         else
         {
             pMsg->Header.nMsgRet = -1;
         }
 
-        //pData = encode(pMsg, length);
-        //pClientSock->SendToServer(pData, length);
         this->push(pMsg);
     }
     else 
     {
         const int BUFFER_MAX = 2048;
         char buf[BUFFER_MAX] = { 0 };
-        map<int, MyClientHandle*>::iterator iter = m_nSendProcMapSocket.find(pMsg->Header.nSendProc);
+        map<int, MyClientHandle*>::iterator iter = m_nSendProcMapSocket.find(pMsg->Header.nRecvProc);
         if (iter != m_nSendProcMapSocket.end())
         {
+            pData = encode(pMsg, length);
             int sendCnt = iter->second->SendToServer(pData, length);
             ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToService>>sendCnt:%d, errno:%d\n", sendCnt, errno));
 
             int recvCnt = iter->second->RecvFromServer(buf, BUFFER_MAX);
             ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToService>>recvCnt:%d, errno:%d\n", recvCnt, errno));
-
-            if (!this->parser(buf, recvCnt))
+            if (recvCnt > 0)
             {
-                cout << "parser msg failed!" << endl;
+                if (!this->parser(buf, recvCnt))
+                {
+                    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToService>>parser msg failed!\n"));
+                }
+                else
+                {
+                    cout << "!" << endl;
+                    ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToService>>parser msg successful!\n"));
+                }
             }
-            else
-            {
-                cout << "parser msg successful!" << endl;
-            }
+            
         }
     }
 }
 
-//发响应回客户端
 void MyMsgServer::SendMsgToClient(MyProtoMsg* pMsg)
 {
     uint8_t *pData = NULL;
@@ -112,7 +113,7 @@ void MyMsgServer::SendMsgToClient(MyProtoMsg* pMsg)
     {
         pData = encode(pMsg, length);
         int sendCnt = iter->second->send_n(pData, length);
-        ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgrApp::StartMsgLoop>>sendCnt:%d, errno:%d\n", sendCnt, errno));
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)MyMsgServer::SendMsgToClient>>sendCnt:%d, errno:%d\n", sendCnt, errno));
     }
 }
 

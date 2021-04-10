@@ -25,6 +25,7 @@ void MyMsgClient::SetMsgValue(int nSendProc, int nTaskMgrID, int nTaskID)
     m_protoMsg.Header.nMsgID = m_nMsgID++;
     m_protoMsg.Header.nMsgType = REQUEST_MSG_TYPE;
     m_protoMsg.Header.nSendProc = nSendProc;
+    m_protoMsg.Header.nRecvProc = RECV_PROC_ID;
     m_protoMsg.Header.nTaskMgrID = nTaskMgrID;
     m_protoMsg.Header.nTaskID = nTaskID;
     m_protoMsg.Header.nClientIP = m_pMsgServer->StringIPToUint(m_strIP);
@@ -33,21 +34,22 @@ void MyMsgClient::SetMsgValue(int nSendProc, int nTaskMgrID, int nTaskID)
 }
 
 
-int MyMsgClient::CallMethod(int nCmdCode, const Json::Value &parameter, Json::Value& result)
+int MyMsgClient::CallMethod(int nCmdCode, const Json::Value &InParam, Json::Value& OutParam)
 {
     //ACE_Guard<ACE_Thread_Mutex> guard(m_mutex);
     ACE_OS::sleep(5);
     m_protoMsg.Header.nMsgID = m_nMsgID++;
     m_protoMsg.Header.nServerIP = m_pMsgServer->StringIPToUint("127.0.0.1");
-    m_protoMsg.Header.nServerPort = 5001;
+    m_protoMsg.Header.nServerPort = SERVER;
     m_protoMsg.Header.nCmdCode = nCmdCode;
     //¸ù¾ÝMrbCmdÅÐ¶Ï
     m_protoMsg.Header.nRecvProc = 0;
-    m_protoMsg.Body["test"] = "test";
+    m_protoMsg.Body = InParam; 
 
     MyProtoMsg *pInMsg = new MyProtoMsg;
     *pInMsg = m_protoMsg;
-
+    pInMsg->Header.display();
+    
     uint8_t *pData = NULL;
     uint32_t length = 0;
     pData = m_pMsgServer->encode(pInMsg, length);
@@ -58,17 +60,15 @@ int MyMsgClient::CallMethod(int nCmdCode, const Json::Value &parameter, Json::Va
     uint8_t buf[BUFFER_MAX] = {0};
     //è¯»å–Header
     int recvCnt = m_sockHandle.RecvFromServer(buf, m_pMsgServer->GetHeaderLength());
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MrbMsgClient::CallMethod>>recvCnt:%d\n", recvCnt));
     m_pMsgServer->parserHead(pOutMsg, buf, recvCnt);
     
     //è¯»å–body
     memset(buf, 0, BUFFER_MAX);
     length = pOutMsg->Header.nMsgLength - m_pMsgServer->GetHeaderLength();
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MrbMsgClient::CallMethod>>length:%d, nMsgLength:%d\n", length, pOutMsg->Header.nMsgLength));
     recvCnt = m_sockHandle.RecvFromServer(buf, length);
     m_pMsgServer->parserBody(pOutMsg, buf, recvCnt);
 
-    pOutMsg->Header.display();
+    OutParam = (*pOutMsg).Body;
     
     ACE_DEBUG((LM_DEBUG, "(%P|%t)MrbMsgClient::CallMethod>>nTaskMgrID:%d, nTaskID:%d\n", m_protoMsg.Header.nTaskMgrID, m_protoMsg.Header.nTaskID));
     return 0;

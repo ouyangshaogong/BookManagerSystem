@@ -57,7 +57,7 @@ TaskMgr* TaskMgrApp::GetTaskMgr(int nTaskMgrID)
     if (iter != m_nIdMapTaskMgr.end())
     {
         ACE_DEBUG((LM_DEBUG, "(%P|%t)::TaskMgrApp::putq succeed!\n"));
-        return iter->second;
+        return (TaskMgr*)iter->second;
     }
 
     return NULL;

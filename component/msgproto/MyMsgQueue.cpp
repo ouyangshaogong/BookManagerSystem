@@ -189,6 +189,7 @@ bool MyMsgQueue::parser(void* data, size_t len)
             {
                 return false;
             }
+            
             if (parserBreak)
                 break; 
         }

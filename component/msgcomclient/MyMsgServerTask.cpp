@@ -1,9 +1,6 @@
 #include "MyMsgServerTask.h"
 
-const int CMD_MSG_SERVICE_REGISTER = 1;
 
-const int SEND_PROC_ID = 51;
-const int RECV_PROC_ID = 50;
 
 MyMsgServerTask::MyMsgServerTask(MyMsgServer *pMsgServer)
     :m_nMsgID(1), m_pMsgServer(pMsgServer)
@@ -49,27 +46,16 @@ int MyMsgServerTask::svc()
         ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>msg_type\n"));
         MyProtoMsg *pMsg = (MyProtoMsg*)pMsgBlock->base();
         int nLength = pMsgBlock->length();
-        if (pMsg->Header.nSendProc == SEND_PROC_ID) //如果是我自己的进程
+        
+        if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE)
         {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgClientTask::svc>>(MY)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
-            if (pMsg->Header.nMsgType == RESPONSE_MSG_TYPE) //别人对我的响应
-            {
-                pMsg->Header.display();
-                static int i = 1;
-                ACE_DEBUG((LM_DEBUG, "(%P|%t)receive response success.%d\n", i++));
-            }
-        }
-        else
-        {
-            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(OTHER)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(REQUEST_MSG_TYPE)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
             MyProtoMsg *pInMsg = pMsg;
             MyProtoMsg *pOutMsg = pMsg;
-            if (pMsg->Header.nMsgType == REQUEST_MSG_TYPE) //如果别人的请求
-            {
-                process(pMsg->Header.nCmdCode, pInMsg, pOutMsg);
-                //处理完以后，会产生一个消息响应，发送到网络
-                m_pMsgServer->push(pOutMsg);
-            }
+            process(pMsg->Header.nCmdCode, pInMsg->Body, pOutMsg->Body);
+            pOutMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
+            //处理完以后，会产生一个消息响应，发送到网络
+            m_pMsgServer->push(pOutMsg);
         }
 
         //ÊÍ·Åblock

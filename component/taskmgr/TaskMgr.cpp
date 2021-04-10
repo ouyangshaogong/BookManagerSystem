@@ -4,6 +4,7 @@
 
 TaskMgr::TaskMgr()
 {
+    m_nGlobalTaskID = 1;
 }
 
 
@@ -68,10 +69,13 @@ int TaskMgr::svc()
 Task* TaskMgr::GetTask(TaskID nTaskID)
 {
     map<TaskID, Task*>::iterator iter = m_nIDMapTask.find(nTaskID);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgr::GetTask>>m_nIDMapTask.size:%d\n", m_nIDMapTask.size()));
     if (iter != m_nIDMapTask.end())
     {
-        return iter->second;
+        ACE_DEBUG((LM_DEBUG, "(%P|%t)TaskMgr::GetTask>>Task*:%d\n", iter->second));
+        return (Task*)iter->second;
     }
+    
     return NULL;
 }
 

@@ -72,9 +72,12 @@ void MyMsgServer::DeleteSockPeer(string strIP)
 
 void MyMsgServer::SendCmdMsgToTask(MyProtoMsg* pMsg)
 {
-    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgServiceHandle::HandleRequestMessage>>\n"));
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgServiceHandle::SendCmdMsgToTask>>\n"));
+    pMsg->Header.display();
     TaskMgr *pTaskMgr = m_pTaskMgrApp->GetTaskMgr(pMsg->Header.nTaskMgrID);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgServiceHandle::SendCmdMsgToTask>>pTaskMgr:%d\n", pTaskMgr));
     Task *pTask = pTaskMgr->GetTask(pMsg->Header.nTaskID);
+    ACE_DEBUG((LM_DEBUG, "(%P|%t)MsgServiceHandle::SendCmdMsgToTask>>pTask:%d\n", pTask));
     pTask->SendMsgToTask(pMsg);
 }
 

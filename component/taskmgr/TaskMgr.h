@@ -35,7 +35,6 @@ private:
     map<TaskID, Task*> m_nIDMapTask;
     TaskID m_nGlobalTaskID;
 
-    list<Task*> m_taskList;
     TaskMgrID m_nTaskMgrID;
     int m_nThreadNum;
     bool m_nThreadState;

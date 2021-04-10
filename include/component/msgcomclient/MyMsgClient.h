@@ -6,6 +6,14 @@
 #include "MyMsgServer.h"
 #include "MyClientHandle.h"
 
+#define SERVER 5002
+
+const int CMD_MSG_SERVICE_REGISTER = 1;
+
+const int SEND_PROC_ID = 50;
+const int RECV_PROC_ID = 51;
+
+
 class MyMsgClient
 {
 public:
@@ -14,7 +22,7 @@ public:
 
     void SetMsgValue(int nSendProc, int nTaskMgrID, int nTaskID);
 
-    int CallMethod(int nCmdCode, const Json::Value &parameter, Json::Value& result);
+    int CallMethod(int nCmdCode, const Json::Value &InParam, Json::Value& OutParam);
     Json::Value& CallMethod(int nCmdCode, const Json::Value &parameter);
 
 private:
