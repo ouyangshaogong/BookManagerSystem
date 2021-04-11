@@ -52,6 +52,7 @@ int MyMsgServerTask::svc()
             ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>(REQUEST_MSG_TYPE)nSendProcID:%d, nRecvProcID:%d, nMrbMsg:%d\n", pMsg->Header.nSendProc, pMsg->Header.nRecvProc, pMsg->Header.nCmdCode));
             MyProtoMsg *pInMsg = pMsg;
             MyProtoMsg *pOutMsg = pMsg;
+            ACE_DEBUG((LM_DEBUG, "(%P|%t)iMapMsgHandle::svc>>pInMsg:%d, pOutMsg:%d, pMsg:%d\n", pInMsg, pOutMsg, pMsg));
             process(pMsg->Header.nCmdCode, pInMsg->Body, pOutMsg->Body);
             pOutMsg->Header.nMsgType = RESPONSE_MSG_TYPE;
             //处理完以后，会产生一个消息响应，发送到网络
@@ -93,7 +94,7 @@ ACE_THR_FUNC MyMsgServerTask::DynamicTask(void* arg)
 }
 
 
-void MyMsgServerTask::process(int nCmdMsg, Json::Value InBody, Json::Value OutBody)
+void MyMsgServerTask::process(int nCmdMsg, Json::Value &InBody, Json::Value &OutBody)
 {
 
 }

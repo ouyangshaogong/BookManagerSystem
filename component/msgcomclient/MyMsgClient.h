@@ -6,12 +6,12 @@
 #include "MyMsgServer.h"
 #include "MyClientHandle.h"
 
-#define SERVER 5002
+#define SERVER 5001
 
 const int CMD_MSG_SERVICE_REGISTER = 1;
 
-const int SEND_PROC_ID = 50;
-const int RECV_PROC_ID = 51;
+const int SEND_PROC_ID = 51;
+const int RECV_PROC_ID = 50;
 
 
 class MyMsgClient

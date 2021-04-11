@@ -22,7 +22,7 @@ public:
     virtual int open();
     virtual int svc();
     
-    virtual void process(int nCmdMsg, Json::Value InBody, Json::Value OutBody);
+    virtual void process(int nCmdMsg, Json::Value &InBody, Json::Value &OutBody);
 
     static ACE_THR_FUNC DynamicTask(void* arg);
 
